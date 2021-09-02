@@ -1,0 +1,598 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>企业级容器技术docker（六）docker单机编排 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="企业级容器技术docker（六）docker单机编排">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-09-02 14:29" pubdate>
+        2021年9月2日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.4k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      111
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">企业级容器技术docker（六）docker单机编排</h1>
+            
+            <div class="markdown-body">
+              <h1 id="企业级容器技术docker"><a href="#企业级容器技术docker" class="headerlink" title="企业级容器技术docker"></a>企业级容器技术docker</h1><h1 id="六、-单机编排之Docker-Compose"><a href="#六、-单机编排之Docker-Compose" class="headerlink" title="六、 单机编排之Docker Compose"></a>六、 单机编排之Docker Compose</h1><h2 id="6-1-Docker-Compse介绍"><a href="#6-1-Docker-Compse介绍" class="headerlink" title="6.1 Docker Compse介绍"></a>6.1 Docker Compse介绍</h2><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker152.png" srcset="/blog/img/loading.gif"></p>
+<p>当在宿主机启动较多的容器时候，如果都是手动操作会觉得比较麻烦而且容易出错，此时推荐使用docker 单机编排工具 docker-compose</p>
+<p>docker-compose 是 docker 容器的一种单机编排服务，docker-compose 是一个管理多个容器的工具，比如: 可以解决容器之间的依赖关系，就像启动一个nginx 前端服务的时候会调用后端的tomcat，那就得先启动tomcat，但是启动tomcat 容器还需要依赖数据库，那就还得先启动数据库，docker-compose 可以用来解决这样的嵌套依赖关系，并且可以替代docker命令对容器进行创建、启动和停止等手工的操作</p>
+<p>因此，如果说docker命令就像linux的命令，docker compse就像shell脚本，可以自动的执行容器批量操作，从而实现自动化的容器管理，或者说docker命令相当于ansible命令，那么docker compose文件，就相当于ansible-playbook的yaml文件</p>
+<p>docker-compose 项目是Docker 官方的开源项目，负责实现对Docker 容器集群的快速编排，docker-compose 将所管理的容器分为三层，分别是工程（project），服务（service）以及容器（container）</p>
+<p>github地址: <a target="_blank" rel="noopener" href="https://github.com/docker/compose">https://github.com/docker/compose</a></p>
+<p>官方地址: <a target="_blank" rel="noopener" href="https://docs.docker.com/compose/">https://docs.docker.com/compose/</a></p>
+<h2 id="6-2-安装和准备"><a href="#6-2-安装和准备" class="headerlink" title="6.2 安装和准备"></a>6.2 安装和准备</h2><h3 id="6-2-1-安装Docker-Compose"><a href="#6-2-1-安装Docker-Compose" class="headerlink" title="6.2.1 安装Docker Compose"></a>6.2.1 安装Docker Compose</h3><h4 id="6-2-1-1-方法1-通过pip安装"><a href="#6-2-1-1-方法1-通过pip安装" class="headerlink" title="6.2.1.1 方法1: 通过pip安装"></a>6.2.1.1 方法1: 通过pip安装</h4><p>python-pip 包将安装一个 pip 的命令，pip 命令是一个pyhton 安装包的安装工具，其类似于ubuntu的apt 或者 redhat 的yum，但是pip 只安装 python 相关的安装包，可以在多种操作系统安装和使用pip</p>
+<p>此方式当前安装的版本较新，为docker_compose-1.25.3，推荐使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">Ubuntu: <br><span class="hljs-comment"># apt update</span><br><span class="hljs-comment"># apt install -y python-pip</span><br><br>Centos: <br><span class="hljs-comment"># yum install epel-release</span><br><span class="hljs-comment"># yum install -y python-pip</span><br><span class="hljs-comment"># pip install --upgrade pip</span><br></code></pre></td></tr></table></figure>
+
+<p>范例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#apt -y install python-pip</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#pip install docker-compose</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker-compose --version</span><br>docker-compose version 1.25.3, build unknown<br><br><span class="hljs-comment">#基于python3安装</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#apt -y install python3-pip</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#pip3 install docker-compose</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker-compose --version</span><br>docker-compose version 1.27.4, build unknown<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-2-1-2-方法2-直接从github下载安装对应版本（个人更推荐从github下载）"><a href="#6-2-1-2-方法2-直接从github下载安装对应版本（个人更推荐从github下载）" class="headerlink" title="6.2.1.2 方法2: 直接从github下载安装对应版本（个人更推荐从github下载）"></a>6.2.1.2 方法2: 直接从github下载安装对应版本（个人更推荐从github下载）</h4><p>参看说明: <a target="_blank" rel="noopener" href="https://github.com/docker/compose/releases">https://github.com/docker/compose/releases</a></p>
+<p>此方法安装版本可方便指定，推荐方法，但网络下载较慢</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#curl -L https://github.com/docker/compose/releases/download/1.25.3/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#chmod +x /usr/local/bin/docker-compose</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="6-2-1-3-方法3-直接从包仓库安装"><a href="#6-2-1-3-方法3-直接从包仓库安装" class="headerlink" title="6.2.1.3 方法3: 直接从包仓库安装"></a>6.2.1.3 方法3: 直接从包仓库安装</h4><p>此方法安装的版本较旧，不推荐使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#ubuntu安装</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#apt -y install docker-compose</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker-compose --version</span><br>docker-compose version 1.17.1, build unknown<br><br><span class="hljs-comment">#CentOS7安装，依赖EPEL源</span><br>[root@centos7 ~]<span class="hljs-comment">#yum -y install docker-compose</span><br>[root@centos7 ~]<span class="hljs-comment">#docker-compose --version</span><br>docker-compose version 1.18.0, buil 8dd22a9<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-2-查看命令格式"><a href="#6-2-2-查看命令格式" class="headerlink" title="6.2.2 查看命令格式"></a>6.2.2 查看命令格式</h3><p>官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/compose/reference/">https://docs.docker.com/compose/reference/</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker-compose --<span class="hljs-built_in">help</span><br>Define and run multi-container applications with Docker.<br><br>Usage:<br>  docker-compose [-f &lt;arg&gt;...] [--profile &lt;name&gt;...] [options] [--] [COMMAND] [ARGS...]<br>  docker-compose -h|--<span class="hljs-built_in">help</span><br><br><span class="hljs-comment">#选项说明: </span><br>-f，–file FILE <span class="hljs-comment">#指定Compose 模板文件，默认为docker-compose.yml</span><br>-p，–project-name NAME <span class="hljs-comment">#指定项目名称，默认将使用当前所在目录名称作为项目名。</span><br>--verbose  <span class="hljs-comment">#显示更多输出信息</span><br>--log-level LEVEL   <span class="hljs-comment">#定义日志级别 (DEBUG, INFO, WARNING, ERROR, CRITICAL)</span><br>--no-ansi <span class="hljs-comment">#不显示ANSI 控制字符</span><br>-v, --version <span class="hljs-comment">#显示版本</span><br><br><span class="hljs-comment">#以下为命令选项，需要在docker-compose.yml|yaml 文件所在在目录里执行</span><br>build  <span class="hljs-comment">#构建镜像</span><br>bundle <span class="hljs-comment">#从当前docker compose 文件生成一个以&lt;当前目录&gt;为名称的json格式的Docker Bundle 备份文件</span><br>config  -q <span class="hljs-comment">#查看当前配置，没有错误不输出任何信息</span><br>create <span class="hljs-comment">#创建服务，较少使用</span><br>down <span class="hljs-comment">#停止和删除所有容器、网络、镜像和卷</span><br>events <span class="hljs-comment">#从容器接收实时事件，可以指定json 日志格式，较少使用</span><br><span class="hljs-built_in">exec</span> <span class="hljs-comment">#进入指定容器进行操作</span><br><span class="hljs-built_in">help</span> <span class="hljs-comment">#显示帮助细信息</span><br>images <span class="hljs-comment">#显示镜像信息，较少使用</span><br><span class="hljs-built_in">kill</span> <span class="hljs-comment">#强制终止运行中的容器</span><br>logs <span class="hljs-comment">#查看容器的日志</span><br>pause <span class="hljs-comment">#暂停服务</span><br>port <span class="hljs-comment">#查看端口</span><br>ps <span class="hljs-comment">#列出容器，较少使用</span><br>pull <span class="hljs-comment">#重新拉取镜像，镜像发生变化后，需要重新拉取镜像，较少使用</span><br>push <span class="hljs-comment">#上传镜像</span><br>restart <span class="hljs-comment">#重启服务，较少使用</span><br>rm <span class="hljs-comment">#删除已经停止的服务</span><br>run <span class="hljs-comment">#一次性运行容器</span><br>scale  <span class="hljs-comment">#设置指定服务运行的容器个数</span><br>start <span class="hljs-comment">#启动服务 ，较少使用</span><br>stop <span class="hljs-comment">#停止服务，较少使用</span><br>top <span class="hljs-comment">#显示容器运行状态</span><br>unpause <span class="hljs-comment">#取消暂定</span><br>up <span class="hljs-comment">#创建并启动容器 ，较少使用</span><br></code></pre></td></tr></table></figure>
+
+<p>范例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker-compose --version</span><br>docker-compose version 1.25.3, build d4d1b42b<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-3-docker-compse-文件格式"><a href="#6-2-3-docker-compse-文件格式" class="headerlink" title="6.2.3 docker compse 文件格式"></a>6.2.3 docker compse 文件格式</h3><p>官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/compose/compose-file/">https://docs.docker.com/compose/compose-file/</a></p>
+<p>docker compose 文件是一个yaml格式的文件，所以注意行首的缩进很严格</p>
+<p>默认docker-compose命令会调用当前目录下的docker-compose.yml的文件，因此一般执行docker-compose命令前先进入docker-compose.yml文件所在目录</p>
+<p>docker compose文件的格式很不同版本，版本不同，语法和格式有所不同，参看以下列表</p>
+<table>
+<thead>
+<tr>
+<th align="center">Compose file format</th>
+<th align="center">Docker Engine release</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">3.7</td>
+<td align="center">18.06.0+</td>
+</tr>
+<tr>
+<td align="center">3.6</td>
+<td align="center">18.02.0+</td>
+</tr>
+<tr>
+<td align="center">3.5</td>
+<td align="center">17.12.0+</td>
+</tr>
+<tr>
+<td align="center">3.4</td>
+<td align="center">17.09.0+</td>
+</tr>
+<tr>
+<td align="center">3.3</td>
+<td align="center">17.06.0+</td>
+</tr>
+<tr>
+<td align="center">3.2</td>
+<td align="center">17.04.0+</td>
+</tr>
+<tr>
+<td align="center">3.1</td>
+<td align="center">1.13.1+</td>
+</tr>
+<tr>
+<td align="center">3.0</td>
+<td align="center">1.13.0+</td>
+</tr>
+<tr>
+<td align="center">2.4</td>
+<td align="center">17.12.0+</td>
+</tr>
+<tr>
+<td align="center">2.3</td>
+<td align="center">17.06.0+</td>
+</tr>
+<tr>
+<td align="center">2.2</td>
+<td align="center">1.13.0+</td>
+</tr>
+<tr>
+<td align="center">2.1</td>
+<td align="center">1.12.0+</td>
+</tr>
+<tr>
+<td align="center">2.0</td>
+<td align="center">1.10.0+</td>
+</tr>
+<tr>
+<td align="center">1.0</td>
+<td align="center">1.9.1.+</td>
+</tr>
+</tbody></table>
+<p>docker compose版本众多，以下通过具体示例说明docker compose的使用方法</p>
+<h2 id="6-3-从-docker-compose-启动单个容器"><a href="#6-3-从-docker-compose-启动单个容器" class="headerlink" title="6.3 从 docker compose 启动单个容器"></a>6.3 从 docker compose 启动单个容器</h2><p>注意: 使用Docker compose之前，先要安装docker</p>
+<h3 id="6-3-1-创建-docker-compose文件"><a href="#6-3-1-创建-docker-compose文件" class="headerlink" title="6.3.1 创建 docker compose文件"></a>6.3.1 创建 docker compose文件</h3><p>docker compose 文件可在任意目录，创建文件名为docker-compose.yml 配置文件，要注意前后的缩进</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">~</span>]<span class="hljs-comment">#docker-compose --version</span><br><span class="hljs-string">docker-compose</span> <span class="hljs-string">version</span> <span class="hljs-number">1.25</span><span class="hljs-number">.4</span><span class="hljs-string">,</span> <span class="hljs-string">build</span> <span class="hljs-string">unknown</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">~</span>]<span class="hljs-comment">#mkdir -p /data/docker-compose</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">~</span>]<span class="hljs-comment">#cd /data/docker-compose</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#vim docker-compose.yml</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#cat docker-compose.yml</span><br><span class="hljs-attr">service-nginx-web:</span><br>  <span class="hljs-attr">image:</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.102</span><span class="hljs-string">/example/nginx-centos7.7base:1.6.1</span><br>  <span class="hljs-attr">container_name:</span> <span class="hljs-string">nginx-web</span><br>  <span class="hljs-attr">expose:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">80</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">443</span><br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;80:80&quot;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;443:443&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-2-查看配置和格式检查"><a href="#6-3-2-查看配置和格式检查" class="headerlink" title="6.3.2 查看配置和格式检查"></a>6.3.2 查看配置和格式检查</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs yaml">[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#docker-compose config</span><br><span class="hljs-attr">services:</span><br><span class="hljs-attr">service-nginx-web:</span><br>  <span class="hljs-attr">container_name:</span> <span class="hljs-string">nginx-web</span><br>  <span class="hljs-attr">expose:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">80</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">443</span><br> <span class="hljs-attr">image:</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.102</span><span class="hljs-string">/example/nginx-centos7-base:1.6.1</span><br> <span class="hljs-attr">network_mode:</span> <span class="hljs-string">bridge</span><br> <span class="hljs-attr">ports:</span><br>   <span class="hljs-bullet">-</span> <span class="hljs-number">80</span><span class="hljs-string">:80/tcp</span><br>   <span class="hljs-bullet">-</span> <span class="hljs-number">443</span><span class="hljs-string">:443/tcp</span><br> <span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;2.1&#x27;</span><br><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#docker-compose config -q</span><br><br><span class="hljs-comment">#改错docker-compose文件格式</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#vim docker-compose.yml</span><br><span class="hljs-string">service-nginx-web</span>  <span class="hljs-comment">#改此行，最后的”:&quot;删除             </span><br>  <span class="hljs-attr">image:</span> <span class="hljs-number">10.0</span><span class="hljs-number">.0</span><span class="hljs-number">.102</span><span class="hljs-string">/example/nginx-centos7-base:1.6.1</span><br>  <span class="hljs-attr">container_name:</span> <span class="hljs-string">nginx-web</span><br>  <span class="hljs-attr">expose:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">80</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-number">443</span><br>  <span class="hljs-attr">ports:</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;8080:80&quot;</span><br>    <span class="hljs-bullet">-</span> <span class="hljs-string">&quot;8443:443&quot;</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#docker-compose config -q</span><br><span class="hljs-attr">ERROR: yaml.scanner.ScannerError:</span> <span class="hljs-string">mapping</span> <span class="hljs-string">values</span> <span class="hljs-string">are</span> <span class="hljs-string">not</span> <span class="hljs-string">allowed</span> <span class="hljs-string">here</span> <span class="hljs-string">in</span> <span class="hljs-string">&quot;./docker-compose.yml&quot;</span><span class="hljs-string">,</span> <span class="hljs-string">line</span> <span class="hljs-number">2</span><span class="hljs-string">,</span> <span class="hljs-string">column</span> <span class="hljs-number">8</span><br>[<span class="hljs-string">root@ubuntu1804</span> <span class="hljs-string">docker-compose</span>]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-3-启动容器"><a href="#6-3-3-启动容器" class="headerlink" title="6.3.3 启动容器"></a>6.3.3 启动容器</h3><p><strong>注意: 必须要在docker compose文件所在的目录执行</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#前台启动</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up</span><br>Pulling service-nginx-web (10.0.0.102/example/nginx-centos7-base:1.6.1)...<br>ERROR: Get https://10.0.0.102/v2/: dial tcp 10.0.0.102:443: connect: connectionrefused<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#vim /lib/systemd/system/docker.service</span><br>ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --insecure-registry 10.0.0.102<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#systemctl daemon-reload</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#systemctl restart docker</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up</span><br>Pulling service-nginx-web (10.0.0.102/example/nginx-centos7-base:1.6.1)...<br>1.6.1: Pulling from example/nginx-centos7-base<br>f34b00c7da20: Pull complete<br>544476d462f7: Pull complete<br>39345915aa1b: Pull complete<br>d5376f2bbd9e: Pull complete<br>4596aecee927: Pull complete<br>1617b995c379: Pull complete<br>d00df95be654: Pull complete<br>Digest: sha256:82e9e7d8bf65e160ba79a92bb25ae42cbbf791092d1e09fb7de25f91b31a21ff<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/nginx-centos7-base:1.6.1<br>Creating nginx-web ... <span class="hljs-keyword">done</span><br>Attaching to nginx-web<br><br><span class="hljs-comment">#以上是前台执行不退出</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-4-验证docker-compose执行结果"><a href="#6-3-4-验证docker-compose执行结果" class="headerlink" title="6.3.4 验证docker compose执行结果"></a>6.3.4 验证docker compose执行结果</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#上面命令是前台执行，所以要查看结果，可以再开一个终端窗口进行观察</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker ps</span><br>CONTAINER ID        IMAGE                                          COMMAND                  CREATED             STATUS              PORTS                                      NAMES<br>05ef2fb50204        10.0.0.101/example/nginx-centos7.7base:1.6.1   <span class="hljs-string">&quot;/docker-entrypoint.…&quot;</span>   25 seconds ago      Up 21 seconds       0.0.0.0:80-&gt;80/tcp, 0.0.0.0:443-&gt;443/tcp   nginx-web<br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker-compose ps</span><br>ERROR:<br>   Can<span class="hljs-string">&#x27;t find a suitable configuration file in this directory or any</span><br><span class="hljs-string">   parent. Are you in the right directory?</span><br><span class="hljs-string">   Supported filenames: docker-compose.yml, docker-compose.yaml</span><br><span class="hljs-string">   </span><br><span class="hljs-string">[root@ubuntu1804 ~]#cd /data/docker-compose/</span><br><span class="hljs-string">[root@ubuntu1804 docker-compose]#docker-compose ps</span><br><span class="hljs-string">  Name                 Command               State                    Ports                  </span><br><span class="hljs-string">---------------------------------------------------------------------------------------------</span><br><span class="hljs-string">nginx-web   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp</span><br><span class="hljs-string"></span><br><span class="hljs-string">[root@ubuntu1804 docker-compose]#curl 127.0.0.1/app/</span><br><span class="hljs-string">Test Page in app</span><br><span class="hljs-string">[root@ubuntu1804 docker-compose]#docker-compose images</span><br><span class="hljs-string">Container                 Repository                  Tag      Image Id       Size  </span><br><span class="hljs-string">------------------------------------------------------------------------------------</span><br><span class="hljs-string">nginx-web   10.0.0.101/example/nginx-centos7.7base   1.6.1   4f380adfc10f   133.1 MB</span><br><span class="hljs-string"></span><br><span class="hljs-string">[root@ubuntu1804 docker-compose]#docker-compose exec service-nginx-web bash</span><br><span class="hljs-string">[root@17c17ad30193 /]#</span><br><span class="hljs-string">[root@17c17ad30193 /]#</span><br><span class="hljs-string">[root@17c17ad30193 /]#</span><br><span class="hljs-string">[root@17c17ad30193 /]# tail -f /apps/nginx/logs/access.log</span><br><span class="hljs-string">172.17.0.1 - - [04/Feb/2020:16:01:42 +0800] &quot;GET /app/ HTTP/1.1&quot; 200 17 &quot;-&quot;</span><br><span class="hljs-string">&quot;curl/7.58.0&quot;</span><br><span class="hljs-string">10.0.0.101 - - [04/Feb/2020:16:06:29 +0800] &quot;GET /app/ HTTP/1.1&quot; 200 17 &quot;-&quot;</span><br><span class="hljs-string">&quot;curl/7.58.0&quot;</span><br><span class="hljs-string">10.0.0.102 - - [04/Feb/2020:16:08:22 +0800] &quot;GET /app/ HTTP/1.1&quot; 200 17 &quot;-&quot;</span><br><span class="hljs-string">&quot;curl/7.58.0&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-5-结束前台执行"><a href="#6-3-5-结束前台执行" class="headerlink" title="6.3.5 结束前台执行"></a>6.3.5 结束前台执行</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up</span><br>Pulling service-nginx-web (10.0.0.102/example/nginx-centos7-base:1.6.1)...<br>1.6.1: Pulling from example/nginx-centos7-base<br>f34b00c7da20: Pull complete<br>544476d462f7: Pull complete<br>39345915aa1b: Pull complete<br>d5376f2bbd9e: Pull complete<br>4596aecee927: Pull complete<br>1617b995c379: Pull complete<br>d00df95be654: Pull complete<br>Digest: sha256:82e9e7d8bf65e160ba79a92bb25ae42cbbf791092d1e09fb7de25f91b31a21ff<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/nginx-centos7-base:1.6.1<br>Creating nginx-web ... <span class="hljs-keyword">done</span><br>Attaching to nginx-web<br>^CGracefully stopping... (press Ctrl+C again to force)  <span class="hljs-comment">#ctrl+c键，结束容器</span><br>Stopping nginx-web ... <span class="hljs-keyword">done</span><br><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>  Name                 Command               State    Ports<br>-----------------------------------------------------------<br>nginx-web   /docker-entrypoint.sh ngin ...   Exit 0<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker ps -a</span><br>CONTAINER ID        IMAGE                                          COMMAND                  CREATED             STATUS                      PORTS               NAMES<br>05ef2fb50204        10.0.0.101/example/nginx-centos7.7base:1.6.1   <span class="hljs-string">&quot;/docker-entrypoint.…&quot;</span>   5 minutes ago       Exited (0) 52 seconds ago                       nginx-web<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose start</span><br>Starting service-nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>  Name                 Command               State                    Ports                  <br>---------------------------------------------------------------------------------------------<br>nginx-web   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp<br><span class="hljs-comment">#关闭容器</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose kill</span><br>Killing nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>  Name                 Command                State     Ports<br>-------------------------------------------------------------<br>nginx-web   /docker-entrypoint.sh ngin ...   Exit 137<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-6-删除容器"><a href="#6-3-6-删除容器" class="headerlink" title="6.3.6 删除容器"></a>6.3.6 删除容器</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>  Name                 Command                State     Ports<br>-------------------------------------------------------------<br>nginx-web   /docker-entrypoint.sh ngin ...   Exit 137 <br><br><span class="hljs-comment">#只删除停止的容器</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose rm</span><br>Going to remove nginx-web<br>Are you sure? [yN] y<br>Removing nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d #-d：后台执行</span><br>Creating nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose rm</span><br>No stopped containers<br><br><span class="hljs-comment">#停止并删除容器及镜像</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose down</span><br>Stopping nginx-web ... <span class="hljs-keyword">done</span><br>Removing nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name  Command  State  Ports<br>------------------------------<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker ps -a</span><br>CONTAINER ID    IMAGE        COMMAND       CREATED      STATUS       PORTS        NAMES<br><span class="hljs-comment">#也会自动删除镜像</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose images</span><br>Container  Repository  Tag  Image Id  Size<br>----------------------------------------------<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-7-后台执行"><a href="#6-3-7-后台执行" class="headerlink" title="6.3.7 后台执行"></a>6.3.7 后台执行</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d</span><br>Creating nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>  Name                 Command               State                    Ports                  <br>---------------------------------------------------------------------------------------------<br>nginx-web   /docker-entrypoint.sh ngin ...   Up      0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl 127.0.0.1/app/</span><br>Test Page <span class="hljs-keyword">in</span> app<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl http://127.0.0.1/app/</span><br>Test Page <span class="hljs-keyword">in</span> app<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-8-停止和启动与日志查看"><a href="#6-3-8-停止和启动与日志查看" class="headerlink" title="6.3.8 停止和启动与日志查看"></a>6.3.8 停止和启动与日志查看</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose stop</span><br>Stopping nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name       Command      State  Ports<br>---------------------------------------------------<br>nginx-web  /apps/nginx/sbin/nginx  Exit 0<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose start</span><br>Starting service-nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name       Command      State          Ports      <br>  <br>-------------------------------------------------------------------------------------<br>nginx-web  /apps/nginx/sbin/nginx  Up    0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose restart</span><br>Restarting nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name       Command      State          Ports      <br>  <br>-------------------------------------------------------------------------------------<br>nginx-web  /apps/nginx/sbin/nginx  Up    0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp<br><br><span class="hljs-comment">#执行上面操作时，可以同时开一个终端，观察日事件</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose events</span><br>2020-02-04 15:38:13.253822 container <span class="hljs-built_in">kill</span> 5d92e4da8679a973145e5b4db364ae8cf8596a03c4fd0b3b6a28213a2f155be6 (image=10.0.0.102/example/nginx-centos7-base:1.6.1, name=nginx-web)<br>2020-02-04 15:38:13.531208 container die 5d92e4da8679a973145e5b4db364ae8cf8596a03c4fd0b3b6a28213a2f155be6 (image=10.0.0.102/example/nginx-centos7-base:1.6.1, name=nginx-web)<br>2020-02-04 15:38:13.631137 container stop 5d92e4da8679a973145e5b4db364ae8cf8596a03c4fd0b3b6a28213a2f155be6 (image=10.0.0.102/example/nginx-centos7-base:1.6.1, name=nginx-web)<br>2020-02-04 15:38:15.137495 container start 5d92e4da8679a973145e5b4db364ae8cf8596a03c4fd0b3b6a28213a2f155be6 (image=10.0.0.102/example/nginx-centos7-base:1.6.1, name=nginx-web)<br>2020-02-04 15:38:15.137546 container restart 5d92e4da8679a973145e5b4db364ae8cf8596a03c4fd0b3b6a28213a2f155be6 (image=10.0.0.102/example/nginx-centos7-base:1.6.1, name=nginx-web)<br><br><span class="hljs-comment">#以json格式显示日志</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose events --json</span><br>&#123;<span class="hljs-string">&quot;time&quot;</span>: <span class="hljs-string">&quot;2020-02-04T15:48:22.423539&quot;</span>, <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;container&quot;</span>, <span class="hljs-string">&quot;action&quot;</span>: <span class="hljs-string">&quot;kill&quot;</span>,<span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;19d72e9bc85842d8879d7dcf2a3d2defd79a5a0c3c3d974ddfbbbc6e95bf910b&quot;</span>,<span class="hljs-string">&quot;service&quot;</span>: <span class="hljs-string">&quot;service-nginx-web&quot;</span>, <span class="hljs-string">&quot;attributes&quot;</span>: &#123;<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;nginx-web&quot;</span>, <span class="hljs-string">&quot;image&quot;</span>:<span class="hljs-string">&quot;10.0.0.102/example/nginx-centos7-base:1.6.1&quot;</span>&#125;&#125;<br>&#123;<span class="hljs-string">&quot;time&quot;</span>: <span class="hljs-string">&quot;2020-02-04T15:48:22.537200&quot;</span>, <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;container&quot;</span>, <span class="hljs-string">&quot;action&quot;</span>: <span class="hljs-string">&quot;exec_die&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;19d72e9bc85842d8879d7dcf2a3d2defd79a5a0c3c3d974ddfbbbc6e95bf910b&quot;</span>, <span class="hljs-string">&quot;service&quot;</span>: <span class="hljs-string">&quot;service-nginx-web&quot;</span>, <span class="hljs-string">&quot;attributes&quot;</span>: &#123;<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;nginx-web&quot;</span>, <span class="hljs-string">&quot;image&quot;</span>: <span class="hljs-string">&quot;10.0.0.102/example/nginx-centos7-base:1.6.1&quot;</span>&#125;&#125;<br>&#123;<span class="hljs-string">&quot;time&quot;</span>: <span class="hljs-string">&quot;2020-02-04T15:48:22.745670&quot;</span>, <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;container&quot;</span>, <span class="hljs-string">&quot;action&quot;</span>: <span class="hljs-string">&quot;die&quot;</span>,<span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;19d72e9bc85842d8879d7dcf2a3d2defd79a5a0c3c3d974ddfbbbc6e95bf910b&quot;</span>, <span class="hljs-string">&quot;service&quot;</span>: <span class="hljs-string">&quot;service-nginx-web&quot;</span>, <span class="hljs-string">&quot;attributes&quot;</span>: &#123;<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;nginx-web&quot;</span>, <span class="hljs-string">&quot;image&quot;</span>: <span class="hljs-string">&quot;10.0.0.102/example/nginx-centos7-base:1.6.1&quot;</span>&#125;&#125;<br>&#123;<span class="hljs-string">&quot;time&quot;</span>: <span class="hljs-string">&quot;2020-02-04T15:48:22.863375&quot;</span>, <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;container&quot;</span>, <span class="hljs-string">&quot;action&quot;</span>: <span class="hljs-string">&quot;stop&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;19d72e9bc85842d8879d7dcf2a3d2defd79a5a0c3c3d974ddfbbbc6e95bf910b&quot;</span>, <span class="hljs-string">&quot;service&quot;</span>: <span class="hljs-string">&quot;service-nginx-web&quot;</span>, <span class="hljs-string">&quot;attributes&quot;</span>: &#123;<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;nginx-web&quot;</span>, <span class="hljs-string">&quot;image&quot;</span>: <span class="hljs-string">&quot;10.0.0.102/example/nginx-centos7-base:1.6.1&quot;</span>&#125;&#125;<br>&#123;<span class="hljs-string">&quot;time&quot;</span>: <span class="hljs-string">&quot;2020-02-04T15:48:23.979421&quot;</span>, <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;container&quot;</span>, <span class="hljs-string">&quot;action&quot;</span>: <span class="hljs-string">&quot;start&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;19d72e9bc85842d8879d7dcf2a3d2defd79a5a0c3c3d974ddfbbbc6e95bf910b&quot;</span>, <span class="hljs-string">&quot;service&quot;</span>: <span class="hljs-string">&quot;service-nginx-web&quot;</span>, <span class="hljs-string">&quot;attributes&quot;</span>: &#123;<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;nginx-web&quot;</span>, <span class="hljs-string">&quot;image&quot;</span>: <span class="hljs-string">&quot;10.0.0.102/example/nginx-centos7-base:1.6.1&quot;</span>&#125;&#125;<br>&#123;<span class="hljs-string">&quot;time&quot;</span>: <span class="hljs-string">&quot;2020-02-04T15:48:23.979468&quot;</span>, <span class="hljs-string">&quot;type&quot;</span>: <span class="hljs-string">&quot;container&quot;</span>, <span class="hljs-string">&quot;action&quot;</span>: <span class="hljs-string">&quot;restart&quot;</span>, <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;19d72e9bc85842d8879d7dcf2a3d2defd79a5a0c3c3d974ddfbbbc6e95bf910b&quot;</span>, <span class="hljs-string">&quot;service&quot;</span>: <span class="hljs-string">&quot;service-nginx-web&quot;</span>, <span class="hljs-string">&quot;attributes&quot;</span>: &#123;<span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;nginx-web&quot;</span>, <span class="hljs-string">&quot;image&quot;</span>: <span class="hljs-string">&quot;10.0.0.102/example/nginx-centos7-base:1.6.1&quot;</span>&#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-9-暂停和恢复"><a href="#6-3-9-暂停和恢复" class="headerlink" title="6.3.9 暂停和恢复"></a>6.3.9 暂停和恢复</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose pause</span><br>Pausing nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name       Command      State           Ports      <br>  <br>--------------------------------------------------------------------------------------<br>nginx-web  /apps/nginx/sbin/nginx  Paused  0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl -m 1 http://127.0.0.1/app/</span><br>curl: (28) Operation timed out after 1002 milliseconds with 0 bytes received<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose unpause</span><br>Unpausing nginx-web ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name       Command      State          Ports      <br>  <br>-------------------------------------------------------------------------------------<br>nginx-web  /apps/nginx/sbin/nginx  Up    0.0.0.0:443-&gt;443/tcp, 0.0.0.0:80-&gt;80/tcp<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl -m 1 http://127.0.0.1/app/</span><br>Test Page <span class="hljs-keyword">in</span> app<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-3-10-指定同时启动容器的数量"><a href="#6-3-10-指定同时启动容器的数量" class="headerlink" title="6.3.10 指定同时启动容器的数量"></a>6.3.10 指定同时启动容器的数量</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#vim docker-compose.yml</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#cat docker-compose.yml</span><br>service-nginx-web:<br>image: 10.0.0.102/example/nginx-centos7-base:1.6.1<br><span class="hljs-comment"># container_name: nginx-web #同时启动多个同一镜像的容器，不要指定容器名称，否则会冲突</span><br>expose:<br> - 80<br> - 443<br><span class="hljs-comment"># ports:          #同时启动多个同一镜像的容器，不要指定端口号，否则会冲突</span><br><span class="hljs-comment">#  - &quot;80:80&quot;</span><br><span class="hljs-comment">#  - &quot;443:443&quot;</span><br><br><span class="hljs-comment">#再加一个service</span><br>service-tomcat:<br>image: 10.0.0.102/example/tomcat-base:v8.5.50<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>Name  Command  State  Ports<br>------------------------------<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d --scale service-nginx-web=2</span><br>Creating docker-compose_service-tomcat_1  ... <span class="hljs-keyword">done</span><br>Creating docker-compose_service-nginx-web_1 ... <span class="hljs-keyword">done</span><br>Creating docker-compose_service-nginx-web_2 ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>       Name             Command      State    Ports  <br>--------------------------------------------------------------------------------------<br>docker-compose_service-nginx-web_1  /apps/nginx/sbin/nginx  Up    443/tcp,80/tcp<br>docker-compose_service-nginx-web_2  /apps/nginx/sbin/nginx  Up    443/tcp,80/tcp<br>docker-compose_service-tomcat_1   /bin/bash        Exit 0      <br>  <br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d --scale service-nginx-web=3 --scale service-tomcat=2 #如果上一个命令开启的镜像没有关闭，会直接开启剩下没有开启的镜像</span><br>Starting docker-compose_service-tomcat_1  ... <span class="hljs-keyword">done</span><br>Starting docker-compose_service-nginx-web_1 ... <span class="hljs-keyword">done</span><br>Starting docker-compose_service-nginx-web_2 ... <span class="hljs-keyword">done</span><br>Creating docker-compose_service-nginx-web_3 ... <span class="hljs-keyword">done</span><br>Creating docker-compose_service-tomcat_2  ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>       Name             Command      State    Ports  <br>--------------------------------------------------------------------------------------<br>docker-compose_service-nginx-web_1  /apps/nginx/sbin/nginx  Up    443/tcp,80/tcp<br>docker-compose_service-nginx-web_2  /apps/nginx/sbin/nginx  Up    443/tcp,80/tcp<br>docker-compose_service-nginx-web_3  /apps/nginx/sbin/nginx  Up    443/tcp,80/tcp<br>docker-compose_service-tomcat_1   /bin/bash        Exit 0      <br>docker-compose_service-tomcat_2   /bin/bash        Exit 0      <br>  <br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d</span><br>Stopping and removing docker-compose_service-nginx-web_2 ... <span class="hljs-keyword">done</span><br>Stopping and removing docker-compose_service-nginx-web_3 ... <span class="hljs-keyword">done</span><br>Stopping and removing docker-compose_service-tomcat_2  ... <span class="hljs-keyword">done</span><br>Starting docker-compose_service-tomcat_1         ... <span class="hljs-keyword">done</span><br>Starting docker-compose_service-nginx-web_1       ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br>       Name             Command      State    Ports  <br>--------------------------------------------------------------------------------------<br>docker-compose_service-nginx-web_1  /apps/nginx/sbin/nginx  Up    443/tcp,80/tcp<br>docker-compose_service-tomcat_1   /bin/bash        Exit 0<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-4-从docker-compose启动多个容器"><a href="#6-4-从docker-compose启动多个容器" class="headerlink" title="6.4 从docker compose启动多个容器"></a>6.4 从docker compose启动多个容器</h2><h3 id="6-4-1-编辑docker-compose文件并使用数据卷"><a href="#6-4-1-编辑docker-compose文件并使用数据卷" class="headerlink" title="6.4.1 编辑docker-compose文件并使用数据卷"></a>6.4.1 编辑docker-compose文件并使用数据卷</h3><p>注意: 同一个文件 ，数据卷的优先级比镜像内的文件优先级高</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#vim docker-compose.yml</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#cat docker-compose.yml</span><br>service-nginx-web:<br>  image: 10.0.0.102/example/nginx-centos7-base:1.6.1<br>  container_name: nginx-web<br>  volumes:<br>    - /data/nginx:/apps/nginx/html/<span class="hljs-comment">#指定数据卷，将宿主机/data/nginx挂载到容器/apps/nginx/html</span><br>  expose:<br>   - 80<br>   - 443<br>  ports:<br>    - <span class="hljs-string">&quot;80:80&quot;</span><br>    - <span class="hljs-string">&quot;443:443&quot;</span><br>  <br>service-tomcat-app1:<br>  image: 10.0.0.102/example/tomcat-web:app1<br>  container_name: tomcat-app1<br>  expose:<br>    - 8080<br>  ports:<br>    - <span class="hljs-string">&quot;8081:8080&quot;</span><br>  <br>service-tomcat-app2:<br>  image: 10.0.0.102/example/tomcat-web:app2<br>  container_name: tomcat-app2<br>  expose:<br>    - 8080<br>  ports:<br>    - <span class="hljs-string">&quot;8082:8080&quot;</span><br>  <br><span class="hljs-comment">#在宿主机准备nginx测试页面文件</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#mkdir /data/nginx</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#echo Docker compose test page &gt; /data/nginx/index.html</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-4-2-启动容器并验证结果"><a href="#6-4-2-启动容器并验证结果" class="headerlink" title="6.4.2 启动容器并验证结果"></a>6.4.2 启动容器并验证结果</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d</span><br>Pulling service-tomcat-app1 (10.0.0.102/example/tomcat-web:app1)...<br>app1: Pulling from example/tomcat-web<br>f34b00c7da20: Already exists<br>544476d462f7: Already exists<br>39345915aa1b: Already exists<br>4b792f2bae38: Already exists<br>4439447a3522: Already exists<br>fe34d2ec1dd0: Already exists<br>b8487ca03126: Already exists<br>5a475b7d8b1a: Already exists<br>df8703d3d2dd: Already exists<br>f0da1ffa7aa7: Pull complete<br>80fd4c70e670: Pull complete<br>c2a0247d7bfa: Pull complete<br>b0977ed809cd: Pull complete<br>Digest: sha256:e0aba904df6095ea04c594d6906101f8e5f4a6ceb0a8f9b24432c47698d0caa8<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/tomcat-web:app1<br>Pulling service-tomcat-app2 (10.0.0.102/example/tomcat-web:app2)...<br>app2: Pulling from example/tomcat-web<br>f34b00c7da20: Already exists<br>544476d462f7: Already exists<br>39345915aa1b: Already exists<br>4b792f2bae38: Already exists<br>4439447a3522: Already exists<br>fe34d2ec1dd0: Already exists<br>b8487ca03126: Already exists<br>5a475b7d8b1a: Already exists<br>df8703d3d2dd: Already exists<br>f0da1ffa7aa7: Already exists<br>80fd4c70e670: Already exists<br>1a55cb76a801: Pull complete<br>565ab795f82a: Pull complete<br>Digest: sha256:c4d6f166c3933f6c1ba59c84ea0518ed653af25f28b87981c242b0deff4209bb<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/tomcat-web:app2<br>Creating tomcat-app1 ... <span class="hljs-keyword">done</span><br>Creating tomcat-app2 ... <span class="hljs-keyword">done</span><br><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose ps</span><br> Name         Command        State          Ports <br>       <br>-----------------------------------------------------------------------------------------------<br>nginx-web   /apps/nginx/sbin/nginx      Up    0.0.0.0:443-&gt;443/tcp,0.0.0.0:80-&gt;80/tcp<br>tomcat-app1  /apps/tomcat/bin/run_tomcat.sh  Up    8009/tcp, 0.0.0.0:8081-&gt;8080/tcp    <br>tomcat-app2  /apps/tomcat/bin/run_tomcat.sh  Up    8009/tcp, 0.0.0.0:8082-&gt;8080/tcp    <br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl http://127.0.0.1/</span><br>Docker compose <span class="hljs-built_in">test</span> page<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl http://127.0.0.1:8081/app/</span><br>Tomcat Page <span class="hljs-keyword">in</span> app1<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl http://127.0.0.1:8082/app/</span><br>Tomcat Page <span class="hljs-keyword">in</span> app2<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-5-实战案例-实现单机版的Haproxy-Nginx-Tomcat"><a href="#6-5-实战案例-实现单机版的Haproxy-Nginx-Tomcat" class="headerlink" title="6.5 实战案例: 实现单机版的Haproxy+Nginx+Tomcat"></a>6.5 实战案例: 实现单机版的Haproxy+Nginx+Tomcat</h2><p>编写 docker-compose.yml 文件，实现单机版本的 nginx+tomcat 的动静分离web站点，要求从 nginx作为访问入口，当访问指定 URL 的时候转发至 tomcat 服务器响应</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker153.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="6-5-1-制作haproxy镜像"><a href="#6-5-1-制作haproxy镜像" class="headerlink" title="6.5.1 制作haproxy镜像"></a>6.5.1 制作haproxy镜像</h3><h4 id="6-5-1-1-编辑Dockerfile文件"><a href="#6-5-1-1-编辑Dockerfile文件" class="headerlink" title="6.5.1.1 编辑Dockerfile文件"></a>6.5.1.1 编辑Dockerfile文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/dockerfile/web/haproxy/2.1.2-centos7-base/Dockerfile</span><br><span class="hljs-comment">#Haproxy Base Image</span><br>FROM centos7.7base:v1.0<br>LABEL maintainer=<span class="hljs-string">&quot;wangxiaochun &lt;root@wangxiaochun.com&gt;&quot;</span><br><br>ADD haproxy-2.1.2.tar.gz /usr/<span class="hljs-built_in">local</span>/src/<br><br>RUN <span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src/haproxy-2.1.2 \<br> &amp;&amp; make ARCH=x86_64 TARGET=linux-glibc USE_PCRE=1 USE_OPENSSL=1 USE_ZLIB=1 USE_SYSTEMD=1 USE_CPU_AFFINITY=1 PREFIX=/apps/haproxy \<br> &amp;&amp; make install PREFIX=/apps/haproxy \<br> &amp;&amp; ln -s /apps/haproxy/sbin/haproxy /usr/sbin/ \<br> &amp;&amp; mkdir /apps/haproxy/run \<br> &amp;&amp; rm -rf /usr/<span class="hljs-built_in">local</span>/src/haproxy* <br>ADD haproxy.cfg /etc/haproxy/<br>ADD run_haproxy.sh /usr/bin<br><br>EXPOSE 80 9999<br>CMD [<span class="hljs-string">&quot;run_haproxy.sh&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-1-2-前台启动脚本"><a href="#6-5-1-2-前台启动脚本" class="headerlink" title="6.5.1.2 前台启动脚本"></a>6.5.1.2 前台启动脚本</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/dockerfile/web/haproxy/2.1.2-centos7-base/run_haproxy.sh</span><br><span class="hljs-comment">#!/bin/bash</span><br>haproxy -f /etc/haproxy/haproxy.cfg<br>tail -f /etc/hosts<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-1-3-haproxy参数文件"><a href="#6-5-1-3-haproxy参数文件" class="headerlink" title="6.5.1.3 haproxy参数文件"></a>6.5.1.3 haproxy参数文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/dockerfile/web/haproxy/2.1.2-centos7-base/haproxy.cfg</span><br>global<br>chroot /apps/haproxy<br><span class="hljs-comment">#stats socket /var/lib/haproxy/haproxy.sock mode 600 level admin</span><br>uid 99<br>gid 99<br>daemon<br>nbproc 1<br>pidfile /apps/haproxy/run/haproxy.pid<br><span class="hljs-built_in">log</span> 127.0.0.1 local3 info<br>defaults<br>option http-keep-alive<br>option forwardfor<br>mode http<br>timeout connect 300000ms<br>timeout client 300000ms<br>timeout server 300000ms<br>listen stats<br>mode http<br><span class="hljs-built_in">bind</span> 0.0.0.0:9999<br>stats <span class="hljs-built_in">enable</span><br><span class="hljs-built_in">log</span> global<br>stats uri  /haproxy-status<br>stats auth haadmin:123456<br><br>listen web_port<br><span class="hljs-built_in">bind</span> 0.0.0.0:80<br>mode http<br><span class="hljs-built_in">log</span> global<br>balance roundrobin<br>server nginx-web service-nginx-web:80 check inter 3000 fall 2 rise 5<br><span class="hljs-comment">#service-nginx-web是docker-compose.yml文件中使用的地址</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-1-4-镜像build和上传harbor的脚本"><a href="#6-5-1-4-镜像build和上传harbor的脚本" class="headerlink" title="6.5.1.4 镜像build和上传harbor的脚本"></a>6.5.1.4 镜像build和上传harbor的脚本</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/dockerfile/web/haproxy/2.1.2-centos7-base/build.sh</span><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-comment">#</span><br>docker build -t 10.0.0.101/example/haproxy-centos7.7base:2.1.2 .<br>docker push 10.0.0.101/example/haproxy-centos7.7base:2.1.2<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-1-5-准备压缩包及其他文件"><a href="#6-5-1-5-准备压缩包及其他文件" class="headerlink" title="6.5.1.5 准备压缩包及其他文件"></a>6.5.1.5 准备压缩包及其他文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#wget https://repo.huaweicloud.com/haproxy/2.1/src/haproxy-2.1.2.tar.gz</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cp haproxy-2.1.2.tar.gz /data/dockerfile/web/haproxy/</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#tree /data/dockerfile/web/haproxy/2.1.2-centos7-base/</span><br>/data/dockerfile/web/haproxy/2.1.2-centos7-base/<br>├── build.sh<br>├── Dockerfile<br>├── haproxy-2.1.2.tar.gz<br>├── haproxy.cfg<br>└── run_haproxy.sh<br><br>0 directories, 5 files<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-1-6-执行构建镜像并上传-barbor"><a href="#6-5-1-6-执行构建镜像并上传-barbor" class="headerlink" title="6.5.1.6 执行构建镜像并上传 barbor"></a>6.5.1.6 执行构建镜像并上传 barbor</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cd /data/dockerfile/web/haproxy/2.1.2-centos7-base/</span><br>[root@ubuntu1804 2.1.2-centos7-base]<span class="hljs-comment">#bash build.sh</span><br>Sending build context to Docker daemon  2.67MB<br>Step 1/8 : FROM centos7-base:v1<br>---&gt; 34ab3afcd3b3<br>Step 2/8 : LABEL maintainer=<span class="hljs-string">&quot;wangxiaochun &lt;root@wangxiaochun.com&gt;&quot;</span><br>---&gt; Using cache<br>---&gt; 6206742174bc<br>Step 3/8 : ADD haproxy-2.1.2.tar.gz /usr/<span class="hljs-built_in">local</span>/src/<br>---&gt; Using cache<br>---&gt; 21a146f4e75d<br>Step 4/8 : RUN <span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src/haproxy-2.1.2   &amp;&amp; make ARCH=x86_64<br>TARGET=linux-glibc USE_PCRE=1 USE_OPENSSL=1 USE_ZLIB=1 USE_SYSTEMD=1<br>USE_CPU_AFFINITY=1 PREFIX=/apps/haproxy   &amp;&amp; make install PREFIX=/apps/haproxy<br>  &amp;&amp; ln -s /apps/haproxy/sbin/haproxy /usr/sbin/   &amp;&amp; mkdir<br>/apps/haproxy/run   &amp;&amp; rm -rf /usr/<span class="hljs-built_in">local</span>/src/haproxy*<br>---&gt; Using cache<br>---&gt; 014f0f0b3569<br>Step 5/8 : ADD haproxy.cfg /etc/haproxy/<br>---&gt; Using cache<br>---&gt; 878e8db33c8d<br>Step 6/8 : ADD run_haproxy.sh /usr/bin<br>---&gt; Using cache<br>---&gt; 1177ed360989<br>Step 7/8 : EXPOSE 80 9999<br>---&gt; Using cache<br>---&gt; 8c2c602c1a56<br>Step 8/8 : CMD [<span class="hljs-string">&quot;run_haproxy.sh&quot;</span>]<br>---&gt; Using cache<br>---&gt; 03e8086d441d<br>Successfully built 03e8086d441d<br>Successfully tagged 10.0.0.102/example/haproxy-centos7.7base:2.1.2<br>The push refers to repository [10.0.0.102/example/haproxy-centos7-base]<br>fea7d7539b84: Layer already exists<br>118f303dfb57: Layer already exists<br>2748cd88bb93: Layer already exists<br>a5dbda9ecfbf: Layer already exists<br>2073413aebd6: Layer already exists<br>6ec9af97c369: Layer already exists<br>034f282942cd: Layer already exists<br>2.1.2: digest:sha256:5df06247a5bd187894dd1c705f374568ecb4996e8d38bea71fd0bc679ab6ae13 size:1785<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-5-2-准备nginx镜像"><a href="#6-5-2-准备nginx镜像" class="headerlink" title="6.5.2 准备nginx镜像"></a>6.5.2 准备nginx镜像</h3><h4 id="6-5-2-1-准备Dockfile文件"><a href="#6-5-2-1-准备Dockfile文件" class="headerlink" title="6.5.2.1 准备Dockfile文件"></a>6.5.2.1 准备Dockfile文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/dockerfile/web/nginx/1.16.1-centos7-base/Dockerfile</span><br>FROM centos7.7base:v1.0<br><br>LABEL maintainer=<span class="hljs-string">&quot;rlin &lt;root@rlin.com&gt;&quot;</span><br><br>ADD nginx-1.16.1.tar.gz /usr/<span class="hljs-built_in">local</span>/src<br>RUN <span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src/nginx-1.16.1 \<br>&amp;&amp; ./configure --prefix=/apps/nginx \<br>&amp;&amp; make &amp;&amp; make install \<br>&amp;&amp; rm -rf /usr/<span class="hljs-built_in">local</span>/src/nginx-1.16.1* \<br>&amp;&amp; useradd -r -s /sbin/nologin nginx<br><br>COPY nginx.conf /apps/nginx/conf/<br><br>ADD app.tar.gz /apps/nginx/html/<br><br>EXPOSE 80 443<br><br>CMD [<span class="hljs-string">&quot;/apps/nginx/sbin/nginx&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-2-2-准备nginx配置文件"><a href="#6-5-2-2-准备nginx配置文件" class="headerlink" title="6.5.2.2 准备nginx配置文件"></a>6.5.2.2 准备nginx配置文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#vim /data/dockerfile/web/nginx/1.16.1-centos7-base/nginx.conf</span><br>user nginx;<br>worker_processes  1;<br>daemon off;<br>events &#123;<br> worker_connections  1024;<br>&#125;<br>http &#123;<br> upstream tomcat &#123;<br>   server service-tomcat-app1:8080;  <span class="hljs-comment">#service-tomcat-app1为docker-compse.yml指定的名称</span><br>   server service-tomcat-app2:8080;<br> &#125;<br> include    mime.types;<br> default_type application/octet-stream;<br> sendfile    on;<br> keepalive_timeout  65;<br> server &#123;<br>   listen    80;<br>   server_name localhost;<br>   location / &#123;<br>     root  html;<br>     index index.html index.htm;<br>   &#125;<br>   location /app &#123;<br>     proxy_pass http://tomcat ;<br>   &#125;<br>   error_page  500 502 503 504 /50x.html;<br>   location = /50x.html &#123;<br>     root  html;<br>   &#125;<br> &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-2-3-镜像build和上传harbor的脚本"><a href="#6-5-2-3-镜像build和上传harbor的脚本" class="headerlink" title="6.5.2.3 镜像build和上传harbor的脚本"></a>6.5.2.3 镜像build和上传harbor的脚本</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/dockerfile/web/nginx/1.16.1-centos7-base/build.sh</span><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-comment">#</span><br>docker build -t 10.0.0.101/example/nginx-centos7.7base:1.6.1 .<br>docker push 10.0.0.101/example/nginx-centos7.7base:1.6.1<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-2-4-准备软件包和其它文件"><a href="#6-5-2-4-准备软件包和其它文件" class="headerlink" title="6.5.2.4 准备软件包和其它文件"></a>6.5.2.4 准备软件包和其它文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#tree /data/dockerfile/web/nginx/1.16.1-centos7-base/</span><br>/data/dockerfile/web/nginx/1.16.1-centos7-base/<br>├── app.tar.gz<br>├── build.sh<br>├── Dockerfile<br>├── nginx-1.16.1.tar.gz<br>└── nginx.conf<br><br>0 directories, 5 files<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-2-5-执行构建镜像并上传harbor"><a href="#6-5-2-5-执行构建镜像并上传harbor" class="headerlink" title="6.5.2.5 执行构建镜像并上传harbor"></a>6.5.2.5 执行构建镜像并上传harbor</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cd /data/dockerfile/web/nginx/1.16.1-centos7-base/</span><br>[root@ubuntu1804 1.16.1-centos7-base]<span class="hljs-comment">#bash build.sh</span><br>Sending build context to Docker daemon  1.041MB<br>Step 1/8 : FROM centos7-base:v1<br>---&gt; 34ab3afcd3b3<br>Step 2/8 : LABEL maintainer=<span class="hljs-string">&quot;wangxiaochun &lt;root@wangxiaochun.com&gt;&quot;</span><br>---&gt; Using cache<br>---&gt; 6206742174bc<br>Step 3/8 : ADD nginx-1.16.1.tar.gz /usr/<span class="hljs-built_in">local</span>/src<br>---&gt; Using cache<br>---&gt; 1c2d1cbbf34d<br>Step 4/8 : RUN <span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src/nginx-1.16.1   &amp;&amp; ./configure --<br>prefix=/apps/nginx   &amp;&amp; make &amp;&amp; make install   &amp;&amp; rm -rf<br>/usr/<span class="hljs-built_in">local</span>/src/nginx-1.16.1*     &amp;&amp; useradd -r -s /sbin/nologin nginx<br>---&gt; Using cache<br>---&gt; 019823fa30bf<br>Step 5/8 : COPY nginx.conf /apps/nginx/conf/<br>---&gt; Using cache<br>---&gt; 9583c76d6c9d<br>Step 6/8 : ADD app.tar.gz /apps/nginx/html/<br>---&gt; Using cache<br>---&gt; 4bc0528bb32e<br>Step 7/8 : EXPOSE 80 443<br>---&gt; Using cache<br>---&gt; 547fb553f9d9<br>Step 8/8 : CMD [<span class="hljs-string">&quot;/apps/nginx/sbin/nginx&quot;</span>]<br>---&gt; Using cache<br>---&gt; f6aa9591a2b0<br>Successfully built f6aa9591a2b0<br>Successfully tagged 10.0.0.102/example/nginx-centos7-base:1.6.1<br>The push refers to repository [10.0.0.102/example/nginx-centos7-base]<br>4591f99cd5a6: Layer already exists<br>27bdf47a2126: Layer already exists<br>6aa26a3d91e1: Layer already exists<br>93ae7d74d90e: Layer already exists<br>2073413aebd6: Layer already exists<br>6ec9af97c369: Layer already exists<br>034f282942cd: Layer already exists<br>1.6.1: digest:sha256:2eb7525c623ecf34bc2046888029cdb0ef01d866a0687ca7afd4dfd36c16a863 size:1786<br>[root@ubuntu1804 1.16.1-centos7-base]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-5-3-准备tomcat镜像"><a href="#6-5-3-准备tomcat镜像" class="headerlink" title="6.5.3 准备tomcat镜像"></a>6.5.3 准备tomcat镜像</h3><p>此处略，参看前面的第2.4节</p>
+<p>参考下面文件列表:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#tree /data/dockerfile/</span><br>/data/dockerfile/<br>├── system<br>│  ├── alpine<br>│  │  ├── build.sh<br>│  │  ├── Dockerfile<br>│  │  └── repositories<br>│  ├── centos<br>│  │  ├── build.sh<br>│  │  └── Dockerfile<br>│  ├── debian<br>│  └── ubuntu<br>└── web<br> ├── apache<br> ├── haproxy<br> │  └── 2.1.2-centos7-base<br> │    ├── build.sh<br> │    ├── Dockerfile<br> │    ├── haproxy-2.1.2.tar.gz<br> │    ├── haproxy.cfg<br> │    └── run_haproxy.sh<br> ├── jdk<br> │  ├── build.sh<br> │  ├── Dockerfile<br> │  ├── jdk-8u212-linux-x64.tar.gz<br> │  └── profile<br> ├── nginx<br> │  ├── 1.16.1-alpine<br> │  │  ├── build.sh<br> │  │  ├── Dockerfile<br> │  │  ├── index.html<br> │  │  ├── nginx-1.16.1.tar.gz<br> │  │  └── nginx.conf<br> │  ├── 1.16.1-centos7<br> │  │  ├── build.sh<br> │  │  ├── Dockerfile<br> │  │  ├── index.html<br> │  │  ├── nginx-1.16.1.tar.gz<br> │  │  └── nginx.conf<br> │  ├── 1.16.1-centos7-base<br> │  │  ├── app.tar.gz<br> │  │  ├── build.sh<br> │  │  ├── Dockerfile<br> │  │  ├── nginx-1.16.1.tar.gz<br> │  │  └── nginx.conf<br> │  └── 1.16.1-ubuntu1804<br> │    ├── build.sh<br> │    ├── Dockerfile<br> │    ├── index.html<br> │    ├── nginx-1.16.1.tar.gz<br> │    ├── nginx.conf<br> │    └── sources.list<br> └── tomcat<br>   ├── tomcat-app1<br>   │  ├── app<br>   │  │  └── index.jsp<br>   │  ├── app.tar.gz<br>   │  ├── build.sh<br>   │  ├── Dockerfile<br>   │  ├── run_tomcat.sh<br>   │  └── server.xml<br>   ├── tomcat-app2<br>   │  ├── app<br>   │  │  ├── index.html<br>   │  │  └── index.jsp<br>   │  ├── app.tar.gz<br>   │  ├── build.sh<br>   │  ├── Dockerfile<br>   │  ├── run_tomcat.sh<br>   │  └── server.xml<br>   └── tomcat-base-8.5.50<br>     ├── apache-tomcat-8.5.50.tar.gz<br>     ├── build.sh<br>     └── Dockerfile<br><br>21 directories, 51 files<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-5-4-查看harbor上的相关镜像"><a href="#6-5-4-查看harbor上的相关镜像" class="headerlink" title="6.5.4 查看harbor上的相关镜像"></a>6.5.4 查看harbor上的相关镜像</h3><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker154.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="6-5-5-编辑docker-compose文件及环境准备"><a href="#6-5-5-编辑docker-compose文件及环境准备" class="headerlink" title="6.5.5 编辑docker compose文件及环境准备"></a>6.5.5 编辑docker compose文件及环境准备</h3><h4 id="6-5-5-1-编辑docker-compose文件"><a href="#6-5-5-1-编辑docker-compose文件" class="headerlink" title="6.5.5.1 编辑docker compose文件"></a>6.5.5.1 编辑docker compose文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cat /data/docker-compose/docker-compose.yml</span><br>service-haproxy:<br>image: 10.0.0.101/example/haproxy-centos7.7base:2.1.2<br>container_name: haproxy<br>expose:<br>  - 80<br>  - 9999<br>ports:<br>  - <span class="hljs-string">&quot;80:80&quot;</span><br>  - <span class="hljs-string">&quot;9999:9999&quot;</span><br>links:<br>  - service-nginx-web<br><br>service-nginx-web:<br>image: 10.0.0.101/example/nginx-centos7.7base:1.6.1<br>container_name: nginx-web<br>volumes:<br>  - /data/nginx:/apps/nginx/html/<br>links:<br>  - service-tomcat-app1<br>  - service-tomcat-app2<br><br>expose:<br> - 80<br> - 443<br><span class="hljs-comment"># ports:</span><br><span class="hljs-comment">#  - &quot;80:80&quot;</span><br><span class="hljs-comment">#  - &quot;443:443&quot;</span><br><br>service-tomcat-app1:<br>image: 10.0.0.102/example/tomcat-web:app1<br>container_name: tomcat-app1<br>expose:<br>  - 8080<br><span class="hljs-comment"># ports:</span><br><span class="hljs-comment">#  - &quot;8081:8080&quot;</span><br><br>service-tomcat-app2:<br>image: 10.0.0.102/example/tomcat-web:app2<br>container_name: tomcat-app2<br>expose:<br>  - 8080<br><span class="hljs-comment"># ports:</span><br><span class="hljs-comment">#  - &quot;8082:8080&quot;</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-5-2-启动容器"><a href="#6-5-5-2-启动容器" class="headerlink" title="6.5.5.2 启动容器"></a>6.5.5.2 启动容器</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#cd /data/docker-compose/</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#docker-compose up -d</span><br>Pulling service-tomcat-app1 (10.0.0.102/example/tomcat-web:app1)...<br>app1: Pulling from example/tomcat-web<br>f34b00c7da20: Pull complete<br>544476d462f7: Pull complete<br>39345915aa1b: Pull complete<br>4b792f2bae38: Pull complete<br>4439447a3522: Pull complete<br>fe34d2ec1dd0: Pull complete<br>b8487ca03126: Pull complete<br>5a475b7d8b1a: Pull complete<br>df8703d3d2dd: Pull complete<br>f0da1ffa7aa7: Pull complete<br>80fd4c70e670: Pull complete<br>c2a0247d7bfa: Pull complete<br>b0977ed809cd: Pull complete<br>Digest: sha256:e0aba904df6095ea04c594d6906101f8e5f4a6ceb0a8f9b24432c47698d0caa8<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/tomcat-web:app1<br>Pulling service-tomcat-app2 (10.0.0.102/example/tomcat-web:app2)...<br>app2: Pulling from example/tomcat-web<br>f34b00c7da20: Already exists<br>544476d462f7: Already exists<br>39345915aa1b: Already exists<br>4b792f2bae38: Already exists<br>4439447a3522: Already exists<br>fe34d2ec1dd0: Already exists<br>b8487ca03126: Already exists<br>5a475b7d8b1a: Already exists<br>df8703d3d2dd: Already exists<br>f0da1ffa7aa7: Already exists<br>80fd4c70e670: Already exists<br>1a55cb76a801: Pull complete<br>565ab795f82a: Pull complete<br>Digest: sha256:c4d6f166c3933f6c1ba59c84ea0518ed653af25f28b87981c242b0deff4209bb<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/tomcat-web:app2<br>Pulling service-nginx-web (10.0.0.102/example/nginx-centos7-base:1.6.1)...<br>1.6.1: Pulling from example/nginx-centos7-base<br>f34b00c7da20: Already exists<br>544476d462f7: Already exists<br>39345915aa1b: Already exists<br>cf9a24457402: Pull complete<br>15ef14db18ed: Pull complete<br>fc0bcf215997: Pull complete<br>2808e0476ed2: Pull complete<br>Digest: sha256:2eb7525c623ecf34bc2046888029cdb0ef01d866a0687ca7afd4dfd36c16a863<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/nginx-centos7-base:1.6.1<br>Pulling service-haproxy (10.0.0.102/example/haproxy-centos7-base:2.1.2)...<br>2.1.2: Pulling from example/haproxy-centos7-base<br>f34b00c7da20: Already exists<br>544476d462f7: Already exists<br>39345915aa1b: Already exists<br>70a1e528112f: Pull complete<br>d240b62890cd: Pull complete<br>4223b7054cb3: Pull complete<br>7d2e1b713699: Pull complete<br>Digest: sha256:5df06247a5bd187894dd1c705f374568ecb4996e8d38bea71fd0bc679ab6ae13<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> 10.0.0.102/example/haproxy-centos7-base:2.1.2<br>Creating tomcat-app1 ... <span class="hljs-keyword">done</span><br>Creating tomcat-app2 ... <span class="hljs-keyword">done</span><br>Creating nginx-web  ... <span class="hljs-keyword">done</span><br>Creating haproxy   ... <span class="hljs-keyword">done</span><br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl 127.0.0.1/app/</span><br>Tomcat Page <span class="hljs-keyword">in</span> app1<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl 127.0.0.1/app/</span><br>Tomcat Page <span class="hljs-keyword">in</span> app2<br>[root@ubuntu1804 docker-compose]<span class="hljs-comment">#curl 127.0.0.1</span><br>Docker compose <span class="hljs-built_in">test</span> page<br></code></pre></td></tr></table></figure>
+
+<h4 id="6-5-5-3-验证容器启动成功"><a href="#6-5-5-3-验证容器启动成功" class="headerlink" title="6.5.5.3 验证容器启动成功"></a>6.5.5.3 验证容器启动成功</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#curl http://10.0.0.101/</span><br>Docker compose <span class="hljs-built_in">test</span> page<br>[root@ubuntu1804 ~]<span class="hljs-comment">#curl http://10.0.0.101/app/</span><br>Tomcat Page <span class="hljs-keyword">in</span> app1<br>[root@ubuntu1804 ~]<span class="hljs-comment">#curl http://10.0.0.101/app/</span><br>Tomcat Page <span class="hljs-keyword">in</span> app2<br></code></pre></td></tr></table></figure>
+
+<p><strong>访问haroxy 管理界面:</strong></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker155.png" srcset="/blog/img/loading.gif"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/linux-docker/">linux docker</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">企业级容器技术docker（二）docker镜像制作和管理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">
+                        <span class="hidden-mobile">企业级容器技术docker（七）docker资源限制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

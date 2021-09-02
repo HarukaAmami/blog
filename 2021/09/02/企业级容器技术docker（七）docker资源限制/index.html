@@ -1,0 +1,650 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>企业级容器技术docker（七）docker资源限制 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="企业级容器技术docker（七）docker资源限制">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-09-02 14:29" pubdate>
+        2021年9月2日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      141
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">企业级容器技术docker（七）docker资源限制</h1>
+            
+            <div class="markdown-body">
+              <h1 id="企业级容器技术docker"><a href="#企业级容器技术docker" class="headerlink" title="企业级容器技术docker"></a>企业级容器技术docker</h1><h1 id="七、-docker-的资源限制"><a href="#七、-docker-的资源限制" class="headerlink" title="七、 docker 的资源限制"></a>七、 docker 的资源限制</h1><h2 id="7-1-docker-资源限制"><a href="#7-1-docker-资源限制" class="headerlink" title="7.1 docker 资源限制"></a>7.1 docker 资源限制</h2><h3 id="7-1-1-容器资源限制介绍"><a href="#7-1-1-容器资源限制介绍" class="headerlink" title="7.1.1 容器资源限制介绍"></a>7.1.1 容器资源限制介绍</h3><p>官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/config/containers/resource_constraints/">https://docs.docker.com/config/containers/resource_constraints/</a></p>
+<p>默认情况下，容器没有资源的使用限制，可以使用主机内核调度程序允许的尽可能多的资源</p>
+<p>Docker 提供了控制容器使用资源的方法,可以限制容器使用多少内存或 CPU等， 在docker run 命令的运行时配置标志实现资源限制功能。</p>
+<p>其中许多功能都要求宿主机的内核支持，要检查是否支持这些功能，可以使用docker info 命令 ，如果内核中的某项特性可能会在输出结尾处看到警告， 如下所示:</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc"><span class="hljs-symbol">WARNING: </span>No swap limit support<br></code></pre></td></tr></table></figure>
+
+<p>可通过修改内核参数消除以上警告</p>
+<p>官方文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/install/linux/linux-postinstall/#your-kernel-does-not-support-cgroup-swap-limit-capabilities">https://docs.docker.com/install/linux/linux-postinstall/#your-kernel-does-not-support-cgroup-swap-limit-capabilities</a></p>
+<p>范例: 修改内核参数消除以上警告</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker info</span><br>Client:<br>Debug Mode: <span class="hljs-literal">false</span><br><br>Server:<br>Containers: 0<br>Running: 0<br>Paused: 0<br>Stopped: 0<br>Images: 1<br>Server Version: 19.03.5<br>Storage Driver: overlay2<br>Backing Filesystem: extfs<br>Supports d_type: <span class="hljs-literal">true</span><br>Native Overlay Diff: <span class="hljs-literal">true</span><br>Logging Driver: json-file<br>Cgroup Driver: cgroupfs<br>Plugins:<br>Volume: <span class="hljs-built_in">local</span><br>Network: bridge host ipvlan macvlan null overlay<br>Log: awslogs fluentd gcplogs gelf journald json-file <span class="hljs-built_in">local</span> logentries splunk<br>syslog<br>Swarm: inactive<br>Runtimes: runc<br>Default Runtime: runc<br>Init Binary: docker-init<br>containerd version: b34a5c8af56e510852c35414db4c1f4fa6172339<br>runc version: 3e425f80a8c931f88e6d94a8c831b9d5aa481657<br>init version: fec3683<br>Security Options:<br>apparmor<br>seccomp<br> Profile: default<br>Kernel Version: 4.15.0-29-generic<br>Operating System: Ubuntu 18.04.1 LTS<br>OSType: linux<br>Architecture: x86_64<br>CPUs: 1<br>Total Memory: 962MiB<br>Name: ubuntu1804.magedu.org<br>ID: 4LUN:CS4Y:SGYQ:ZAXU:M7C5:JYSB:ZFTO:JZ6D:CD7Q:TOVD:JBFS:AQM3<br>Docker Root Dir: /var/lib/docker<br>Debug Mode: <span class="hljs-literal">false</span><br>Registry: https://index.docker.io/v1/<br>Labels:<br>Experimental: <span class="hljs-literal">false</span><br>Insecure Registries:<br> 10.0.0.102<br> 127.0.0.0/8<br>Registry Mirrors:<br>https://si7y70hh.mirror.aliyuncs.com/<br>Live Restore Enabled: <span class="hljs-literal">false</span><br><br>WARNING: No swap <span class="hljs-built_in">limit</span> support<br><br><span class="hljs-comment">#修改内核参数</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#vim /etc/default/grub</span><br>GRUB_CMDLINE_LINUX=<span class="hljs-string">&quot;cgroup_enable=memory net.ifnames=0 swapaccount=1&quot;</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#update-grub</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#reboot</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker info</span><br>Client:<br>Debug Mode: <span class="hljs-literal">false</span><br><br>Server:<br>Containers: 0<br>Running: 0<br>Paused: 0<br>Stopped: 0<br>Images: 1<br>Server Version: 19.03.5<br>Storage Driver: overlay2<br>Backing Filesystem: extfs<br>Supports d_type: <span class="hljs-literal">true</span><br>Native Overlay Diff: <span class="hljs-literal">true</span><br>Logging Driver: json-file<br>Cgroup Driver: cgroupfs<br>Plugins:<br>Volume: <span class="hljs-built_in">local</span><br>Network: bridge host ipvlan macvlan null overlay<br>Log: awslogs fluentd gcplogs gelf journald json-file <span class="hljs-built_in">local</span> logentries splunk<br>syslog<br>Swarm: inactive<br>Runtimes: runc<br>Default Runtime: runc<br>Init Binary: docker-init<br>containerd version: b34a5c8af56e510852c35414db4c1f4fa6172339<br>runc version: 3e425f80a8c931f88e6d94a8c831b9d5aa481657<br>init version: fec3683<br>Security Options:<br>apparmor<br>seccomp<br> Profile: default<br>Kernel Version: 4.15.0-29-generic<br>Operating System: Ubuntu 18.04.1 LTS<br>OSType: linux<br>Architecture: x86_64<br>CPUs: 1<br>Total Memory: 962MiB<br>Name: ubuntu1804.magedu.org<br>ID: 4LUN:CS4Y:SGYQ:ZAXU:M7C5:JYSB:ZFTO:JZ6D:CD7Q:TOVD:JBFS:AQM3<br>Docker Root Dir: /var/lib/docker<br>Debug Mode: <span class="hljs-literal">false</span><br>Registry: https://index.docker.io/v1/<br>Labels:<br>Experimental: <span class="hljs-literal">false</span><br>Insecure Registries:<br> 10.0.0.102<br> 127.0.0.0/8<br>Registry Mirrors:<br>https://si7y70hh.mirror.aliyuncs.com/<br>Live Restore Enabled: <span class="hljs-literal">false</span><br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-1-2-OOM-（Out-of-Memory-Exception）"><a href="#7-1-2-OOM-（Out-of-Memory-Exception）" class="headerlink" title="7.1.2 OOM （Out of Memory Exception）"></a>7.1.2 OOM （Out of Memory Exception）</h3><p>对于 Linux 主机，如果没有足够的内存来执行其他重要的系统任务，将会抛出OOM (Out of MemoryException,内存溢出、内存泄漏、内存异常 )，随后系统会开始杀死进程以释放内存， 凡是运行在宿主机的进程都有可能被 kill ，包括 Dockerd和其它的应用程序， 如果重要的系统进程被 Kill，会导致和该进程相关的服务全部宕机。通常越消耗内存比较大的应用越容易被kill，比如: MySQL数据库，Java程序等</p>
+<p>范例: OOM发生后的日志信息</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker156.png" srcset="/blog/img/loading.gif"></p>
+<p>产生 OOM 异常时， Dockerd尝试通过调整 Docker 守护程序上的 OOM 优先级来减轻这些风险，以便它比系统上的其他进程更不可能被杀死但是容器 的 OOM 优先级未调整， 这使得单个容器被杀死的可能性比 Docker守护程序或其他系统进程被杀死的可能性更大，不推荐通过在守护程序或容器上手动设置– oom -score-adj为极端负数，或通过在容器上设置 – oom-kill-disable来绕过这些安全措施</p>
+<p><strong>OOM 优先级机制:</strong></p>
+<p>linux会为每个进程算一个分数，最终将分数最高的kill</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">/proc/PID/oom_score_adj<br><span class="hljs-comment">#范围为 -1000 到 1000，值越高容易被宿主机 kill掉，如果将该值设置为 -1000 ，则进程永远不会被宿主机 kernel kill</span><br>/proc/PID/oom_adj<br><span class="hljs-comment">#范围为 -17 到+15 ，取值越高越容易被干掉，如果是 -17 ， 则表示不能被 kill ，该设置参数的存在是为了和旧版本的 Linux 内核兼容。</span><br>/proc/PID/oom_score<br><span class="hljs-comment">#这个值是系统综合进程的内存消耗量、 CPU 时间 (utime + 、存活时间 (uptime - start time)和 oom_adj 计算出的进程得分 ，消耗内存越多得分越高，容易被宿主机 kernel 强制杀死</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: 查看OOM相关值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#按内存排序</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#top</span><br>top - 20:15:38 up  5:53,  3 users, load average: 0.00, 0.00, 0.00<br>Tasks: 191 total,  1 running, 116 sleeping,  0 stopped,  0 zombie<br>%Cpu(s):  0.0 us,  0.3 sy,  0.0 ni, 99.7 id,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st<br>KiB Mem :  985104 total,  310592 free,  448296 used,  226216 buff/cache<br>KiB Swap:  1951740 total,  1892860 free,   58880 used.  384680 avail Mem<br> <br>PID   USER   PR  NI   VIRT    RES     SHR  S %CPU %MEM   TIME+ COMMAND  <br>19674 2019   20   0 2241656  94684  12452  S  0.0  9.6  0:16.05 java    <br>19675 2019   20   0 2235512  74816  12440  S  0.0  7.6  0:14.89 java    <br>19860 99     20   0  183212  67748    960  S  0.0  6.9  0:01.15 haproxy  <br>4969  root   20   0  937880  49352  12612  S  0.0  5.0  0:46.07 dockerd  <br>2981  root   20   0  793072  13552   1808  S  0.0  1.4  0:13.78 containerd <br>500   root   19  -1  78560    7552   7112  S  0.0  0.8  0:01.45 systemd-journal                         <br>798   root   20   0  170416   6604   4084  S  0.0  0.7  0:00.77 networkd-dispat                         <br>1     root   20   0  78036    6200   4416  S  0.0  0.6  0:05.39 systemd  <br>1011  root   20   0  24548    5496   3012  S  0.0  0.6  0:01.62 bash    <br>852   root   10 -10  25880    5264   4036  S  0.0  0.5  0:00.00 iscsid   <br>815   root   20   0  548292   4624   1224  S  0.0  0.5  0:01.89 snapd   <br>19586 root   20   0  109104   4532   3768  S  0.0  0.5  0:00.29 containerd-shim                         <br>19779 root   20   0  405532   4224   2828  S  0.0  0.4  0:00.01 docker-proxy<br>19784 root   20   0  107696   4204   3652  S  0.0  0.4  0:00.29 containerd-shim                         <br>19424 root   20   0  109104   4084   3416  S  0.0  0.4  0:00.27 containerd-shim                         <br>20064 root   20   0  44076    4036   3360  R  0.7  0.4  0:00.20 top    <br>19768 root   20   0  405532   4024   2644  S  0.0  0.4  0:00.01 docker-proxy<br>19423 root   20   0  109104   3792   3064  S  0.0  0.4  0:00.31 containerd-shim                         <br>490   root   20   0  193112   3316   2864  S  0.0  0.3  0:26.20 vmtoolsd  <br>7108  root   20   0  105688   3204   2504  S  0.0  0.3  0:00.11 sshd<br> <br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/19674/oom_adj</span><br>0<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/19674/oom_score</span><br>32<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/19674/oom_score_adj</span><br>0<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/7108/oom_adj</span><br>0<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/7108/oom_score</span><br>1<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/7108/oom_score_adj</span><br>0<br><br><span class="hljs-comment">#docker服务进程的OOM默认值</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/`pidof dockerd`/oom_adj</span><br>-8<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/`pidof dockerd`/oom_score</span><br>0<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /proc/`pidof dockerd`/oom_score_adj</span><br>-500<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-2-容器的内存限制"><a href="#7-2-容器的内存限制" class="headerlink" title="7.2 容器的内存限制"></a>7.2 容器的内存限制</h2><p>Docker 可以强制执行硬性内存限制，即只允许容器使用给定的内存大小。</p>
+<p>Docker 也可以执行非硬性内存限制，即容器可以使用尽可能多的内存，除非内核检测到主机上的内存不够用了</p>
+<h3 id="7-2-1-内存相关选项"><a href="#7-2-1-内存相关选项" class="headerlink" title="7.2.1 内存相关选项"></a>7.2.1 内存相关选项</h3><p>官文文档: <a target="_blank" rel="noopener" href="https://docs.docker.com/config/containers/resource_constraints/">https://docs.docker.com/config/containers/resource_constraints/</a></p>
+<p>以下设置大部分的选项取正整数，跟着一个后缀 b ， k ， m ， g ，，表示字节，千字节，兆字节或千兆字节</p>
+<table>
+<thead>
+<tr>
+<th align="center">选项</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">-m ， –memory=</td>
+<td align="center">容器可以使用的最大物理内存量，硬限制，此选项最小允许值为4m （4 MB），此项较常用</td>
+</tr>
+<tr>
+<td align="center">–memory-swap</td>
+<td align="center">允许此容器交换到磁盘的内存量,必须先用-m 对内存限制才可以使用,详细说明如下</td>
+</tr>
+<tr>
+<td align="center">–memory-swappiness</td>
+<td align="center">设置容器使用交换分区的倾向性，值越高表示越倾向于使用swap分区，范围为0-100，0为能不用就不用，100为能用就用</td>
+</tr>
+<tr>
+<td align="center">–memory-reservation</td>
+<td align="center">允许指定小于 –memory 的软限制 ，当 Docker 检测到主机上的争用或内存不足时会激活该限制，如果使– memory-reservation，则必须将其设置为低于 –memory 才能使其优先生效。 因为它是软限制，所以不能保证容器不超过限制</td>
+</tr>
+<tr>
+<td align="center">–kernel-memory</td>
+<td align="center">容器可以使用的最大内核内存量，最小为 4m，由于内核内存与用户空间内存隔离，因此无法与用户空间内存直接交换，因此内核内存不足的容器可能会阻塞宿主机资源，这会对主机和其他容器或者其他服务进程产生影响，因此不建议设置内核内存大小</td>
+</tr>
+<tr>
+<td align="center">–oom-kill-disable</td>
+<td align="center">认情况下，如果发生内存不足（OOM）错误，则内核将终止容器中的进程。要更改此行为，请使用该 –oom-kill-disable 选项。仅在设置了该 -m/–memory 选项的容器上禁用OOM。如果 -m 未设置该标志，则主机可能会用完内存，内核可能需要终止主机系统的进程以释放内存</td>
+</tr>
+</tbody></table>
+<p>范例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -e MYSQL_ROOT_PASSWORD=123456 -it --rm -m 1g --oom-kill-disable mysql:5.7.29</span><br>2020-02-04 13:11:54+00:00 [Note] [Entrypoint]: Entrypoint script <span class="hljs-keyword">for</span> MySQL<br>Server 5.7.29-1debian9 started.<br>2020-02-04 13:11:54+00:00 [Note] [Entrypoint]: Switching to dedicated user<br><span class="hljs-string">&#x27;mysql&#x27;</span><br>2020-02-04 13:11:54+00:00 [Note] [Entrypoint]: Entrypoint script <span class="hljs-keyword">for</span> MySQL<br>Server 5.7.29-1debian9 started.<br>2020-02-04 13:11:54+00:00 [Note] [Entrypoint]: Initializing database files<br>......<br>Version: <span class="hljs-string">&#x27;5.7.29&#x27;</span> socket: <span class="hljs-string">&#x27;/var/run/mysqld/mysqld.sock&#x27;</span> port: 3306 MySQL<br>Community Server (GPL)<br></code></pre></td></tr></table></figure>
+
+<p>范例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#sysctl -a |grep swappiness</span><br>sysctl: reading key <span class="hljs-string">&quot;net.ipv6.conf.all.stable_secret&quot;</span><br>sysctl: reading key <span class="hljs-string">&quot;net.ipv6.conf.default.stable_secret&quot;</span><br>sysctl: reading key <span class="hljs-string">&quot;net.ipv6.conf.docker0.stable_secret&quot;</span><br>sysctl: reading key <span class="hljs-string">&quot;net.ipv6.conf.eth0.stable_secret&quot;</span><br>sysctl: reading key <span class="hljs-string">&quot;net.ipv6.conf.lo.stable_secret&quot;</span><br>vm.swappiness = 60<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-2-2-swap限制"><a href="#7-2-2-swap限制" class="headerlink" title="7.2.2 swap限制"></a>7.2.2 swap限制</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">--memory-swap <span class="hljs-comment">#只有在设置了 --memory 后才会有意义。使用 Swap,可以让容器将超出限制部分的内存置换到磁盘上，WARNING: 经常将内存交换到磁盘的应用程序会降低性能</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>不同的–memory-swap 设置会产生不同的效果:</strong></p>
+<table>
+<thead>
+<tr>
+<th>–memory-swap</th>
+<th>–memory</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正数S</td>
+<td>正数M</td>
+<td>容器可用内存总空间为S,其中ram为M,swap为 S-M,若S=M,则无可用swap资源</td>
+</tr>
+<tr>
+<td>0</td>
+<td>正数M</td>
+<td>相当于未设置swap(unset)</td>
+</tr>
+<tr>
+<td>unset</td>
+<td>正数M</td>
+<td>若主机(Docker Host) 启用于swap , 则容器的可用swap 为2*M</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>正数M</td>
+<td>若主机(Docker Host)启用了swap ,则容器可使用最大至主机上所有swap空间</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">-memory-swap <span class="hljs-comment">#值为正数， 那么--memory 和--memory-swap 都必须要设置，--memory-swap 表示你能使用的内存和 swap 分区大小的总和，例如:  --memory=300m, --memory-swap=1g, 那么该容器能够使用 300m 物理内存和 700m swap，即--memory 是实际物理内存大小值不变，而 swap 的实际大小计算方式为(--memory-swap)-(--memory)=容器可用 swap</span><br>--memory-swap <span class="hljs-comment">#如果设置为 0，则忽略该设置，并将该值视为未设置，即未设置交换分区</span><br>--memory-swap <span class="hljs-comment">#如果等于--memory 的值，并且--memory 设置为正整数，容器无权访问 swap</span><br>-memory-swap <span class="hljs-comment">#如果未设置，如果宿主机开启了 swap，则实际容器的swap 值最大为 2x( --memory)，即两倍于物理内存大小，例如，如果--memory=&quot;300m&quot;与--memory-swap没有设置，该容器可以使用300m总的内存和600m交撒空间,但是并不准确(在容器中使用free 命令所看到的 swap 空间并不精确，毕竟每个容器都可以看到具体大小，宿主机的 swap 是有上限的，而且不是所有容器看到的累计大小)</span><br>--memory-swap <span class="hljs-comment">#如果设置为-1，如果宿主机开启了 swap，则容器可以使用主机上 swap 的最大空间</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>注意: 在容器中执行free命令看到的是宿主机的内存和swap使用，而非容器自身的swap使用情况</strong></p>
+<p>范例: 在容器中查看内存</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#free</span><br>      total    used    free   shared buff/cache  available<br>Mem:     3049484    278484   1352932    10384   1418068   2598932<br>Swap:    1951740      0   1951740<br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm -m 2G centos:centos7.7.1908 bash</span><br>[root@f5d387b5022f /]<span class="hljs-comment"># free</span><br>           total      used    free   shared buff/cache  available<br>Mem:     3049484    310312   1320884    10544   1418288   2566872<br>Swap:    1951740      0   1   951740<br>[root@f5d387b5022f /]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-2-3-stress-ng-压力测试工具"><a href="#7-2-3-stress-ng-压力测试工具" class="headerlink" title="7.2.3 stress-ng 压力测试工具"></a>7.2.3 stress-ng 压力测试工具</h3><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker157.png" srcset="/blog/img/loading.gif"></p>
+<p>stress-ng是一个压力测试工具，可以通过软件仓库进行安装，也提供了docker版本的容器</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker158.png" srcset="/blog/img/loading.gif"></p>
+<p>范例: 软件包方式安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos7 ~]<span class="hljs-comment">#yum -y install stress-ng</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#apt -y install stress-ng</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: 容器方式安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker pull lorel/docker-stress-ng</span><br>Using default tag: latest<br>latest: Pulling from lorel/docker-stress-ng<br>Image docker.io/lorel/docker-stress-ng:latest uses outdated schema1 manifest<br>format. Please upgrade to a schema2 image <span class="hljs-keyword">for</span> better future compatibility. More<br>information at https://docs.docker.com/registry/spec/deprecated-schema-v1/<br>c52e3ed763ff: Pull complete<br>a3ed95caeb02: Pull complete<br>7f831269c70e: Pull complete<br>Digest: sha256:c8776b750869e274b340f8e8eb9a7d8fb2472edd5b25ff5b7d55728bca681322<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> lorel/docker-stress-ng:latest<br>docker.io/lorel/docker-stress-ng:latest<br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker images</span><br>REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE<br>lorel/docker-stress-ng          latest              1ae56ccafe55        5 years ago         8.1MB<br></code></pre></td></tr></table></figure>
+
+<p>范例: 查看帮助</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm lorel/docker-stress-ng</span><br>stress-ng, version 0.03.11<br><br>Usage: stress-ng [OPTION [ARG]]<br> --h,  --<span class="hljs-built_in">help</span>             show <span class="hljs-built_in">help</span><br>       --affinity N       start N workers that rapidly change CPU affinity<br>       --affinity-ops N   stop when N affinity bogo operations completed<br>       --affinity-rand    change affinity randomly rather than sequentially<br>       --aio N            start N workers that issue async I/O requests<br>       --aio-ops N        stop when N bogo async I/O requests completed<br>       --aio-requests N   number of async I/O requests per worker<br> -a N, --all N            start N workers of each stress <span class="hljs-built_in">test</span><br> -b N, --backoff N        <span class="hljs-built_in">wait</span> of N microseconds before work starts<br> -B N, --bigheap N        start N workers that grow the heap using calloc()<br>       --bigheap-ops N    stop when N bogo bigheap operations completed<br>       --bigheap-growth N grow heap by N bytes per iteration<br>       --brk N            start N workers performing rapid brk calls<br>       --brk-ops N        stop when N brk bogo operations completed<br>       --brk-notouch      don<span class="hljs-string">&#x27;t touch (page in) new data segment page</span><br><span class="hljs-string">       --bsearch          start N workers that exercise a binary search</span><br><span class="hljs-string">       --bsearch-ops      stop when N binary search bogo operations completed</span><br><span class="hljs-string">       --bsearch-size     number of 32 bit integers to bsearch</span><br><span class="hljs-string"> -C N, --cache N          start N CPU cache thrashing workers</span><br><span class="hljs-string">       --cache-ops N      stop when N cache bogo operations completed (x86 only)</span><br><span class="hljs-string">       --cache-flush      flush cache after every memory write (x86 only)</span><br><span class="hljs-string">       --cache-fence      serialize stores</span><br><span class="hljs-string">       --class name       specify a class of stressors, use with --sequential</span><br><span class="hljs-string">       --chmod N          start N workers thrashing chmod file mode bits </span><br><span class="hljs-string">       --chmod-ops N      stop chmod workers after N bogo operations</span><br><span class="hljs-string"> -c N, --cpu N            start N workers spinning on sqrt(rand())</span><br><span class="hljs-string">       --cpu-ops N        stop when N cpu bogo operations completed</span><br><span class="hljs-string"> -l P, --cpu-load P       load CPU by P %%, 0=sleep, 100=full load (see -c)</span><br><span class="hljs-string">       --cpu-method m     specify stress cpu method m, default is all</span><br><span class="hljs-string"> -D N, --dentry N         start N dentry thrashing processes</span><br><span class="hljs-string">       --dentry-ops N     stop when N dentry bogo operations completed</span><br><span class="hljs-string">       --dentry-order O   specify dentry unlink order (reverse, forward, stride)</span><br><span class="hljs-string">       --dentries N       create N dentries per iteration</span><br><span class="hljs-string">       --dir N            start N directory thrashing processes</span><br><span class="hljs-string">       --dir-ops N        stop when N directory bogo operations completed</span><br><span class="hljs-string"> -n,   --dry-run          do not run</span><br><span class="hljs-string">       --dup N            start N workers exercising dup/close</span><br><span class="hljs-string">       --dup-ops N        stop when N dup/close bogo operations completed</span><br><span class="hljs-string">       --epoll N          start N workers doing epoll handled socket activity</span><br><span class="hljs-string">       --epoll-ops N      stop when N epoll bogo operations completed</span><br><span class="hljs-string">       --epoll-port P     use socket ports P upwards</span><br><span class="hljs-string">       --epoll-domain D   specify socket domain, default is unix</span><br><span class="hljs-string">       --eventfd N        start N workers stressing eventfd read/writes</span><br><span class="hljs-string">       --eventfd-ops N    stop eventfd workers after N bogo operations</span><br><span class="hljs-string">       --fault N          start N workers producing page faults</span><br><span class="hljs-string">       --fault-ops N      stop when N page fault bogo operations completed</span><br><span class="hljs-string">       --fifo N           start N workers exercising fifo I/O</span><br><span class="hljs-string">       --fifo-ops N       stop when N fifo bogo operations completed</span><br><span class="hljs-string">       --fifo-readers N   number of fifo reader processes to start</span><br><span class="hljs-string">       --flock N          start N workers locking a single file</span><br><span class="hljs-string">       --flock-ops N      stop when N flock bogo operations completed</span><br><span class="hljs-string"> -f N, --fork N           start N workers spinning on fork() and exit()</span><br><span class="hljs-string">       --fork-ops N       stop when N fork bogo operations completed</span><br><span class="hljs-string">       --fork-max P       create P processes per iteration, default is 1</span><br><span class="hljs-string">       --fstat N          start N workers exercising fstat on files</span><br><span class="hljs-string">       --fstat-ops N      stop when N fstat bogo operations completed</span><br><span class="hljs-string">       --fstat-dir path   fstat files in the specified directory</span><br><span class="hljs-string">       --futex N          start N workers exercising a fast mutex</span><br><span class="hljs-string">       --futex-ops N      stop when N fast mutex bogo operations completed</span><br><span class="hljs-string">       --get N            start N workers exercising the get*() system calls</span><br><span class="hljs-string">       --get-ops N        stop when N get bogo operations completed</span><br><span class="hljs-string"> -d N, --hdd N            start N workers spinning on write()/unlink()</span><br><span class="hljs-string">       --hdd-ops N        stop when N hdd bogo operations completed</span><br><span class="hljs-string">       --hdd-bytes N      write N bytes per hdd worker (default is 1GB)</span><br><span class="hljs-string">       --hdd-direct       minimize cache effects of the I/O</span><br><span class="hljs-string">       --hdd-dsync        equivalent to a write followed by fdatasync</span><br><span class="hljs-string">       --hdd-noatime      do not update the file last access time</span><br><span class="hljs-string">       --hdd-sync         equivalent to a write followed by fsync</span><br><span class="hljs-string">       --hdd-write-size N set the default write size to N bytes</span><br><span class="hljs-string">       --hsearch          start N workers that exercise a hash table search</span><br><span class="hljs-string">       --hsearch-ops      stop when N hash search bogo operations completed</span><br><span class="hljs-string">       --hsearch-size     number of integers to insert into hash table</span><br><span class="hljs-string">       --inotify N        start N workers exercising inotify events</span><br><span class="hljs-string">       --inotify-ops N    stop inotify workers after N bogo operations</span><br><span class="hljs-string"> -i N, --io N             start N workers spinning on sync()</span><br><span class="hljs-string">       --io-ops N         stop when N io bogo operations completed</span><br><span class="hljs-string">       --ionice-class C   specify ionice class (idle, besteffort, realtime)</span><br><span class="hljs-string">       --ionice-level L   specify ionice level (0 max, 7 min)</span><br><span class="hljs-string"> -k,   --keep-name        keep stress process names to be &#x27;</span>stress-ng<span class="hljs-string">&#x27;</span><br><span class="hljs-string">       --kill N           start N workers killing with SIGUSR1</span><br><span class="hljs-string">       --kill-ops N       stop when N kill bogo operations completed</span><br><span class="hljs-string">       --lease N          start N workers holding and breaking a lease</span><br><span class="hljs-string">       --lease-ops N      stop when N lease bogo operations completed</span><br><span class="hljs-string">       --lease-breakers N number of lease breaking processes to start</span><br><span class="hljs-string">       --link N           start N workers creating hard links</span><br><span class="hljs-string">       --link-ops N       stop when N link bogo operations completed</span><br><span class="hljs-string">       --lsearch          start N workers that exercise a linear search</span><br><span class="hljs-string">       --lsearch-ops      stop when N linear search bogo operations completed</span><br><span class="hljs-string">       --lsearch-size     number of 32 bit integers to lsearch</span><br><span class="hljs-string"> -M,   --metrics          print pseudo metrics of activity</span><br><span class="hljs-string">       --metrics-brief    enable metrics and only show non-zero results</span><br><span class="hljs-string">       --memcpy N         start N workers performing memory copies</span><br><span class="hljs-string">       --memcpy-ops N     stop when N memcpy bogo operations completed</span><br><span class="hljs-string">       --mmap N           start N workers stressing mmap and munmap</span><br><span class="hljs-string">       --mmap-ops N       stop when N mmap bogo operations completed</span><br><span class="hljs-string">       --mmap-async       using asynchronous msyncs for file based mmap</span><br><span class="hljs-string">       --mmap-bytes N     mmap and munmap N bytes for each stress iteration</span><br><span class="hljs-string">       --mmap-file        mmap onto a file using synchronous msyncs</span><br><span class="hljs-string">       --mmap-mprotect    enable mmap mprotect stressing</span><br><span class="hljs-string">       --msg N            start N workers passing messages using System V messages</span><br><span class="hljs-string">       --msg-ops N        stop msg workers after N bogo messages completed</span><br><span class="hljs-string">       --mq N             start N workers passing messages using POSIX messages</span><br><span class="hljs-string">       --mq-ops N         stop mq workers after N bogo messages completed</span><br><span class="hljs-string">       --mq-size N        specify the size of the POSIX message queue</span><br><span class="hljs-string">       --nice N           start N workers that randomly re-adjust nice levels</span><br><span class="hljs-string">       --nice-ops N       stop when N nice bogo operations completed</span><br><span class="hljs-string">       --no-madvise       don&#x27;</span>t use random madvise options <span class="hljs-keyword">for</span> each mmap<br>       --null N           start N workers writing to /dev/null<br>       --null-ops N       stop when N /dev/null bogo write operations completed<br> -o,   --open N           start N workers exercising open/close<br>       --open-ops N       stop when N open/close bogo operations completed<br> -p N, --pipe N           start N workers exercising pipe I/O<br>       --pipe-ops N       stop when N pipe I/O bogo operations completed<br> -P N, --poll N           start N workers exercising zero timeout polling<br>       --poll-ops N       stop when N poll bogo operations completed<br>       --procfs N         start N workers reading portions of /proc<br>       --procfs-ops N     stop procfs workers after N bogo <span class="hljs-built_in">read</span> operations<br>       --pthread N        start N workers that create multiple threads<br>       --pthread-ops N    stop pthread workers after N bogo threads created<br>       --pthread-max P    create P threads at a time by each worker<br> -Q,   --qsort N          start N workers exercising qsort on 32 bit random integers<br>       --qsort-ops N      stop when N qsort bogo operations completed<br>       --qsort-size N     number of 32 bit integers to sort<br> -q,   --quiet            quiet output<br> -r,   --random N         start N random workers<br>       --rdrand N         start N workers exercising rdrand instruction (x86 only)<br>       --rdrand-ops N     stop when N rdrand bogo operations completed<br> -R,   --rename N         start N workers exercising file renames<br>       --rename-ops N     stop when N rename bogo operations completed<br>       --<span class="hljs-built_in">sched</span> <span class="hljs-built_in">type</span>       <span class="hljs-built_in">set</span> scheduler <span class="hljs-built_in">type</span><br>       --sched-prio N     <span class="hljs-built_in">set</span> scheduler priority level N<br>       --seek N           start N workers performing random seek r/w IO<br>       --seek-ops N       stop when N seek bogo operations completed<br>       --seek-size N      length of file to <span class="hljs-keyword">do</span> random I/O upon<br>       --sem N            start N workers doing semaphore operations<br>       --sem-ops N        stop when N semaphore bogo operations completed<br>       --sem-procs N      number of processes to start per worker<br>       --sendfile N       start N workers exercising sendfile<br>       --sendfile-ops N   stop after N bogo sendfile operations<br>       --sendfile-size N  size of data to be sent with sendfile<br>       --sequential N     run all stressors one by one, invoking N of them<br>       --sigfd N          start N workers reading signals via signalfd reads <br>       --sigfd-ops N      stop when N bogo signalfd reads completed<br>       --sigfpe N         start N workers generating floating point math faults<br>       --sigfpe-ops N     stop when N bogo floating point math faults completed<br>       --sigsegv N        start N workers generating segmentation faults<br>       --sigsegv-ops N    stop when N bogo segmentation faults completed<br> -S N, --sock N           start N workers doing socket activity<br>       --sock-ops N       stop when N socket bogo operations completed<br>       --sock-port P      use socket ports P to P + number of workers - 1<br>       --sock-domain D    specify socket domain, default is ipv4<br>       --stack N          start N workers generating stack overflows<br>       --stack-ops N      stop when N bogo stack overflows completed<br> -s N, --switch N         start N workers doing rapid context switches<br>       --switch-ops N     stop when N context switch bogo operations completed<br>       --symlink N        start N workers creating symbolic links<br>       --symlink-ops N    stop when N symbolic link bogo operations completed<br>       --sysinfo N        start N workers reading system information<br>       --sysinfo-ops N    stop when sysinfo bogo operations completed<br> -t N, --timeout N        timeout after N seconds<br> -T N, --timer N          start N workers producing timer events<br>       --timer-ops N      stop when N timer bogo events completed<br>       --timer-freq F     run timer(s) at F Hz, range 1000 to 1000000000<br>       --tsearch          start N workers that exercise a tree search<br>       --tsearch-ops      stop when N tree search bogo operations completed<br>       --tsearch-size     number of 32 bit integers to tsearch<br>       --<span class="hljs-built_in">times</span>            show run time summary at end of the run<br> -u N, --urandom N        start N workers reading /dev/urandom<br>       --urandom-ops N    stop when N urandom bogo <span class="hljs-built_in">read</span> operations completed<br>       --utime N          start N workers updating file timestamps<br>       --utime-ops N      stop after N utime bogo operations completed<br>       --utime-fsync      force utime meta data sync to the file system<br> -v,   --verbose          verbose output<br>       --verify           verify results (not available on all tests)<br> -V,   --version          show version<br> -m N, --vm N             start N workers spinning on anonymous mmap<br>       --vm-bytes N       allocate N bytes per vm worker (default 256MB)<br>       --vm-hang N        sleep N seconds before freeing memory<br>       --vm-keep          redirty memory instead of reallocating<br>       --vm-ops N         stop when N vm bogo operations completed<br>       --vm-locked        lock the pages of the mapped region into memory<br>       --vm-method m      specify stress vm method m, default is all<br>       --vm-populate      populate (prefault) page tables <span class="hljs-keyword">for</span> a mapping<br>       --<span class="hljs-built_in">wait</span> N           start N workers waiting on child being stop/resumed<br>       --wait-ops N       stop when N bogo <span class="hljs-built_in">wait</span> operations completed<br>       --zero N           start N workers reading /dev/zero<br>       --zero-ops N       stop when N /dev/zero bogo <span class="hljs-built_in">read</span> operations completed<br><br>Example: stress-ng --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s<br><br>Note: Sizes can be suffixed with B,K,M,G and <span class="hljs-built_in">times</span> with s,m,h,d,y<br></code></pre></td></tr></table></figure>
+
+<p>假如一个容器未做内存使用限制，则该容器可以利用到系统内存最大空间，默认创建的容器没有做内存资源限制。</p>
+<p>范例: 默认一个workers分配256M内存，2个即占512M内存</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run --name c1 -it --rm lorel/docker-stress-ng --vm 2</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br><span class="hljs-comment">#因上一个命令是前台执行，下面在另一个终端窗口中执行，可以看到占用512M左右内存</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT    MEM %               NET I/O             BLOCK I/O           PIDS<br>4bfd2e70a001        c1                  200.30%             524.8MiB / 3.83GiB   13.38%              796B / 0B           0B / 0B             5<br></code></pre></td></tr></table></figure>
+
+<p>范例: 指定内存最大值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run --name c1 -it --rm -m 300m lorel/docker-stress-ng --vm 2</span><br>WARNING: Your kernel does not support swap <span class="hljs-built_in">limit</span> capabilities or the cgroup is<br>not mounted. Memory limited without swap.<br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#vim /etc/default/grub</span><br>GRUB_CMDLINE_LINUX=<span class="hljs-string">&quot;cgroup_enable=memory swapaccount=1 net.ifnames=0&quot;</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#update-grub</span><br>Generating grub configuration file ...<br>Found linux image: /boot/vmlinuz-4.15.0-29-generic<br>Found initrd image: /boot/initrd.img-4.15.0-29-generic<br><span class="hljs-keyword">done</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#reboot</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run --name c1 -it --rm -m 300m lorel/docker-stress-ng --vm 2</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br><span class="hljs-comment">#在另一个终端窗口执行</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS<br>23548e7482c8        c1                  3.20%               297.2MiB / 300MiB   99.06%              1.31kB / 0B         404MB / 715MB       5<br></code></pre></td></tr></table></figure>
+
+<p>范例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run --name c2 -it --rm lorel/docker-stress-ng --vm 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 vm<br><br><span class="hljs-comment">#一次性查看资源使用情况</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT    MEM %               NET I/O             BLOCK I/O           PIDS<br>2223eb972e03        c2                  400.30%             1.021GiB / 3.83GiB   26.65%              976B / 0B           287kB / 0B          9<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: 容器占用内存造成OOM</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm lorel/docker-stress-ng --vm 6</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 6 vm<br><br><span class="hljs-comment">#另一个终端窗中同时执行下面命令</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm lorel/docker-stress-ng --vm 6</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 6 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats</span><br>CONTAINER ID    NAME        CPU %        MEM USAGE / LIMIT <br>MEM %        NET I/O       BLOCK I/O      PIDS<br>f33cebf5b55d    c2          --          -- / --      <br>--          --          --          --<br>b14b597c5a4f    cool_banach     --          -- / --      <br>--          --          --          --<br><br><span class="hljs-comment">#观察日志出现OOM现象</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#tail /var/log/syslog</span><br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928835] [ 2575]   0  2575   67104 <br> 39218  544768   22906      1000 stress-ng-vm<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928836] [ 2594]   0  2594   67104 <br> 37503  409600   7725      1000 stress-ng-vm<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928837] [ 2601]   0  2601   67104 <br> 38815  438272   9779      1000 stress-ng-vm<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928838] [ 2602]   0  2602   1568 <br>  861   49152     0      1000 stress-ng-vm<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928839] [ 2610]   0  2610   1568 <br>  861   49152     0      1000 stress-ng-vm<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928840] [ 2614]   0  2614   1157 <br>  174   53248     0       0 update-motd-hwe<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928841] [ 2615]   0  2615   3100 <br>  15   61440     0       0 apt-config<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.928842] Out of memory: Kill process<br>2570 (stress-ng-vm) score 1090 or sacrifice child<br>Feb  4 22:59:40 ubuntu1804 kernel: [  785.929493] Killed process 2570 (stress-<br>ng-vm) total-vm:268416kB, anon-rss:170352kB, file-rss:632kB, shmem-rss:28kB<br>Feb  4 22:59:40 ubuntu1804 kernel: [  786.018319] oom_reaper: reaped process<br>2570 (stress-ng-vm), now anon-rss:0kB, file-rss:0kB, shmem-rss:28kB<br></code></pre></td></tr></table></figure>
+
+<p>范例: 查看内存限制</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#启动两个工作进程，每个工作进程最大允许使用内存 256M，且宿主机不限制当前容器最大内存</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm lorel/docker-stress-ng --vm 2</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker ps -a</span><br>CONTAINER ID    IMAGE          COMMAND         CREATED <br>     STATUS       PORTS        NAMES<br>13e46172e1ae    lorel/docker-stress-ng  <span class="hljs-string">&quot;/usr/bin/stress-ng …&quot;</span>  24 seconds<br>ago   Up 22 seconds              gallant_moore<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#ls /sys/fs/cgroup/memory/docker/</span><br>13e46172e1ae8593569f05a3bebc7b41b7839da44369d43b29102661364ac2cd<br>memory.kmem.tcp.limit_in_bytes   memory.numa_stat<br>cgroup.clone_children                      <br>memory.kmem.tcp.max_usage_in_bytes memory.oom_control<br>cgroup.event_control                      <br>memory.kmem.tcp.usage_in_bytes   memory.pressure_level<br>cgroup.procs                          <br>memory.kmem.usage_in_bytes     memory.soft_limit_in_bytes<br>memory.failcnt                         <br>memory.limit_in_bytes        memory.stat<br>memory.force_empty                       <br>memory.max_usage_in_bytes      memory.swappiness<br>memory.kmem.failcnt                       <br>memory.memsw.failcnt        memory.usage_in_bytes<br>memory.kmem.limit_in_bytes                   <br>memory.memsw.limit_in_bytes     memory.use_hierarchy<br>memory.kmem.max_usage_in_bytes                 <br>memory.memsw.max_usage_in_bytes   notify_on_release<br>memory.kmem.slabinfo                      <br>memory.memsw.usage_in_bytes     tasks<br>memory.kmem.tcp.failcnt                     <br>memory.move_charge_at_immigrate <br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/13e46172e1ae8593569f05a3bebc7b41b7839da44369d43b29102661364ac2cd/memory.limit_in_bytes</span><br>9223372036854771712<br>[root@ubuntu1804 ~]<span class="hljs-comment">#echo 2^63|bc</span><br>9223372036854775808<br></code></pre></td></tr></table></figure>
+
+<p>范例: 内存限制200m</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#宿主机限制容器最大内存使用: </span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm -m 200M lorel/docker-stress-ng --vm 2</span><br>--vm-bytes 256M<br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS<br>62cd91274da6        reverent_easley     27.23%              197.9MiB / 200MiB   98.94%              766B / 0B           5.96MB / 1.05GB     5<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br><br><span class="hljs-comment">#查看宿主机基于 cgroup 对容器进行内存资源的大小限制</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/f69729b2acc16e032658a4efdab64d21ff97dcb6746d1cef451ed82d5c98a81f/memory.limit_in_bytes</span><br>209715200<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#echo 209715200/1024/1024|bc</span><br>200<br><br><span class="hljs-comment">#动态修改内存限制</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#echo 300*1024*1024|bc</span><br>314572800<br>[root@ubuntu1804 ~]<span class="hljs-comment">#echo 314572800 &gt;/sys/fs/cgroup/memory/docker/f69729b2acc16e032658a4efdab64d21ff97dcb6746d1cef451ed82d5c98a81f/memory.limit_in_bytes</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat</span><br>/sys/fs/cgroup/memory/docker/f69729b2acc16e032658a4efdab64d21ff97dcb6746d1cef451<br>ed82d5c98a81f/memory.limit_in_bytes<br>314572800<br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS<br>0e90be8b5a60        reverent_moser      21.54%              298MiB / 300MiB     99.33%              1.12kB / 0B         77.4MB / 7.52GB     5<br><br><span class="hljs-comment">#通过echo 命令可以改内存限制的值，但是可以在原基础之上增大内存限制，缩小内存限制会报错write</span><br>error: Device or resource busy<br>[root@ubuntu1804 ~]<span class="hljs-comment">#echo 209715200 &gt; /sys/fs/cgroup/memory/docker/f69729b2acc16e032658a4efdab64d21ff97dcb6746d1cef451ed82d5c98a81f/memory.limit_in_bytes</span><br>-bash: <span class="hljs-built_in">echo</span>: write error: Device or resource busy<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/f69729b2acc16e032658a4efdab64d21ff97dcb6746d1cef451ed82d5c98a81f/memory.limit_in_bytes</span><br>314572800<br></code></pre></td></tr></table></figure>
+
+<p>范例: 内存大小软限制</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm -m 256m --memory-reservation 128m --name magedu-c1 lorel/docker-stress-ng --vm 2 --vm-bytes 256M</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS<br>54e4af04f486        magedu-c1           25.24%              253.9MiB / 256MiB   99.19%              836B / 0B           12.6MB / 816MB      5<br><br><span class="hljs-comment">#查看硬限制</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/54e4af04f4861828410396bee92268ba19c3e7105dca181fa0893c5cbb5c2576/memory.limit_in_bytes</span><br>268435456<br><br><span class="hljs-comment">#查看软限制</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/54e4af04f4861828410396bee92268ba19c3e7105dca181fa0893c5cbb5c2576/memory.soft_limit_in_bytes</span><br>134217728<br><br><span class="hljs-comment">#软限制不能高于硬限制</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm -m 256m --memory-reservation 257m --name magedu-c1 lorel/docker-stress-ng --vm 2 --vm-bytes 256M</span><br>docker: Error response from daemon: Minimum memory <span class="hljs-built_in">limit</span> can not be less than<br>memory reservation <span class="hljs-built_in">limit</span>, see usage.<br>See <span class="hljs-string">&#x27;docker run --help&#x27;</span>.<br></code></pre></td></tr></table></figure>
+
+<p><strong>关闭OOM 机制:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># docker run -it --rm -m 256m --oom-kill-disable --name magedu-c1 lorel/docker-stress-ng --vm 2 --vm-bytes 256M</span><br><span class="hljs-comment"># cat /sys/fs/cgroup/memory/docker/容器 ID/memory.oom_control</span><br>oom_kill_disable 1<br>under_oom 1<br>oom_kill 0<br></code></pre></td></tr></table></figure>
+
+<p>范例: 关闭OOM机制</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#查看docker OOM机制默认值</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/memory.oom_control</span><br>oom_kill_disable 0<br>under_oom 0<br>oom_kill 0<br><br><span class="hljs-comment">#启动容器时关闭OOM机制</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm -m 200m --oom-kill-disable lorel/docker-stress-ng --vm 2 --vm-bytes 256M</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS<br>39f5c95d7d34        sharp_feynman       0.00%               197.8MiB / 200MiB   98.91%              766B / 0B           266kB / 241MB       5<br>[root@ubuntu1804 ~]<span class="hljs-comment">#c</span><br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/39f5c95d7d34601484957b2b254c3f3df08c85484e25728e6ebee68162cc19c3/memory.oom_control</span><br>oom_kill_disable 1<br>under_oom 1<br>oom_kill 0<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>交换分区限制:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># docker run -it --rm -m 256m --memory-swap 512m --name magedu-c1 centos bash</span><br><span class="hljs-comment"># cat /sys/fs/cgroup/memory/docker/容器 ID/memory.memsw.limit_in_bytes 536870912</span><br><span class="hljs-comment">#返回值</span><br></code></pre></td></tr></table></figure>
+
+<p>范例:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm -m 200m --memory-swap 512m lorel/docker-stress-ng --vm 2</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 2 vm<br><span class="hljs-comment">#宿主机cgroup验证: </span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/memory/docker/23733a0cafa21f3e94ca8c96110978b12e53076261f1b92fd2052bafe659c8ab/memory.memsw.limit_in_bytes</span><br>536870912<br></code></pre></td></tr></table></figure>
+
+<p><strong>kubernets 对swap的要求</strong></p>
+<p>K8s 1.8.3更新日志:<br>宿主机开启交换分区，会在安装之前的预检查环节提示相应错误信息: <a target="_blank" rel="noopener" href="https://github.com/kubernetes/kubernetes/blob/release-1.8/CHANGELOG-1.8.md">https://github.com/kubernetes/kubernetes/blob/release-1.8/CHANGELOG-1.8.md</a></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker159.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-3-容器的CPU限制"><a href="#7-3-容器的CPU限制" class="headerlink" title="7.3 容器的CPU限制"></a>7.3 容器的CPU限制</h2><h3 id="7-3-1-容器的CPU限制介绍"><a href="#7-3-1-容器的CPU限制介绍" class="headerlink" title="7.3.1 容器的CPU限制介绍"></a>7.3.1 容器的CPU限制介绍</h3><p>官方文档说明: <a target="_blank" rel="noopener" href="https://docs.docker.com/config/containers/resource_constraints/">https://docs.docker.com/config/containers/resource_constraints/</a></p>
+<p>一个宿主机，有几十个核心的CPU，但是宿主机上可以同时运行成百上千个不同的进程用以处理不同的任务，多进程共用一个 CPU 的核心为可压缩资源，即一个核心的 CPU 可以通过调度而运行多个进程，但是同一个单位时间内只能有一个进程在 CPU 上运行，那么这么多的进程怎么在 CPU 上执行和调度的呢？</p>
+<p>Linux kernel 进程的调度基于CFS(Completely Fair Scheduler)，完全公平调度</p>
+<p><strong>服务器资源密集型</strong></p>
+<ul>
+<li>CPU 密集型的场景: 优先级越低越好，计算密集型任务的特点是要进行大量的计算，消耗 CPU 资源，比如计算圆周率、数据处理、对视频进行高清解码等等，全靠CPU 的运算能力。</li>
+<li>IO 密集型的场景: 优先级值高点，涉及到网络、磁盘IO 的任务都是IO 密集型任务，这类任务的特点是 CPU 消耗很少，任务的大部分时间都在等待 IO 操作完成（因为 IO 的速度远远低于 CPU 和内存的速度），比如 Web 应用，高并发，数据量大的动态网站来说，数据库应该为IO 密集型</li>
+</ul>
+<p><strong>CFS原理</strong></p>
+<p>cfs定义了进程调度的新模型，它给cfs_rq（cfs的run queue）中的每一个进程安排一个虚拟时钟vruntime。如果一个进程得以执行，随着时间的增长，其vruntime将不断增大。没有得到执行的进程vruntime不变, 而调度器总是选择vruntime跑得最慢的那个进程来执行。这就是所谓的“完全公平”。为了区别不同优先级的进程，优先级高的进程vruntime增长得慢，以至于它可能得到更多的运行机会。CFS的意义在于， 在一个混杂着大量计算型进程和IO交互进程的系统中，CFS调度器相对其它调度器在对待IO交互进程要更加友善和公平。</p>
+<h3 id="7-3-2-配置默认的CFS调度程序"><a href="#7-3-2-配置默认的CFS调度程序" class="headerlink" title="7.3.2 配置默认的CFS调度程序"></a>7.3.2 配置默认的CFS调度程序</h3><p>默认情况下，每个容器对主机的CPU周期的访问都是不受限制的。可以设置各种约束，以限制给定容器对主机CPU周期的访问。大多数用户使用并配置默认的CFS调度程序。在Docker 1.13及更高版本中，还可以配置 realtime scheduler。</p>
+<p>CFS是用于常规Linux进程的Linux内核CPU调度程序。通过几个运行时标志,可以配置对容器拥有的CPU资源的访问量。使用这些设置时，Docker会在主机上修改容器cgroup的设置。</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>–cpus=</td>
+<td>指定一个容器可以使用多少个可用的CPU核心资源。例如，如果主机有两个CPU，如果设置了 –cpus=”1.5” ，则可以保证容器最多使用1.5个的CPU(如果是4核CPU，那么还可以是4核心上每核用一点，但是总计是1.5核心的CPU)。这相当于设置 –cpu-period=”100000” 和 –cpu-quota=”150000” 。此设置可在Docker 1.13及更高版本中可用，目的是替代–cpu-period和–cpu-quota两个参数，从而使配置更简单，但是最大不能超出宿主机的CPU总核心数(在操作系统看到的CPU超线程后的数值)，此项较常用</td>
+</tr>
+<tr>
+<td>–cpu-period=</td>
+<td>过时选项,指定CPU CFS调度程序周期，必须与 –cpu-quota 一起使用 。默认为100微秒。大多数用户不会更改默认设置。如果使用Docker 1.13或更高版本，请改用 –cpus</td>
+</tr>
+<tr>
+<td>–cpu-quota=</td>
+<td>过时选项,在容器上添加 CPU CFS 配额，计算方式为 cpu-quota / cpu-period的结果值，docker1.13 及以上版本通常使用–cpus 设置此值</td>
+</tr>
+<tr>
+<td>–cpuset-cpus</td>
+<td>用于指定容器运行的 CPU 编号，也就是所谓的CPU绑定。如果一个或多个CPU，则容器可以使用逗号分隔的列表或用连字符分隔的CPU范围。第一个CPU的编号为0。有效值可能是 0-3 （使用第一，第二，第三和第四CPU）或1,3 （使用第二和第四CPU）</td>
+</tr>
+<tr>
+<td>–cpu-shares</td>
+<td>得更多的时间片(宿主机多核 CPU 总数为 100%，假如容器 A 为1024，容器 B为 2048，那么容器 B 将最大是容器 A 的可用 CPU 的两倍 )，默认的时间片1024，最大 262144。这是一个软限制。</td>
+</tr>
+</tbody></table>
+<h3 id="7-3-3-使用stress-ng测试cpu配置"><a href="#7-3-3-使用stress-ng测试cpu配置" class="headerlink" title="7.3.3 使用stress-ng测试cpu配置"></a>7.3.3 使用stress-ng测试cpu配置</h3><p>范例: 查看 stress-n 关于cpu的帮助</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --name magedu-c1 lorel/docker-stress-ng |grep cpu</span><br> -c N, --cpu N            start N workers spinning on sqrt(rand())<br>       --cpu-ops N        stop when N cpu bogo operations completed<br> -l P, --cpu-load P       load CPU by P %%, 0=sleep, 100=full load (see -c)<br>       --cpu-method m     specify stress cpu method m, default is all<br>Example: stress-ng --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 10s<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: 不限制容器CPU</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#lscpu |grep CPU</span><br>CPU op-mode(s):    32-bit, 64-bit<br>CPU(s):        6<br>On-line CPU(s) list: 0-5<br>CPU family:      6<br>Model name:     Intel(R) Core(TM) i7-4710HQ CPU @ 2.50GHz<br>CPU MHz:       2494.236<br>NUMA node0 CPU(s):  0-5<br><br><span class="hljs-comment">#占用4个CPU资源.但只是平均的使用CPU资源</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm lorel/docker-stress-ng --cpu 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 cpu, 4 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID            NAME        CPU %        MEM USAGE / LIMIT  MEM %        NET I/O       BLOCK I/O      PIDS<br>818a85e1da2f    frosty_taussig    595.57%       1.037GiB / 2.908GiB 35.64%        1.12kB / 0B     0B / 0B       13<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/cpuset/docker/818a85e1da2f9a4ef297178a9dc09b338b2308108195ad8d4197a1c47febcbff/cpuset.cpus</span><br>0-5<br>[root@ubuntu1804 ~]<span class="hljs-comment">#top</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker160.png" srcset="/blog/img/loading.gif"></p>
+<p>范例: 限制使用CPU</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --cpus 1.5 lorel/docker-stress-ng --cpu 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 cpu, 4 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID           NAME        CPU %        MEM USAGE / LIMIT  MEM %        NET I/O       BLOCK I/O      PIDS<br>9f8b2e693113    busy_hodgkin     147.71%       786.8MiB / 2.908GiB 26.42%       836B / 0B      0B / 0B       13<br>[root@ubuntu1804 ~]<span class="hljs-comment">#top</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker161.png" srcset="/blog/img/loading.gif"></p>
+<p>范例: 限制CPU</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --cpu-quota 2000 --cpu-period 1000 lorel/docker-stress-ng --cpu 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 cpu, 4 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID               NAME           CPU %        MEM USAGE /LIMIT   MEM %        NET I/O       BLOCK I/O      PIDS<br>bd949bb6698e    affectionate_chebyshev  185.03%       1.037GiB /2.908GiB  35.64%       836B / 0B      0B / 0B       13<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: 绑定CPU</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#一般不建议绑在0号CPU上，因0号CPU一般会较忙</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --cpus 1.5 --cpuset-cpus 2,4-5 lorel/docker-stress-ng --cpu 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 cpu, 4 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID    NAME        CPU %        MEM USAGE / LIMIT <br> MEM %        NET I/O       BLOCK I/O      PIDS<br>585879094e73    hungry_albattani   154.35%       1.099GiB / 2.908GiB<br> 37.79%       906B / 0B      0B / 0B       13<br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/cpuset/docker/585879094e7382d2ef700947b4454426eee7f943f8d1438fe42ce34df789227b/cpuset.cpus</span><br>2,4-5<br>[root@ubuntu1804 ~]<span class="hljs-comment">#top</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/docker/docker162.png" srcset="/blog/img/loading.gif"></p>
+<p>范例: 多个容器的CPU利用率比例</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#同时开两个容器</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --name c1 --cpu-shares 1000 lorel/docker-stress-ng --cpu 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 cpu, 4 vm<br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --name c2 --cpu-shares 500 lorel/docker-stress-ng --cpu 4</span><br>stress-ng: info: [1] defaulting to a 86400 second run per stressor<br>stress-ng: info: [1] dispatching hogs: 4 cpu, 4 vm<br><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID    NAME          CPU %        MEM USAGE / LIMIT  MEM %        NET I/O       BLOCK I/O      PIDS<br>a1d4c6e6802d    c2          195.88%       925.3MiB / 2.908GiB 31.07%       726B / 0B      0B / 0B       13<br>d5944104aff4    c1          398.20%       1.036GiB / 2.908GiB 35.64%       906B / 0B      0B / 0B       13<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br><br><span class="hljs-comment">#查看c1容器的cpu利用比例</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/cpu,cpuacct/docker/d5944104aff40b7b76f536c45a68cd4b98ce466a73416b68819b9643e3f49da7/cpu.shares</span><br>1000<br><br><span class="hljs-comment">#查看c2容器的cpu利用比例</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#cat /sys/fs/cgroup/cpu,cpuacct/docker/a1d4c6e6802d1b846b33075f3c1e1696376009e85d9ff8756f9a8d93d3da3ca6/cpu.shares</span><br>500<br><br><span class="hljs-comment">#再打开新的容器，cpu分配比例会动态调整</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker run -it --rm --name c3 --cpu-shares 2000 lorel/docker-stress-ng --cpu 4</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID    NAME        CPU %        MEM USAGE / LIMIT  MEM %        NET I/O       BLOCK I/O      PIDS<br>c2d54818e1fe    c3          360.15%       664.5MiB / 2.908GiB 22.31%       726B / 0B      1.64GB / 150MB    13<br>a1d4c6e6802d    c2          82.94%        845.2MiB / 2.908GiB 28.38%       936B / 0B      103MB / 4.54MB    13<br>d5944104aff4    c1          181.18%       930.1MiB / 2.908GiB 31.23%        1.12kB / 0B     303MB / 19.8MB    13<br></code></pre></td></tr></table></figure>
+
+<p>范例: 动态调整cpu shares值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#echo 2000 &gt; /sys/fs/cgroup/cpu,cpuacct/docker/a1d4c6e6802d1b846b33075f3c1e1696376009e85d9ff8756f9a8d93d3da3ca6/cpu.shares</span><br>[root@ubuntu1804 ~]<span class="hljs-comment">#docker stats --no-stream</span><br>CONTAINER ID    NAME          CPU %        MEM USAGE / LIMIT  MEM %           NET I/O       BLOCK I/O        PIDS<br>a1d4c6e6802d    c2          389.31%       1.037GiB / 2.908GiB 35.64%        1.01kB / 0B     1.16GB / 14MB     13<br>d5944104aff4    c1          200.28%       1.036GiB / 2.908GiB 35.63%        1.19kB / 0B     2.66GB / 26.7MB   13<br>[root@ubuntu1804 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/linux-docker/">linux docker</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">企业级容器技术docker（六）docker单机编排</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%89%EF%BC%89docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
+                        <span class="hidden-mobile">企业级容器技术docker（三）docker数据管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
