@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Nginx架构和安装 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Nginx架构和安装">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-02-28 20:30" pubdate>
+        2021年2月28日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      95
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Nginx架构和安装</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Nginx-架构和安装"><a href="#Nginx-架构和安装" class="headerlink" title="Nginx 架构和安装"></a>Nginx 架构和安装</h1><h2 id="一、Nginx-架构和安装"><a href="#一、Nginx-架构和安装" class="headerlink" title="一、Nginx 架构和安装"></a>一、Nginx 架构和安装</h2><h3 id="1-1-Nginx-概述"><a href="#1-1-Nginx-概述" class="headerlink" title="1.1 Nginx 概述"></a>1.1 Nginx 概述</h3><h4 id="1-1-1-Nginx-介绍"><a href="#1-1-1-Nginx-介绍" class="headerlink" title="1.1.1 Nginx 介绍"></a>1.1.1 Nginx 介绍</h4><p>Nginx：engine X ，2002年开发，分为社区版和商业版(nginx plus )</p>
+<p>2019年3月11日 F5 Networks 6.7亿美元的价格收购</p>
+<p>Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮件代理服务器、以及TCP/UDP代理服务器</p>
+<p>解决C10K问题（10K Connections）</p>
+<p>解决C1000K问题参考链接: <a target="_blank" rel="noopener" href="http://www.ideawu.net/blog/archives/740.html">http://www.ideawu.net/blog/archives/740.html</a></p>
+<p>Nginx官网：<a target="_blank" rel="noopener" href="http://nginx.org/">http://nginx.org</a></p>
+<p>nginx的其它的二次发行版：</p>
+<ul>
+<li>Tengine：由淘宝网发起的Web服务器项目。它在Nginx的基础上，针对大访问量网站的需求，添加了很多高级功能和特性。Tengine的性能和稳定性已经在大型的网站如淘宝网，天猫商城等得到了很好的检验。它的最终目标是打造一个高效、稳定、安全、易用的Web平台。从2011年12月开始，Tengine成为一个开源项目，官网: <a target="_blank" rel="noopener" href="http://tengine.taobao.org/">http://tengine.taobao.org/</a></li>
+<li>OpenResty：基于 Nginx 与 Lua 语言的高性能 Web 平台， 章亦春团队开发，官网：<a target="_blank" rel="noopener" href="http://openresty.org/cn/">http://openresty.org/cn/</a></li>
+</ul>
+<h4 id="1-1-2-Nginx-功能介绍"><a href="#1-1-2-Nginx-功能介绍" class="headerlink" title="1.1.2 Nginx 功能介绍"></a>1.1.2 Nginx 功能介绍</h4><ul>
+<li>静态的web资源服务器html，图片，js，css，txt等静态资源</li>
+<li>http/https协议的反向代理</li>
+<li>结合FastCGI/uWSGI/SCGI等协议反向代理动态资源请求</li>
+<li>tcp/udp协议的请求转发（反向代理）</li>
+<li>imap4/pop3协议的反向代理</li>
+</ul>
+<h4 id="1-1-3-基础特性"><a href="#1-1-3-基础特性" class="headerlink" title="1.1.3 基础特性"></a>1.1.3 基础特性</h4><ul>
+<li>模块化设计，较好的扩展性</li>
+<li>高可靠性</li>
+<li>支持热部署：不停机更新配置文件，升级版本，更换日志文件</li>
+<li>低内存消耗：10000个keep-alive连接模式下的非活动连接，仅需2.5M内存</li>
+<li>event-driven,aio,mmap，sendfile</li>
+</ul>
+<h4 id="1-1-4-Web-服务相关的功能"><a href="#1-1-4-Web-服务相关的功能" class="headerlink" title="1.1.4 Web 服务相关的功能"></a>1.1.4 Web 服务相关的功能</h4><ul>
+<li>虚拟主机（server）</li>
+<li>支持 keep-alive 和管道连接(利用一个连接做多次请求)</li>
+<li>访问日志（支持基于日志缓冲提高其性能）</li>
+<li>url rewirte</li>
+<li>路径别名</li>
+<li>基于IP及用户的访问控制</li>
+<li>支持速率限制及并发数限制</li>
+<li>重新配置和在线升级而无须中断客户的工作进程</li>
+</ul>
+<h3 id="1-2-Nginx-架构和进程"><a href="#1-2-Nginx-架构和进程" class="headerlink" title="1.2 Nginx 架构和进程"></a>1.2 Nginx 架构和进程</h3><h4 id="1-2-1-Nginx-架构"><a href="#1-2-1-Nginx-架构" class="headerlink" title="1.2.1 Nginx 架构"></a>1.2.1 Nginx 架构</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework1.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-2-2-Nginx-进程结构"><a href="#1-2-2-Nginx-进程结构" class="headerlink" title="1.2.2 Nginx 进程结构"></a>1.2.2 Nginx 进程结构</h4><p>web请求处理机制</p>
+<ul>
+<li>多进程方式：服务器每接收到一个客户端请求就有服务器的主进程生成一个子进程响应客户端，直到用户关闭连接，这样的优势是处理速度快，子进程之间相互独立，但是如果访问过大会导致服务器资源耗尽而无法提供请求。</li>
+<li>多线程方式：与多进程方式类似，但是每收到一个客户端请求会有服务进程派生出一个线程来个客户方进行交互，一个线程的开销远远小于一个进程，因此多线程方式在很大程度减轻了web服务器对系统资源的要求，但是多线程也有自己的缺点，即当多个线程位于同一个进程内工作的时候，可以相互访问同样的内存地址空间，所以他们相互影响，一旦主进程挂掉则所有子线程都不能工作了，IIS服务器使用了多线程的方式，需要间隔一段时间就重启一次才能稳定。</li>
+</ul>
+<p>Nginx是多进程组织模型，而且是一个由Master主进程和Worker工作进程组成。</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework2.jpg" srcset="/blog/img/loading.gif"></p>
+<p>主进程(master process)的功能：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">对外接口：接收外部的操作（信号）<br>对内转发：根据外部的操作的不同，通过信号管理 Worker<br>监控：监控 worker 进程的运行状态，worker 进程异常终止后，自动重启 worker 进程<br>读取Nginx 配置文件并验证其有效性和正确性<br>建立、绑定和关闭socket连接<br>按照配置生成、管理和结束工作进程<br>接受外界指令，比如重启、升级及退出服务器等指令<br>不中断服务，实现平滑升级，重启服务并应用新的配置<br>开启日志文件，获取文件描述符<br>不中断服务，实现平滑升级，升级失败进行回滚处理<br>编译和处理perl脚本<br></code></pre></td></tr></table></figure>
+
+<p>工作进程（worker process）的功能：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">所有 Worker 进程都是平等的<br>实际处理：网络请求，由 Worker 进程处理<br>Worker 进程数量：在 nginx.conf 中配置，一般设置为核心数，充分利用 CPU 资源，同时，避免进程数量过多，避免进程竞争 CPU 资源，增加上下文切换的损耗<br>接受处理客户的请求<br>将请求依次送入各个功能模块进行处理<br>I/O调用，获取响应数据<br>与后端服务器通信，接收后端服务器的处理结果<br>缓存数据，访问缓存索引，查询和调用缓存数据<br>发送请求结果，响应客户的请求<br>接收主程序指令，比如重启、升级和退出等<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework3.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework4.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-2-3-Nginx-进程间通信"><a href="#1-2-3-Nginx-进程间通信" class="headerlink" title="1.2.3 Nginx 进程间通信"></a>1.2.3 Nginx 进程间通信</h4><p>工作进程是由主进程生成的，主进程使用fork()函数，在Nginx服务器启动过程中主进程根据配置文件决定启动工作进程的数量，然后建立一张全局的工作表用于存放当前未退出的所有的工作进程，主进程生成工作进程后会将新生成的工作进程加入到工作进程表中，并建立一个单向的管道并将其传递给工作进程，该管道与普通的管道不同，它是由主进程指向工作进程的单向通道，包含了主进程向工作进程发出的指令、工作进程ID、工作进程在工作进程表中的索引和必要的文件描述符等信息。主进程与外界通过信号机制进行通信，当接收到需要处理的信号时，它通过管道向相关的工作进程发送正确的指令，每个工作进程都有能力捕获管道中的可读事件，当管道中有可读事件的时候，工作进程就会从管道中读取并解析指令，然后采取相应的执行动作，这样就完成了主进程与工作进程的交互。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">工作进程之间的通信原理基本上和主进程与工作进程之间的通信是一样的，只要工作进程之间能够取得彼此的<br>信息，建立管道即可通信，但是由于工作进程之间是完全隔离的，因此一个进程想要知道另外一个进程的状态<br>信息,就只能通过主进程来实现。<br>为了实现工作进程之间的交互，主进程在生成工作进程之后，在工作进程表中进行遍历，将该新进程的ID以及针对该进程建立的管道句柄传递给工作进程中的其他进程，为工作进程之间的通信做准备，当工作进程1向工作进程2发送指令的时候，首先在主进程给它的其他工作进程工作信息中找到2的进程ID，然后将正确的指令写入指向进程2的管道，工作进程2捕获到管道中的事件后，解析指令并进行相关操作，这样就完成了工作进程之间的通信。<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework5.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-2-4-HTTP-连接建立和请求处理过程"><a href="#1-2-4-HTTP-连接建立和请求处理过程" class="headerlink" title="1.2.4 HTTP 连接建立和请求处理过程"></a>1.2.4 HTTP 连接建立和请求处理过程</h4><ul>
+<li><p>Nginx 启动时，Master 进程，加载配置文件</p>
+</li>
+<li><p>Master 进程，初始化监听的 socket</p>
+</li>
+<li><p>Master 进程，fork 出多个 Worker 进程</p>
+</li>
+<li><p>Worker 进程，竞争新的连接，获胜方通过三次握手，建立 Socket 连接，并处理请求</p>
+</li>
+</ul>
+<h4 id="1-2-5-HTTP-处理过程"><a href="#1-2-5-HTTP-处理过程" class="headerlink" title="1.2.5 HTTP 处理过程"></a>1.2.5 HTTP 处理过程</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework6.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-3-Nginx-模块介绍"><a href="#1-3-Nginx-模块介绍" class="headerlink" title="1.3 Nginx 模块介绍"></a>1.3 Nginx 模块介绍</h3><p>nginx 有多种模块</p>
+<ul>
+<li>核心模块：是 Nginx 服务器正常运行必不可少的模块，提供错误日志记录 、配置文件解析 、事件驱动机制 、进程管理等核心功能</li>
+<li>标准HTTP模块：提供 HTTP 协议解析相关的功能，比如： 端口配置 、 网页编码设置 、 HTTP响应头设置 等等</li>
+<li>可选HTTP模块：主要用于扩展标准的 HTTP 功能，让 Nginx 能处理一些特殊的服务，比如：<br>Flash 多媒体传输 、解析 GeoIP 请求、 网络传输压缩 、 安全协议 SSL 支持等</li>
+<li>邮件服务模块：主要用于支持 Nginx 的 邮件服务 ，包括对 POP3 协议、 IMAP 协议和 SMTP协议的支持</li>
+<li>Stream服务模块: 实现反向代理功能,包括TCP协议代理</li>
+<li>第三方模块：是为了扩展 Nginx 服务器应用，完成开发者自定义功能，比如： Json 支持、 Lua 支持等</li>
+</ul>
+<p>nginx高度模块化，但其模块早期不支持DSO机制;1.9.11 版本支持动态装载和卸载</p>
+<p>模块分类：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">核心模块：core module<br>标准模块：<br>    HTTP 模块： ngx_http_*<br>    HTTP Core modules  <span class="hljs-comment">#默认功能</span><br>    HTTP Optional modules <span class="hljs-comment">#需编译时指定</span><br>  Mail 模块: ngx_mail_*<br>  Stream 模块 ngx_stream_*<br>第三方模块<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework7.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-4-Nginx-安装"><a href="#1-4-Nginx-安装" class="headerlink" title="1.4 Nginx 安装"></a>1.4 Nginx 安装</h3><p>Nginx版本分为Mainline version(主要开发版本)、Stable version(当前最新稳定版)和Legacy<br>versions(旧的稳定版)<br>Nginx安装可以使用yum或源码安装，但是推荐使用源码编译安装</p>
+<ul>
+<li><p>yum的版本比较旧</p>
+</li>
+<li><p>编译安装可以更方便自定义相关路径</p>
+</li>
+<li><p>使用源码编译可以自定义相关功能，更方便业务的上的使用</p>
+</li>
+</ul>
+<p>源码安装需要提前准备标准的编译器，GCC的全称是（GNU Compiler collection），其有GNU开发，并以GPL即LGPL许可，是自由的类UNIX即苹果电脑Mac OS X操作系统的标准编译器，因为GCC原本只能处理C语言，所以原名为GNU C语言编译器，后来得到快速发展，可以处理C++,Fortran，pascal，objective-C，java以及Ada等其他语言，此外还需要Automake工具，以完成自动创建Makefile的工作，Nginx的一些模块需要依赖第三方库，比如: pcre（支持rewrite），zlib（支持gzip模块）和openssl（支持ssl模块）等。</p>
+<h3 id="1-4-1-基于-yum-安装-Nginx"><a href="#1-4-1-基于-yum-安装-Nginx" class="headerlink" title="1.4.1 基于 yum 安装 Nginx"></a>1.4.1 基于 yum 安装 Nginx</h3><p>1.4.1.1 查看当前系统中的 nginx 版本</p>
+<p>范例: 查看nginx版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#CentOS7</span><br>yum info nginx<br>Loaded plugins: fastestmirror, langpacks<br>Loading mirror speeds from cached hostfile<br> * base: mirrors.aliyun.com<br> * extras: mirrors.aliyun.com<br> * updates: mirrors.aliyun.com<br>Available Packages<br>Name        : nginx<br>Arch        : x86_64<br>Epoch       : 1<br>Version     : 1.16.1<br>Release     : 3.el7<br>Size        : 563 k<br>Repo        : epel/x86_64<br>Summary     : A high performance web server and reverse proxy server<br>URL         : http://nginx.org/<br>License     : BSD<br>Description : Nginx is a web server and a reverse proxy server <span class="hljs-keyword">for</span> HTTP, SMTP, POP3 and<br>            : IMAP protocols, with a strong focus on high concurrency, performance and low<br>            : memory usage.<br>            <br><span class="hljs-comment">#Ubuntu18.04 </span><br>apt -a show nginx<br>Package: nginx<br>Version: 1.14.0-0ubuntu1.7<br>Priority: optional<br>Section: web<br>Origin: Ubuntu<br>Maintainer: Ubuntu Developers &lt;ubuntu-devel-discuss@lists.ubuntu.com&gt;<br>Original-Maintainer: Debian Nginx Maintainers &lt;pkg-nginx-maintainers@lists.alioth.debian.org&gt;<br>Bugs: https://bugs.launchpad.net/ubuntu/+filebug<br>Installed-Size: 44.0 kB<br>Depends: nginx-core (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.7.1</span>~) | nginx-full (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.7.1</span>~) | nginx-light (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.7.1</span>~) | nginx-extras (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.7.1</span>~), nginx-core (&gt;= 1.14.0-0ubuntu1.7) | nginx-full (&gt;= 1.14.0-0ubuntu1.7) | nginx-light (&gt;= 1.14.0-0ubuntu1.7) | nginx-extras (&gt;= 1.14.0-0ubuntu1.7)<br>Homepage: http://nginx.net<br>Supported: 5y<br>Download-Size: 3,596 B<br>APT-Sources: http://mirrors.aliyun.com/ubuntu bionic-security/main amd64 Packages<br>Description: small, powerful, scalable web/proxy server<br> Nginx (<span class="hljs-string">&quot;engine X&quot;</span>) is a high-performance web and reverse proxy server<br> created by Igor Sysoev. It can be used both as a standalone web server<br> and as a proxy to reduce the load on back-end HTTP or mail servers.<br> .<br> This is a dependency package to install either nginx-full (by default),<br> nginx-light or nginx-extras.<br><br>Package: nginx<br>Version: 1.14.0-0ubuntu1<br>Priority: optional<br>Section: web<br>Origin: Ubuntu<br>Maintainer: Ubuntu Developers &lt;ubuntu-devel-discuss@lists.ubuntu.com&gt;<br>Original-Maintainer: Debian Nginx Maintainers &lt;pkg-nginx-maintainers@lists.alioth.debian.org&gt;<br>Bugs: https://bugs.launchpad.net/ubuntu/+filebug<br>Installed-Size: 43.0 kB<br>Depends: nginx-core (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.1</span>~) | nginx-full (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.1</span>~) | nginx-light (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.1</span>~) | nginx-extras (&lt;&lt; <span class="hljs-string">1.14.0-0ubuntu1.1</span>~), nginx-core (&gt;= 1.14.0-0ubuntu1) | nginx-full (&gt;= 1.14.0-0ubuntu1) | nginx-light (&gt;= 1.14.0-0ubuntu1) | nginx-extras (&gt;= 1.14.0-0ubuntu1)<br>Homepage: http://nginx.net<br>Supported: 5y<br>Download-Size: 3,596 B<br>APT-Sources: http://mirrors.aliyun.com/ubuntu bionic/main amd64 Packages<br>Description: small, powerful, scalable web/proxy server<br> Nginx (<span class="hljs-string">&quot;engine X&quot;</span>) is a high-performance web and reverse proxy server<br> created by Igor Sysoev. It can be used both as a standalone web server<br> and as a proxy to reduce the load on back-end HTTP or mail servers.<br> .<br> This is a dependency package to install either nginx-full (by default),<br> nginx-light or nginx-extras.<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-2-官方包源安装最新版本-nginx"><a href="#1-4-1-2-官方包源安装最新版本-nginx" class="headerlink" title="1.4.1.2 官方包源安装最新版本 nginx"></a>1.4.1.2 官方包源安装最新版本 nginx</h5><p>系统和EPEL源的中nignx版本较旧,可以安装官方源的最新版本</p>
+<p>官方包链接:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">http://nginx.org/en/linux_packages.html<br></code></pre></td></tr></table></figure>
+
+<p>官方 其他linux发行版 源链接</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">http://nginx.org/en/linux_packages.html<span class="hljs-comment">#RHEL-CentOS</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: 通过官方 yum 源安装nginx</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs bash">cat /etc/yum.repos.d/nginx.repo<br>[nginx-stable]<br>name=nginx stable repo<br>baseurl=http://nginx.org/packages/centos/<span class="hljs-variable">$releasever</span>/<span class="hljs-variable">$basearch</span>/<br>gpgcheck=1<br>enabled=1<br>gpgkey=https://nginx.org/keys/nginx_signing.key<br>module_hotfixes=<span class="hljs-literal">true</span><br><br>[nginx-mainline]<br>name=nginx mainline repo<br>baseurl=http://nginx.org/packages/mainline/centos/<span class="hljs-variable">$releasever</span>/<span class="hljs-variable">$basearch</span>/<br>gpgcheck=1<br>enabled=0<br>gpgkey=https://nginx.org/keys/nginx_signing.key<br>module_hotfixes=<span class="hljs-literal">true</span><br><br><span class="hljs-comment">#列出所有版本</span><br>yum list nginx --showduplicates<br>Last metadata expiration check: 0:01:08 ago on Tue 22 Sep 2020 12:01:59 PM CST.<br>Available Packages<br>nginx.x86_64   1.16.0-1.el8.ngx             nginx-stable<br>nginx.x86_64   1:1.14.1-9.module_el8.0.0+184+e34fea82  AppStream <br>nginx.x86_64   1:1.16.1-1.el8.ngx            nginx-stable<br>nginx.x86_64   1:1.18.0-1.el8.ngx            nginx-stable<br><br><span class="hljs-comment">#查看版本信息</span><br>dnf info nginx<br>Last metadata expiration check: 0:02:50 ago on Tue 22 Sep 2020 12:01:59 PM CST.<br>Available Packages<br>Name     : nginx<br>Epoch    : 1<br>Version   : 1.18.0<br>Release   : 1.el8.ngx<br>Architecture : x86_64<br>Size     : 806 k<br>Source    : nginx-1.18.0-1.el8.ngx.src.rpm<br>Repository  : nginx-stable<br>Summary   : High performance web server<br>URL     : http://nginx.org/<br>License   : 2-clause BSD-like license<br>Description : nginx [engine x] is an HTTP and reverse proxy server, as well as<br>      : a mail proxy server.<br><br>yum -y install nginx<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-3-检查安装"><a href="#1-4-1-3-检查安装" class="headerlink" title="1.4.1.3 检查安装"></a>1.4.1.3 检查安装</h5><p>查看nginx安装包信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs bash">rpm -q nginx<br>nginx-1.18.0-1.el8.ngx.x86_64<br><br>rpm -qi nginx<br>Name    : nginx<br>Epoch    : 1<br>Version   : 1.18.0<br>Release   : 1.el8.ngx<br>Architecture: x86_64<br>Install Date: Tue 22 Sep 2020 12:05:14 PM CST<br>Group    : System Environment/Daemons<br>Size    : 3815084<br>License   : 2-clause BSD-like license<br>Signature  : RSA/SHA1, Tue 21 Apr 2020 11:19:19 PM CST, Key ID abf5bd827bd9bf62<br>Source RPM : nginx-1.18.0-1.el8.ngx.src.rpm<br>Build Date : Tue 21 Apr 2020 11:07:57 PM CST<br>Build Host : ip-10-1-17-47.eu-central-1.compute.internal<br>Relocations : (not relocatable)<br>Vendor   : Nginx, Inc.<br>URL     : http://nginx.org/<br>Summary   : High performance web server<br>Description :<br>nginx [engine x] is an HTTP and reverse proxy server, as well as<br>a mail proxy server.<br><br>rpm -ql nginx<br>/etc/logrotate.d/nginx<br>/etc/nginx<br>/etc/nginx/conf.d<br>/etc/nginx/conf.d/default.conf<br>/etc/nginx/fastcgi_params<br>/etc/nginx/koi-utf<br>/etc/nginx/koi-win<br>/etc/nginx/mime.types<br>/etc/nginx/modules<br>/etc/nginx/nginx.conf<br>/etc/nginx/scgi_params<br>/etc/nginx/uwsgi_params<br>/etc/nginx/win-utf<br>/etc/sysconfig/nginx<br>/etc/sysconfig/nginx-debug<br>/usr/lib/.build-id<br>/usr/lib/.build-id/72<br>/usr/lib/.build-id/72/32b3d274d95e3739c1690a6344d3aac4c6272b<br>/usr/lib/.build-id/7f<br>/usr/lib/.build-id/7f/0259e101e7ab850dee7e6ac2907ac62f6f5917<br>/usr/lib/systemd/system/nginx-debug.service<br>/usr/lib/systemd/system/nginx.service<br>/usr/lib64/nginx<br>/usr/lib64/nginx/modules<br>/usr/libexec/initscripts/legacy-actions/nginx<br>/usr/libexec/initscripts/legacy-actions/nginx/check-reload<br>/usr/libexec/initscripts/legacy-actions/nginx/upgrade<br>/usr/sbin/nginx<br>/usr/sbin/nginx-debug<br>/usr/share/doc/nginx-1.18.0<br>/usr/share/doc/nginx-1.18.0/COPYRIGHT<br>/usr/share/man/man8/nginx.8.gz<br>/usr/share/nginx<br>/usr/share/nginx/html<br>/usr/share/nginx/html/50x.html<br>/usr/share/nginx/html/index.html<br>/var/cache/nginx<br>/var/<span class="hljs-built_in">log</span>/nginx<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-4-Nginx-程序用法帮助"><a href="#1-4-1-4-Nginx-程序用法帮助" class="headerlink" title="1.4.1.4 Nginx 程序用法帮助"></a>1.4.1.4 Nginx 程序用法帮助</h5><p>使用安装完成的二进制文件nginx</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">nginx -h<br>nginx version: nginx/1.18.0<br>Usage: nginx [-?hvVtTq] [-s signal] [-c filename] [-p prefix] [-g directives]<br>Options:<br> -?,-h     : this <span class="hljs-built_in">help</span><br> -v      : show version and <span class="hljs-built_in">exit</span><br> -V      : show version and configure options <span class="hljs-keyword">then</span> <span class="hljs-built_in">exit</span> <span class="hljs-comment">#显示版本和编译参数</span><br> -t      : <span class="hljs-built_in">test</span> configuration and <span class="hljs-built_in">exit</span> <span class="hljs-comment">#测试配置文件是否异常</span><br> -T      : <span class="hljs-built_in">test</span> configuration, dump it and <span class="hljs-built_in">exit</span> <span class="hljs-comment">#测试并打印</span><br> -q      : suppress non-error messages during configuration testing <span class="hljs-comment">#静默模式</span><br> -s signal   : send signal to a master process: stop, quit, reopen, reload <span class="hljs-comment">#发送信号,reload信号 会生成新的worker,但master不会重新生成</span><br> -p prefix   : <span class="hljs-built_in">set</span> prefix path (default: /etc/nginx/) <span class="hljs-comment">#指定Nginx 目录</span><br> -c filename  : <span class="hljs-built_in">set</span> configuration file (default: /etc/nginx/nginx.conf)<br><span class="hljs-comment">#配置文件路径</span><br> -g directives : <span class="hljs-built_in">set</span> global directives out of configuration file<span class="hljs-comment">#设置全局指令,注意和配置文件不要同时配置,否则冲突</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: nginx 命令使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">nginx -g <span class="hljs-string">&quot;worker_processes 6;&quot;</span><br>nginx: [emerg] <span class="hljs-string">&quot;worker_processes&quot;</span> directive is duplicate <span class="hljs-keyword">in</span><br>/apps/nginx/conf/nginx.conf:3<br><br>vim /apps/nginx/conf/nginx.conf<br><span class="hljs-comment">#worker_processes 1;</span><br><br>nginx -g <span class="hljs-string">&quot;worker_processes 6;&quot;</span><br>ps aux|grep nginx<br>root     8843  0.0  0.0  41048  844 ?    Ss  18:53  0:00 nginx: master<br>process nginx -g worker_processes 6;<br>nginx    8844  0.0  0.4  74572  4832 ?    S   18:53  0:00 nginx: worker<br>process<br>nginx    8845  0.0  0.4  74572  4832 ?    S   18:53  0:00 nginx: worker<br>process<br>nginx    8846  0.0  0.4  74572  4832 ?    S   18:53  0:00 nginx: worker<br>process<br>nginx    8847  0.0  0.4  74572  4832 ?    S   18:53  0:00 nginx: worker<br>process<br>nginx    8848  0.0  0.4  74572  4832 ?    S   18:53  0:00 nginx: worker<br>process<br>nginx    8849  0.0  0.4  74572  4832 ?    S   18:53  0:00 nginx: worker<br>process<br>root     8851  0.0  0.1  12108  1076 pts/1  S+  18:53  0:00 grep --<br>color=auto nginx<br><br>nginx -s quit<br>ps aux|grep nginx<br>root     8858  0.0  0.1  12108  1100 pts/1  S+  18:54  0:00 grep --<br>color=auto nginx<br><br><span class="hljs-comment">#前台运行</span><br>nginx -g <span class="hljs-string">&#x27;daemon off;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-5-验证-Nginx"><a href="#1-4-1-5-验证-Nginx" class="headerlink" title="1.4.1.5 验证 Nginx"></a>1.4.1.5 验证 Nginx</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash">nginx -t<br>nginx: the configuration file /etc/nginx/nginx.conf syntax is ok<br>nginx: configuration file /etc/nginx/nginx.conf <span class="hljs-built_in">test</span> is successful<br><br>nginx -V<br>nginx version: nginx/1.18.0<br>built by gcc 8.3.1 20190507 (Red Hat 8.3.1-4) (GCC)<br>built with OpenSSL 1.1.1c FIPS  28 May 2019<br>TLS SNI support enabled<br>configure arguments: --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-<br>path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-<br>path=/var/<span class="hljs-built_in">log</span>/nginx/error.log --http-log-path=/var/<span class="hljs-built_in">log</span>/nginx/access.log --pid-<br>path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-<br>path=/var/cache/nginx/client_temp --http-proxy-temp-<br>path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-<br>path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-<br>path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-<br>path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --with-compat --with-file-aio --with-threads --with-http_addition_module --with-http_auth_request_module --with-http_dav_module --with-http_flv_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_mp4_module --with-http_random_index_module --with-http_realip_module --with-http_secure_link_module --with-http_slice_module --with-http_ssl_module --with-http_stub_status_module --with-http_sub_module --with-http_v2_module --with-mail<br>--with-mail_ssl_module --with-stream --with-stream_realip_module --with-stream_ssl_module --with-stream_ssl_preread_module --with-cc-opt=<span class="hljs-string">&#x27;-O2 -g -pipe -</span><br><span class="hljs-string">Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches -</span><br><span class="hljs-string">specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -fPIC&#x27;</span> --with-ld-opt=<span class="hljs-string">&#x27;-Wl,-z,relro -Wl,-z,now -pie&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-6-Nginx-启动文件"><a href="#1-4-1-6-Nginx-启动文件" class="headerlink" title="1.4.1.6 Nginx 启动文件"></a>1.4.1.6 Nginx 启动文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">cat /usr/lib/systemd/system/nginx.service<br>[Unit]<br>Description=nginx - high performance web server<br>Documentation=http://nginx.org/en/docs/<br>After=network-online.target remote-fs.target nss-lookup.target<br>Wants=network-online.target<br>[Service]<br>Type=forking<br>PIDFile=/var/run/nginx.pid<br>ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf<br>ExecReload=/bin/<span class="hljs-built_in">kill</span> -s HUP <span class="hljs-variable">$MAINPID</span><br>ExecStop=/bin/<span class="hljs-built_in">kill</span> -s TERM <span class="hljs-variable">$MAINPID</span><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-7-Nginx-配置文件"><a href="#1-4-1-7-Nginx-配置文件" class="headerlink" title="1.4.1.7 Nginx 配置文件"></a>1.4.1.7 Nginx 配置文件</h5><p>范例: 查看配置文件列表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash">rpm -qc nginx<br>/etc/logrotate.d/nginx<br>/etc/nginx/conf.d/default.conf<br>/etc/nginx/fastcgi_params<br>/etc/nginx/koi-utf<br>/etc/nginx/koi-win<br>/etc/nginx/mime.types<br>/etc/nginx/nginx.conf<br>/etc/nginx/scgi_params<br>/etc/nginx/uwsgi_params<br>/etc/nginx/win-utf<br>/etc/sysconfig/nginx<br>/etc/sysconfig/nginx-debug<br><br>cat /etc/sysconfig/nginx<br><span class="hljs-comment"># Configuration file for the nginx service.</span><br><br>NGINX=/usr/sbin/nginx<br>CONFFILE=/etc/nginx/nginx.conf<br><br>tree /etc/nginx/<br>/etc/nginx/<br>├── conf.d<br>│  └── default.conf<br>├── fastcgi_params<br>├── koi-utf<br>├── koi-win<br>├── mime.types<br>├── modules -&gt; ../../usr/lib64/nginx/modules<br>├── nginx.conf<br>├── scgi_params<br>├── uwsgi_params<br>└── win-utf<br>2 directories, 9 files<br></code></pre></td></tr></table></figure>
+
+<p>范例: 配置文件/etc/nginx/nginx.conf 默认配置</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">grep</span> -Ev <span class="hljs-string">&quot;^ *#|^$&quot;</span> /etc/nginx/nginx.conf<br>user nginx;<br><span class="hljs-attribute">worker_processes</span>  <span class="hljs-number">1</span>;<br><span class="hljs-attribute">error_log</span> /var/log/nginx/error.log <span class="hljs-literal">warn</span>;<br><span class="hljs-attribute">pid</span>    /var/run/nginx.pid;<br><span class="hljs-section">events</span> &#123;<br> <span class="hljs-attribute">worker_connections</span>  <span class="hljs-number">1024</span>;<br>&#125;<br><span class="hljs-section">http</span> &#123;<br> <span class="hljs-attribute">include</span>    /etc/nginx/mime.types;<br> <span class="hljs-attribute">default_type</span> application/octet-stream;<br> <span class="hljs-attribute">log_format</span> main  <span class="hljs-string">&#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span><br>           <span class="hljs-string">&#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span><br>           <span class="hljs-string">&#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;</span>;<br> <span class="hljs-attribute">access_log</span> /var/log/nginx/access.log main;<br> <span class="hljs-attribute">sendfile</span>    <span class="hljs-literal">on</span>;<br> <span class="hljs-attribute">keepalive_timeout</span>  <span class="hljs-number">65</span>;<br> <span class="hljs-attribute">include</span> /etc/nginx/conf.d/<span class="hljs-regexp">*.conf</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-1-8-启动-Nginx"><a href="#1-4-1-8-启动-Nginx" class="headerlink" title="1.4.1.8 启动 Nginx"></a>1.4.1.8 启动 Nginx</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl <span class="hljs-built_in">enable</span> --now nginx<br>Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service →<br>/usr/lib/systemd/system/nginx.service.<br><br>[root@centos8 ~]<span class="hljs-comment">#systemctl status nginx</span><br>● nginx.service - nginx - high performance web server<br> Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor<br>preset: disabled)<br> Active: active (running) since Tue 2020-09-22 12:24:19 CST; 4s ago<br>  Docs: http://nginx.org/en/docs/<br>Process: 24584 ExecStart=/usr/sbin/nginx -c /etc/nginx/nginx.conf<br>(code=exited, status=0/SUCCESS)<br>Main PID: 24585 (nginx)<br> Tasks: 2 (<span class="hljs-built_in">limit</span>: 5882)<br> Memory: 2.4M<br> CGroup: /system.slice/nginx.service<br>     ├─24585 nginx: master process /usr/sbin/nginx -c<br>/etc/nginx/nginx.conf<br>     └─24586 nginx: worker process<br>Sep 22 12:24:19 centos8.wangxiaochun.com systemd[1]: Starting nginx - high<br>performance web server...<br>Sep 22 12:24:19 centos8.wangxiaochun.com systemd[1]: Started nginx - high<br>performance web server.<br><br>ps aux|grep nginx<br>root    24585  0.0  0.0  41312  860 ?    Ss  12:24  0:00 nginx: master<br>process /usr/sbin/nginx -c /etc/nginx/nginx.conf<br>nginx    24586  0.0  0.5  74896  4884 ?    S   12:24  0:00 nginx: worker<br>process<br>root    24590  0.0  0.1  12108  1088 pts/0  S+  12:24  0:00 grep --<br>color=auto nginx<br><br>pstree -p |grep nginx<br>     |-nginx(24585)---nginx(24586)<br></code></pre></td></tr></table></figure>
+
+<p>1.4.1.9 访问 Nginx</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework8.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-4-2-Nginx-编译安装"><a href="#1-4-2-Nginx-编译安装" class="headerlink" title="1.4.2 Nginx 编译安装"></a>1.4.2 Nginx 编译安装</h4><h5 id="1-4-2-1-编译安装-Nginx"><a href="#1-4-2-1-编译安装-Nginx" class="headerlink" title="1.4.2.1 编译安装 Nginx"></a>1.4.2.1 编译安装 Nginx</h5><p>官方源码包下载地址：</p>
+<p><a target="_blank" rel="noopener" href="https://nginx.org/en/download.html">https://nginx.org/en/download.html</a></p>
+<p>范例: CentOS编译安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#安装编译软件</span><br>yum -y install gcc pcre-devel openssl-devel zlib-devel<br><span class="hljs-comment">#创建nginx用户</span><br>useradd -s /sbin/nologin nginx<br><span class="hljs-comment">#下载nginx并解压</span><br><span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src/<br>wget https://nginx.org/download/nginx-1.16.1.tar.gz<br>tar xf nginx-1.16.1.tar.gz<br><span class="hljs-built_in">cd</span> nginx-1.16.1/<br><span class="hljs-comment">#创建nginx安装路径</span><br>mkdir -p /apps/nginx<br><span class="hljs-comment">#编译是为了检查系统环境是否符合编译安装的要求，⽐如是否有gcc编译⼯具，是否⽀持编译参数当中的模块，并根据开启的参数等⽣成Makefile⽂件为下⼀步做准备：</span><br>./configure --prefix=/apps/nginx  --with-http_ssl_module \<br>            --with-http_v2_module  \<br>            --with-http_realip_module \<br>            --with-http_addition_module  \<br>            --with-http_image_filter_module \<br>            --with-h ttp_geoip_module \<br>            --with-http_gunzip_module \<br>            --with-http_stub_status_module \<br>            --with-http_gzip_static_module \<br>            --with-pcre \<br>            --with-stream \<br>            --with-stream_ssl_module \<br>            --with-stream_realip_module <br>            ......<br><br>make <span class="hljs-comment">#编译步骤，根据Makefile⽂件⽣成相应的模块</span><br>make install <span class="hljs-comment">#创建⽬录，并将⽣成的模块和⽂件复制到相应的⽬录</span><br><span class="hljs-comment">#修改权限</span><br>chown nginx.nginx -R /apps/nginx/<br></code></pre></td></tr></table></figure>
+
+<p>范例:Ubuntu编译安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src/<br>wget https://nginx.org/download/nginx-1.16.1.tar.gz<br>tar xf nginx-1.16.1.tar.gz<br><span class="hljs-built_in">cd</span> nginx-1.16.1/<br>apt install  libgd-dev libgeoip-dev -y<br>mkdir -p /apps/nginx<br>编译是为了检查系统环境是否符合编译安装的要求，⽐如是否有gcc编译⼯具，是否⽀持编译参数当中的模块，并根据开启的参数等⽣成Makefile⽂件为下⼀步做准备：<br>./configure --prefix=/apps/nginx  --with-http_ssl_module \<br>            --with-http_v2_module  \<br>            --with-http_realip_module \<br>            --with-http_addition_module  \<br>            --with-http_image_filter_module \<br>            --with-h ttp_geoip_module \<br>            --with-http_gunzip_module \<br>            --with-http_stub_status_module \<br>            --with-http_gzip_static_module \<br>            --with-pcre \<br>            --with-stream \<br>            --with-stream_ssl_module \<br>            --with-stream_realip_module <br>.....<br>make <span class="hljs-comment">#编译步骤，根据Makefile⽂件⽣成相应的模块</span><br>make install <span class="hljs-comment">#创建⽬录，并将⽣成的模块和⽂件复制到相应的⽬录：</span><br>addgroup --gid 2019 nginx<br>useradd -m -r -s /bin/bash -u 2019 -g 2019 nginx <span class="hljs-comment">#以普通⽤⼾启动nginx</span><br><span class="hljs-comment">#修改权限</span><br>chown nginx.nginx -R /apps/nginx/<br></code></pre></td></tr></table></figure>
+
+<p>nginx完成安装以后，有四个主要的目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#生成目录</span><br>[root@centos8 nginx-1.18.0]<span class="hljs-comment">#ll /apps/nginx/</span><br>total 0<br>drwxr-xr-x 2 root root 333 Sep 22 12:49 conf<br>drwxr-xr-x 2 root root  40 Sep 22 12:49 html<br>drwxr-xr-x 2 root root  6 Sep 22 12:49 logs<br>drwxr-xr-x 2 root root  19 Sep 22 12:49 sbin<br>conf：保存nginx所有的配置文件，其中nginx.conf是nginx服务器的最核心最主要的配置文件，其他<br>的.conf则是用来配置nginx相关的功能的，例如fastcgi功能使用的是fastcgi.conf和<br>fastcgi_params两个文件，配置文件一般都有个样板配置文件，是文件名.default结尾，使用的使用将其<br>复制为并将default去掉即可。<br>html目录中保存了nginx服务器的web文件，但是可以更改为其他目录保存web文件,另外还有一个50x的web<br>文件是默认的错误页面提示页面。<br>logs：用来保存nginx服务器的访问日志错误日志等日志，logs目录可以放在其他路径，比<br>如/var/logs/nginx里面。<br>sbin：保存nginx二进制启动脚本，可以接受不同的参数以实现不同的功能。<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-2-2-验证版本及编译参数"><a href="#1-4-2-2-验证版本及编译参数" class="headerlink" title="1.4.2.2 验证版本及编译参数"></a>1.4.2.2 验证版本及编译参数</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs BASH">ls /apps/nginx/sbin/<br>nginx<br>ln -s /apps/nginx/sbin/nginx /usr/sbin/<br><br><span class="hljs-comment">#查看版本</span><br>nginx -v<br>nginx version: nginx/1.16.1<br><br><span class="hljs-comment">#centos查看编译参数</span><br>nginx -V<br>nginx version: nginx/1.16.1<br>built by gcc 8.3.1 20191121 (Red Hat 8.3.1-5) (GCC)<br>built with OpenSSL 1.1.1c FIPS  28 May 2019<br>TLS SNI support enabled<br>configure arguments: --prefix=/apps/nginx --user=nginx --group=nginx --with-<br>http_ssl_module --with-http_v2_module --with-http_realip_module --with-<br>http_stub_status_module --with-http_gzip_static_module --with-pcre --with-stream--with-stream_ssl_module --with-stream_realip_module<br><br><span class="hljs-comment">#ubuntu查看编译参数</span><br>nginx -V<br>nginx version: nginx/1.16.1<br>built by gcc 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) <br>built with OpenSSL 1.1.1  11 Sep 2018<br>TLS SNI support enabled<br>configure arguments: --prefix=/apps/nginx --with-http_ssl_module --with-http_v2_module --with-http_realip_module --with-http_addition_module --with-http_image_filter_module --with-http_geoip_module --with-http_gunzip_module --with-http_stub_status_module --with-http_gzip_static_module --with-pcre --with-stream --with-stream_ssl_module --with-stream_realip_module<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-2-3-启动和停止-nginx-测试访问-web-界面"><a href="#1-4-2-3-启动和停止-nginx-测试访问-web-界面" class="headerlink" title="1.4.2.3 启动和停止 nginx 测试访问 web 界面"></a>1.4.2.3 启动和停止 nginx 测试访问 web 界面</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#启动nginx</span><br>nginx<br><br><span class="hljs-comment">#浏览器可以访问看到下面图示</span><br>ss -ntl<br>State       Recv-Q      Send-Q   Local Address:Port  Peer<br>Address:Port     <br>LISTEN       0         100       127.0.0.1:25    <br> 0.0.0.0:*       <br>LISTEN       0         128        0.0.0.0:80    <br> 0.0.0.0:*       <br>LISTEN       0         128        0.0.0.0:22    <br> 0.0.0.0:*  <br> LISTEN       0         100         [::1]:25      <br>[::]:*       <br>LISTEN       0         128         [::]:22      <br>[::]:*<br><br><span class="hljs-comment">#关闭nginx</span><br>nginx -s stop<br><span class="hljs-comment">#ss -ntl</span><br>State       Recv-Q      Send-Q  Local Address:Port  Peer<br>Address:Port     <br>LISTEN       0         100      127.0.0.1:25    <br> 0.0.0.0:*       <br>LISTEN       0         128       0.0.0.0:22    <br> 0.0.0.0:*       <br>LISTEN       0         100        [::1]:25      <br>[::]:*       <br>LISTEN       0         128        [::]:22      <br>[::]:*  <br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-framework8.jpg" srcset="/blog/img/loading.gif"></p>
+<h5 id="1-4-2-4-创建-Nginx-自启动文件"><a href="#1-4-2-4-创建-Nginx-自启动文件" class="headerlink" title="1.4.2.4 创建 Nginx 自启动文件"></a>1.4.2.4 创建 Nginx 自启动文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#复制同一版本的nginx的yum安装生成的service文件</span><br>vim /usr/lib/systemd/system/nginx.service<br>[Unit]<br>Description=nginx - high performance web server<br>Documentation=http://nginx.org/en/docs/<br>After=network-online.target remote-fs.target nss-lookup.target<br>Wants=network-online.target<br>[Service]<br>Type=forking<br>PIDFile=/apps/nginx/run/nginx.pid<br>ExecStart=/apps/nginx/sbin/nginx -c /apps/nginx/conf/nginx.conf<br>ExecReload=/bin/<span class="hljs-built_in">kill</span> -s HUP <span class="hljs-variable">$MAINPID</span><br>ExecStop=/bin/<span class="hljs-built_in">kill</span> -s TERM <span class="hljs-variable">$MAINPID</span><br>[Install]<br>WantedBy=multi-user.target<br><br><span class="hljs-comment">#创建目录</span><br>mkdir /apps/nginx/run/<br><br><span class="hljs-comment">#修改配置文件</span><br>vim /apps/nginx/conf/nginx.conf<br>pid  /apps/nginx/run/nginx.pid;<br></code></pre></td></tr></table></figure>
+
+<h5 id="1-4-2-5-验证-Nginx-自启动文件"><a href="#1-4-2-5-验证-Nginx-自启动文件" class="headerlink" title="1.4.2.5 验证 Nginx 自启动文件"></a>1.4.2.5 验证 Nginx 自启动文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl daemon-reload<br>systemctl <span class="hljs-built_in">enable</span> --now nginx<br>Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service → <br><br>ll /apps/nginx/run/<br>total 4<br>-rw-r--r-- 1 root root 5 Sep 22 13:01 nginx.pid<br><br>ss -ntl<br>State       Recv-Q      Send-Q Local Address:Port  Peer<br>Address:Port     <br>LISTEN       0         100     127.0.0.1:25      0.0.0.0:*<br>      <br>LISTEN       0         128      0.0.0.0:80      0.0.0.0:*<br>      <br>LISTEN       0         128      0.0.0.0:22      0.0.0.0:*<br>      <br>LISTEN       0         100       [::1]:25       [::]:*<br>      <br>LISTEN       0         128       [::]:22       [::]:*<br><br>systemctl stop nginx<br><br>systemctl status nginx<br>● nginx.service - The nginx HTTP and reverse proxy server<br> Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; vendor<br>preset: disabled)<br> Active: inactive (dead) since Tue 2020-09-22 13:01:49 CST; 1s ago<br>Process: 8113 ExecStart=/apps/nginx/sbin/nginx (code=exited, status=0/SUCCESS)<br>Process: 8112 ExecStartPre=/apps/nginx/sbin/nginx -t (code=exited,<br>status=0/SUCCESS)<br>Process: 8110 ExecStartPre=/usr/bin/rm -f /apps/nginx/logs/nginx.pid<br>(code=exited, status=0/SUCCESS)<br>Main PID: 8115 (code=exited, status=0/SUCCESS)<br>Sep 22 12:58:53 centos8.wangxiaochun.com systemd[1]: Starting The nginx HTTP and<br>reverse proxy server...<br>Sep 22 12:58:53 centos8.wangxiaochun.com nginx[8112]: nginx: the configuration<br>file /apps/nginx/conf/nginx.conf syntax is ok<br>Sep 22 12:58:53 centos8.wangxiaochun.com nginx[8112]: nginx: configuration file<br>/apps/nginx/conf/nginx.conf <span class="hljs-built_in">test</span> is successful<br>Sep 22 12:58:53 centos8.wangxiaochun.com systemd[1]: Started The nginx HTTP and<br>reverse proxy server.<br>Sep 22 13:01:49 centos8.wangxiaochun.com systemd[1]: Stopping The nginx HTTP and<br>reverse proxy server...<br>Sep 22 13:01:49 centos8.wangxiaochun.com systemd[1]: Stopped The nginx HTTP and<br>reverse proxy server.<br><br>ss -ntl<br>State       Recv-Q      Send-Q  Local Address:Port  Peer<br>Address:Port     <br>LISTEN       0         100     127.0.0.1:25      0.0.0.0:*<br>      <br>LISTEN       0         128      0.0.0.0:22      0.0.0.0:*<br>      <br>LISTEN       0         100       [::1]:25       [::]:*<br>      <br>LISTEN       0         128       [::]:22       [::]:*<br></code></pre></td></tr></table></figure>
+
+
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2021/03/02/%E4%BC%81%E4%B8%9A%E7%BA%A7VPN%E6%9C%8D%E5%8A%A1OpenVPN/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">企业级VPN服务OpenVPN</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/02/27/Nginx%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE/">
+                        <span class="hidden-mobile">Nginx核心配置</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

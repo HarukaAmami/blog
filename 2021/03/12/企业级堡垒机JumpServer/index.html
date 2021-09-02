@@ -1,0 +1,948 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>企业级堡垒机JumpServer - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="企业级堡垒机JumpServer">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-03-12 22:34" pubdate>
+        2021年3月12日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      154
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">企业级堡垒机JumpServer</h1>
+            
+            <div class="markdown-body">
+              <h1 id="企业级堡垒机-JumpServer"><a href="#企业级堡垒机-JumpServer" class="headerlink" title="企业级堡垒机 JumpServer"></a>企业级堡垒机 JumpServer</h1><h2 id="一、堡垒机和-JumpServer"><a href="#一、堡垒机和-JumpServer" class="headerlink" title="一、堡垒机和 JumpServer"></a>一、堡垒机和 JumpServer</h2><h3 id="1-1-跳板机和堡垒机"><a href="#1-1-跳板机和堡垒机" class="headerlink" title="1.1 跳板机和堡垒机"></a>1.1 跳板机和堡垒机</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">跳板机<br>属于内控堡垒机范畴，是一种用于单点登陆的主机应用系统。跳板机就是一台服务器，维护人员在维护过程<br>中，首先要统一登录到这台服务器上，然后从这台服务器再登录到目标设备进行维护。但跳板机没有实现对运<br>维人员操作行为的控制和审计，此外，跳板机存在严重的安全风险，一旦跳板机系统被攻入，则将后端资源风<br>险完全暴露无遗。对于个别资源（如telnet）可以通过跳板机来完成一定的内控，但是对于更多更特殊的资源（<span class="hljs-keyword">ftp</span>、rdp等）来讲，就显得力不从心了。<br><br>堡垒机<br>在之前的发展过程中，人们逐渐认识到跳板机的不足，需要更新、更好的安全技术理念来实现运维操作管理。<br>堡垒机开始以独立的产品形态被广泛部署，有效降低了运维操作风险，使得运维操作管理变得更简单、更安<br>全。能满足角色管理与授权审批、信息资源访问控制、操作记录和审计、系统变更和维护控制要求，并生成一<br>些统计报表配合管理规范，来不断提升IT内控的合规性的产品。<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer1.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-2-JumpServer-简介"><a href="#1-2-JumpServer-简介" class="headerlink" title="1.2 JumpServer 简介"></a>1.2 JumpServer 简介</h3><p>JumpServer 是全球首款完全开源的堡垒机, 使用 GNU GPL v2.0 开源协议, 是符合 4A 的专业运维审计系统。为互联网企业提供了认证，授权，审计，自动化运维等功能。</p>
+<p>JumpServer 使用 Python / Django 进行开发, 遵循 Web 2.0 规范, 配备了业界领先的 Web Terminal 解决方案, 交互界面美观、用户体验好。</p>
+<p>JumpServer 采纳分布式架构, 支持多机房跨区域部署, 中心节点提供 API, 各机房部署登录节点, 可横向扩展、无并发访问限制。</p>
+<p>JumpServer 现已支持管理 SSH、 Telnet、 RDP、 VNC 协议资产。</p>
+<p><strong>JumpServer 历史</strong></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer2.jpg" srcset="/blog/img/loading.gif"></p>
+<p>官方地址： <a target="_blank" rel="noopener" href="http://www.jumpserver.org/">http://www.jumpserver.org/</a><br>github项目: <a target="_blank" rel="noopener" href="https://github.com/jumpserver">https://github.com/jumpserver</a></p>
+<h3 id="1-3-JumpServer的优势和功能"><a href="#1-3-JumpServer的优势和功能" class="headerlink" title="1.3 JumpServer的优势和功能"></a>1.3 JumpServer的优势和功能</h3><h4 id="1-3-1-特色优势"><a href="#1-3-1-特色优势" class="headerlink" title="1.3.1 特色优势"></a>1.3.1 特色优势</h4><ul>
+<li>开源: 零门槛，线上快速获取和安装；</li>
+<li>分布式: 轻松支持大规模并发访问；</li>
+<li>无插件: 仅需浏览器，极致的 Web Terminal 使用体验；</li>
+<li>多云支持: 一套系统，同时管理不同云上面的资产；</li>
+<li>云端存储: 审计录像云端存储，永不丢失；</li>
+<li>多租户: 一套系统，多个子公司和部门同时使用。</li>
+</ul>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer3.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-3-2-功能列表"><a href="#1-3-2-功能列表" class="headerlink" title="1.3.2 功能列表"></a>1.3.2 功能列表</h4><p>堡垒机四个核心能力: 运维安全审计的4A规范</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer4.jpg" srcset="/blog/img/loading.gif"></p>
+<table>
+<thead>
+<tr>
+<th align="center">身份认证 Authentication</th>
+<th>登录认证</th>
+<th>资源统一登录与认证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">LDAP/AD 认证</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">RADIUS 认证</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">OpenID 认证（实现单点登录)</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">CAS 认证 （实现单点登录）</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">MFA认证</td>
+<td>MFA 二次认证（GoogleAuthenticator）</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">RADIUS 二次认证</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">登录复核（X-PACK）</td>
+<td>用户登录行为受管理员的监管与控制</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">账号管理 Account</td>
+<td>集中账号</td>
+<td>管理用户管理</td>
+</tr>
+<tr>
+<td align="center">系统用户管理</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">统一密码</td>
+<td>资产密码托管</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">自动生成密码</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">自动推送密码</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">密码过期设置</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">批量改密（X-PACK）</td>
+<td>定期批量改密</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">多种密码策略</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">多云纳管（X-PACK）</td>
+<td>对私有云、公有云资产自动统一纳管</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">收集用户（X-PACK）</td>
+<td>自定义任务定期收集主机用户</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">密码匣子（X-PACK）</td>
+<td>统一对资产主机的用户密码进行查看、更新、测试操作</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">授权控制 Authorization</td>
+<td>多维授权</td>
+<td>对用户、用户组、资产、资产节点、应用以及系统用户进行授权</td>
+</tr>
+<tr>
+<td align="center">资产授权</td>
+<td>资产以树状结构进行展示</td>
+<td></td>
+</tr>
+<tr>
+<td align="center">资产和节点均可灵活授权</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">节点内资产自动继承授权</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">子节点自动继承父节点授权</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td align="center">应用授权</td>
+<td>实现更细粒度的应用级授<br/>权</td>
+<td></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>身份认证 Authentication</th>
+<th align="center">登录认证</th>
+<th>资源统一登录与认证</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MySQL 数据库应用、RemoteApp 远程应用（X-PACK）</td>
+<td align="center"></td>
+<td></td>
+</tr>
+<tr>
+<td>动作授权</td>
+<td align="center">实现对授权资产的文件上传、下载以及连接动作的控制</td>
+<td></td>
+</tr>
+<tr>
+<td>时间授权</td>
+<td align="center">实现对授权资源使用时间段的限制</td>
+<td></td>
+</tr>
+<tr>
+<td>特权指令</td>
+<td align="center">实现对特权指令的使用（支持黑白名单）</td>
+<td></td>
+</tr>
+<tr>
+<td>命令过滤</td>
+<td align="center">实现对授权系统用户所执行的命令进行控制</td>
+<td></td>
+</tr>
+<tr>
+<td>文件传输</td>
+<td align="center">SFTP 文件上传/下载</td>
+<td></td>
+</tr>
+<tr>
+<td>文件管理</td>
+<td align="center">实现 Web SFTP 文件管理</td>
+<td></td>
+</tr>
+<tr>
+<td>工单管理（X-PACK）</td>
+<td align="center">支持对用户登录请求行为进行控制</td>
+<td></td>
+</tr>
+<tr>
+<td>组织管理（X-PACK）</td>
+<td align="center">实现多租户管理与权限隔离</td>
+<td></td>
+</tr>
+<tr>
+<td>安全审计 Audit</td>
+<td align="center">操作审计</td>
+<td>用户操作行为审计</td>
+</tr>
+<tr>
+<td>会话审计</td>
+<td align="center">在线会话内容审计</td>
+<td></td>
+</tr>
+<tr>
+<td>历史会话内容审计</td>
+<td align="center"></td>
+<td></td>
+</tr>
+<tr>
+<td>录像审计</td>
+<td align="center">支持对 Linux、Windows等资产操作的录像进行回放审计</td>
+<td></td>
+</tr>
+<tr>
+<td>支持对 RemoteApp（X-PACK）、MySQL 等应用操作的录像进行回放审计</td>
+<td align="center"></td>
+<td></td>
+</tr>
+<tr>
+<td>指令审计</td>
+<td align="center">支持对资产和应用等操作的命令进行审计</td>
+<td></td>
+</tr>
+<tr>
+<td>文件传输</td>
+<td align="center">可对文件的上传、下载记录进行审计</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="1-4-JumpServer-组成"><a href="#1-4-JumpServer-组成" class="headerlink" title="1.4 JumpServer 组成"></a>1.4 JumpServer 组成</h3><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer5.jpg" srcset="/blog/img/loading.gif"></p>
+<h2 id="二、安装-JumpServer"><a href="#二、安装-JumpServer" class="headerlink" title="二、安装 JumpServer"></a>二、安装 JumpServer</h2><h3 id="2-1-安装要求"><a href="#2-1-安装要求" class="headerlink" title="2.1 安装要求"></a>2.1 安装要求</h3><p>JumpServer 环境要求:</p>
+<ul>
+<li>硬件配置: 2个CPU核心, 4G 内存, 50G 硬盘（最低）</li>
+<li>操作系统: Linux 发行版 x86_64</li>
+<li>Python = 3.6.x</li>
+<li>Mysql Server ≥ 5.6 或者 Mariadb Server ≥ 5.5.56 数据库编码要求 uft8</li>
+<li>Redis</li>
+</ul>
+<h3 id="2-2-安装方法介绍"><a href="#2-2-安装方法介绍" class="headerlink" title="2.2 安装方法介绍"></a>2.2 安装方法介绍</h3><p>官方提供了多种安装方法</p>
+<ul>
+<li>手动部署: 一步一步实现</li>
+<li>极速部署: 资产数量不多，或者测试体验的用户请使用本脚本快速部署</li>
+<li>容器部署: 基于docker 实现</li>
+<li>分布式部署: 适用大型环境</li>
+</ul>
+<h3 id="2-3-基于容器部署"><a href="#2-3-基于容器部署" class="headerlink" title="2.3 基于容器部署"></a>2.3 基于容器部署</h3><p>官方文档:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>docs.jumpserver.org<span class="hljs-regexp">/zh/m</span>aster<span class="hljs-regexp">/install/</span>docker_install/<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-1-环境说明"><a href="#2-3-1-环境说明" class="headerlink" title="2.3.1 环境说明"></a>2.3.1 环境说明</h4><p><strong>外置数据库要求</strong></p>
+<ul>
+<li>mysql 版本需要大于等于 5.6</li>
+<li>mariadb 版本需要大于等于 5.5.6</li>
+<li>数据库编码要求 uft8</li>
+</ul>
+<p><strong>基于容器,安装完毕后可以通过以下方式访问</strong></p>
+<ul>
+<li>浏览器访问: http://&lt;容器所在服务器IP&gt;</li>
+<li>默认管理员账户 admin 密码 admin</li>
+<li>SSH 访问: ssh -p 2222 &lt;容器所在服务器IP&gt;</li>
+<li>XShell 等工具请添加 connection 连接, 默认 ssh 端口 2222</li>
+</ul>
+<p>2.3.2 安装 MySQL 服务<br>官方说明:</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">https:<span class="hljs-regexp">//</span>docs.jumpserver.org<span class="hljs-regexp">/zh/m</span>aster<span class="hljs-regexp">/install/</span>prod<span class="hljs-regexp">/distributed_03/</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-2-1-下载-MySQL-镜像查看默认配置"><a href="#2-3-2-1-下载-MySQL-镜像查看默认配置" class="headerlink" title="2.3.2.1 下载 MySQL 镜像查看默认配置"></a>2.3.2.1 下载 MySQL 镜像查看默认配置</h5><p>下载MySQL镜像并运行, 查看当前默认配置不符合JumpServer安装要求</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#先安装docker</span><br><span class="hljs-comment">#下载MySQL镜像并启动</span><br>[root@centos8 ~]<span class="hljs-comment">#docker run --rm --name mysql -e MYSQL_ROOT_PASSWORD=123456 -e MYSQL_DATABASE=jumpserver -e MYSQL_USER=jumpserver -e MYSQL_PASSWORD=123456 -d -p 3306:3306 mysql:5.7.30</span><br>Unable to find image <span class="hljs-string">&#x27;mysql:5.7.30&#x27;</span> locally<br>5.7.30: Pulling from library/mysql<br>8559a31e96f4: Pull complete <br>d51ce1c2e575: Pull complete <br>c2344adc4858: Pull complete <br>fcf3ceff18fc: Pull complete <br>16da0c38dc5b: Pull complete <br>b905d1797e97: Pull complete <br>4b50d1c6b05c: Pull complete <br>d85174a87144: Pull complete <br>a4ad33703fa8: Pull complete <br>f7a5433ce20d: Pull complete <br>3dcd2a278b4a: Pull complete <br>Digest: sha256:32f9d9a069f7a735e28fd44ea944d53c61f990ba71460c5c183e610854ca4854<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> mysql:5.7.30<br>f9d98b5cff6064bf08db2f734ae5afbe83c40c49456376e3564adf2d5bf3e53d<br><br><span class="hljs-comment">#查看默认的MySQL容器配置不符合jumpserver要求</span><br>[root@centos8 ~]<span class="hljs-comment">#docker exec -it mysql bash</span><br>root@f44e1c85f088:/<span class="hljs-comment"># mysql -uroot -p123456</span><br>mysql: [Warning] Using a password on the <span class="hljs-built_in">command</span> line interface can be insecure.<br>Welcome to the MySQL monitor. Commands end with ; or \g.<br>Your MySQL connection id is 2<br>Server version: 5.7.30 MySQL Community Server (GPL)<br><br>Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.<br><br>Oracle is a registered trademark of Oracle Corporation and/or its<br>affiliates. Other names may be trademarks of their respective<br>owners.<br><br>Type <span class="hljs-string">&#x27;help;&#x27;</span> or <span class="hljs-string">&#x27;\h&#x27;</span> <span class="hljs-keyword">for</span> <span class="hljs-built_in">help</span>. Type <span class="hljs-string">&#x27;\c&#x27;</span> to clear the current input statement.<br><br>mysql&gt; show create database jumpserver;<br>+------------+------------------------------------------------------------------<br>-----+<br>| Database  | Create Database                         <br>  |<br>+------------+------------------------------------------------------------------<br>-----+<br>| jumpserver | CREATE DATABASE `jumpserver` /*!40100 DEFAULT CHARACTER SET<br>latin1 */ |<br>+------------+------------------------------------------------------------------<br>-----+<br>1 row <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.01 sec)<br><br>mysql&gt; select user,host from mysql.user;<br>+---------------+-----------+<br>| user     | host   |<br>+---------------+-----------+<br>| jumpserver  | %     |<br>| root     | %     |<br>| mysql.session | localhost |<br>| mysql.sys   | localhost |<br>| root     | localhost |<br>+---------------+-----------+<br>5 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)<br>mysql&gt; <span class="hljs-built_in">exit</span><br>Bye<br><br><span class="hljs-comment">#查看配置文件路径</span><br>root@f44e1c85f088:/<span class="hljs-comment"># cat /etc/mysql/mysql.cnf</span><br>......<br>!includedir /etc/mysql/conf.d/<br>!includedir /etc/mysql/mysql.conf.d/<br><br><span class="hljs-comment">#默认配置文件</span><br>root@f44e1c85f088:/<span class="hljs-comment"># tree /etc/mysql/</span><br>/etc/mysql/<br>|-- conf.d<br>|  |-- docker.cnf<br>|  |-- mysql.cnf<br>|  `-- mysqldump.cnf<br>|-- my.cnf -&gt; /etc/alternatives/my.cnf<br>|-- my.cnf.fallback<br>|-- mysql.cnf<br>`-- mysql.conf.d<br>  `-- mysqld.cnf<br>  <br>2 directories, 7 files<br>root@f44e1c85f088:/<span class="hljs-comment"># ls -R /etc/mysql</span><br>/etc/mysql:<br>conf.d my.cnf my.cnf.fallback mysql.cnf mysql.conf.d<br><br>/etc/mysql/conf.d:<br>docker.cnf mysql.cnf mysqldump.cnf<br><br>/etc/mysql/mysql.conf.d:<br>mysqld.cnf<br><br><span class="hljs-comment">#默认配置文件</span><br>root@f44e1c85f088:/<span class="hljs-comment"># grep &#x27;^[^#]&#x27; /etc/mysql/mysql.conf.d/mysqld.cnf</span><br>[mysqld]<br>pid-file = /var/run/mysqld/mysqld.pid<br>socket = /var/run/mysqld/mysqld.sock<br>datadir = /var/lib/mysql<br>symbolic-links=0<br><br><span class="hljs-comment">#默认配置文件</span><br>root@f44e1c85f088:/<span class="hljs-comment"># cat /etc/mysql/conf.d/mysql.cnf</span><br>[mysql]<br><br>root@f44e1c85f088:/<span class="hljs-comment"># exit</span><br><span class="hljs-built_in">exit</span><br>[root@centos8 ~]<span class="hljs-comment">#docker stop mysql</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-2-2-在宿主机准备MySQL配置文件"><a href="#2-3-2-2-在宿主机准备MySQL配置文件" class="headerlink" title="2.3.2.2 在宿主机准备MySQL配置文件"></a>2.3.2.2 在宿主机准备MySQL配置文件</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#准备相关目录</span><br>[root@centos8 ~]<span class="hljs-comment">#mkdir -p /etc/mysql/mysql.conf.d/</span><br>[root@centos8 ~]<span class="hljs-comment">#mkdir -p /etc/mysql/conf.d/</span><br><br><span class="hljs-comment">#生成配置文件,指定字符集</span><br>[root@centos8 ~]<span class="hljs-comment">#tee /etc/mysql/mysql.conf.d/mysqld.cnf &lt;&lt;EOF</span><br>[mysqld]<br>pid-file=/var/run/mysqld/mysqld.pid<br>socket=/var/run/mysqld/mysqld.sock<br>datadir=/var/lib/mysql<br>symbolic-links=0<br>character-set-server=utf8  <span class="hljs-comment">#添加此行,指定字符集</span><br>EOF<br><br><span class="hljs-comment">#生成配置文件,指定字符集</span><br>[root@centos8 ~]<span class="hljs-comment">#tee /etc/mysql/conf.d/mysql.cnf &lt;&lt;EOF</span><br>[mysql]<br>default-character-set=utf8  <span class="hljs-comment">#添加此行,指定字符集</span><br>EOF<br><br><span class="hljs-comment">#查看配置文件列表</span><br>[root@centos8 ~]<span class="hljs-comment">#tree /etc/mysql/</span><br>/etc/mysql/<br>├── conf.d<br>│  └── mysql.cnf<br>└── mysql.conf.d<br> └── mysqld.cnf<br> <br>2 directories, 2 files<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-2-3-启动-MySQL-容器"><a href="#2-3-2-3-启动-MySQL-容器" class="headerlink" title="2.3.2.3 启动 MySQL 容器"></a>2.3.2.3 启动 MySQL 容器</h5><p>将上面宿主机的设置好的配置文件挂载至MySQL容器（注意：生产环境需要复杂密码）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#docker run -d -p 3306:3306 --name mysql --restart always \</span><br>-e MYSQL_ROOT_PASSWORD=123456 \<br>-e MYSQL_DATABASE=jumpserver \<br>-e MYSQL_USER=jumpserver    \<br>-e MYSQL_PASSWORD=123456    \<br>-v /data/mysql:/var/lib/mysql  \<br>-v /etc/mysql/mysql.conf.d/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \<br>-v /etc/mysql/conf.d/mysql.cnf:/etc/mysql/conf.d/mysql.cnf mysql:5.7.30<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-2-4-验证-MySQL"><a href="#2-3-2-4-验证-MySQL" class="headerlink" title="2.3.2.4 验证 MySQL"></a>2.3.2.4 验证 MySQL</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#方法一</span><br>[root@centos8 ~]<span class="hljs-comment">#docker exec -it mysql sh</span><br><span class="hljs-comment"># mysql -p123456 -e &#x27;show variables like &quot;character%&quot;&#x27;</span><br>mysql: [Warning] Using a password on the <span class="hljs-built_in">command</span> line interface can be insecure.<br>+--------------------------+----------------------------+<br>| Variable_name      | Value           |<br>+--------------------------+----------------------------+<br>| character_set_client   | utf8            |<br>| character_set_connection | utf8            |<br>| character_set_database  | utf8            |<br>| character_set_filesystem | binary           |<br>| character_set_results  | utf8            |<br>| character_set_server   | utf8            |<br>| character_set_system   | utf8            |<br>| character_sets_dir    | /usr/share/mysql/charsets/ |<br>+--------------------------+----------------------------+<br><span class="hljs-comment"># mysql -p123456 -e &#x27;show variables like &quot;collation%&quot;&#x27;             </span><br>    <br>mysql: [Warning] Using a password on the <span class="hljs-built_in">command</span> line interface can be insecure.<br>+----------------------+-----------------+<br>| Variable_name    | Value      |<br>+----------------------+-----------------+<br>| collation_connection | utf8_general_ci |<br>| collation_database  | utf8_general_ci |<br>| collation_server   | utf8_general_ci |<br>+----------------------+-----------------+<br><br><span class="hljs-comment"># cat /var/lib/mysql/jumpserver/db.opt</span><br>default-character-set=utf8<br>default-collation=utf8_general_ci<br><span class="hljs-comment"># cat /etc/mysql/mysql.conf.d/mysqld.cnf</span><br>[mysqld]<br>pid-file= /var/run/mysqld/mysqld.pid<br>socket= /var/run/mysqld/mysqld.sock<br>datadir= /var/lib/mysql<br>symbolic-links=0<br>character-set-server=utf8<br><span class="hljs-comment"># cat /etc/mysql/conf.d/mysql.cnf</span><br>[mysql]<br>default-character-set=utf8<br><span class="hljs-comment"># mysql -p123456 -e &#x27;select user,host from mysql.user&#x27;</span><br>mysql: [Warning] Using a password on the <span class="hljs-built_in">command</span> line interface can be insecure.<br>+---------------+-----------+<br>| user          | host      |<br>+---------------+-----------+<br>| jumpserver    | %         |<br>| root          | %         |<br>| mysql.session | localhost |<br>| mysql.sys     | localhost |<br>| root          | localhost |<br>+---------------+-----------+<br><br><span class="hljs-comment"># mysql -p123456 -e &#x27;select user,host from mysql.user&#x27;</span><br>mysql: [Warning] Using a password on the <span class="hljs-built_in">command</span> line interface can be insecure.<br>+---------------+-----------+<br>| user          | host      |<br>+---------------+-----------+<br>| jumpserver    | %         |<br>| root          | %         |<br>| mysql.session | localhost |<br>| mysql.sys     | localhost |<br>| root          | localhost |<br>+---------------+-----------+<br><span class="hljs-comment"># ls /var/lib/mysql/ -l</span><br>total 188484<br>-rw-r----- 1 mysql mysql    56 Aug 16 08:43 auto.cnf<br>-rw------- 1 mysql mysql   1680 Aug 16 08:43 ca-key.pem<br>-rw-r--r-- 1 mysql mysql   1112 Aug 16 08:43 ca.pem<br>-rw-r--r-- 1 mysql mysql   1112 Aug 16 08:43 client-cert.pem<br>-rw------- 1 mysql mysql   1676 Aug 16 08:43 client-key.pem<br>-rw-r----- 1 mysql mysql   1346 Aug 16 08:43 ib_buffer_pool<br>-rw-r----- 1 mysql mysql 50331648 Aug 16 08:43 ib_logfile0<br>-rw-r----- 1 mysql mysql 50331648 Aug 16 08:43 ib_logfile1<br>-rw-r----- 1 mysql mysql 79691776 Aug 16 08:43 ibdata1<br>-rw-r----- 1 mysql mysql 12582912 Aug 16 08:43 ibtmp1<br>drwxr-x--- 2 mysql mysql    20 Aug 16 08:43 jumpserver<br>drwxr-x--- 2 mysql mysql   4096 Aug 16 08:43 mysql<br>drwxr-x--- 2 mysql mysql   8192 Aug 16 08:43 performance_schema<br>-rw------- 1 mysql mysql   1676 Aug 16 08:43 private_key.pem<br>-rw-r--r-- 1 mysql mysql    452 Aug 16 08:43 public_key.pem<br>-rw-r--r-- 1 mysql mysql   1112 Aug 16 08:43 server-cert.pem<br>-rw------- 1 mysql mysql   1676 Aug 16 08:43 server-key.pem<br>drwxr-x--- 2 mysql mysql   8192 Aug 16 08:43 sys<br><br>[root@centos8 ~]<span class="hljs-comment">#ls /data/mysql/</span><br>auto.cnf  client-cert.pem ibdata1   ibtmp1   performance_schema<br>server-cert.pem<br>ca-key.pem client-key.pem  ib_logfile0 jumpserver private_key.pem  <br>server-key.pem<br>ca.pem   ib_buffer_pool  ib_logfile1 mysql    public_key.pem   sys<br><br><span class="hljs-comment">#方法二</span><br><span class="hljs-comment">#测试连接MySQL</span><br>[root@centos7 ~]<span class="hljs-comment">#yum -y install mysql</span><br>root@ubuntu1804:~<span class="hljs-comment"># apt install mysql-client-core-5.7 -y</span><br>[root@centos7 ~]<span class="hljs-comment">#mysql -ujumpserver -p123456 -h10.0.0.8</span><br>Welcome to the MariaDB monitor. Commands end with ; or \g.<br>Your MySQL connection id is 8<br>Server version: 5.7.30 MySQL Community Server (GPL)<br><br>Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.<br><br>Type <span class="hljs-string">&#x27;help;&#x27;</span> or <span class="hljs-string">&#x27;\h&#x27;</span> <span class="hljs-keyword">for</span> <span class="hljs-built_in">help</span>. Type <span class="hljs-string">&#x27;\c&#x27;</span> to clear the current input statement.<br><br>MySQL [(none)]&gt; show databases;<br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| jumpserver         |<br>+--------------------+<br>2 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)<br><br>MySQL [(none)]&gt; use jumpserver;<br>Database changed<br>MySQL [jumpserver]&gt; show tables;<br>Empty <span class="hljs-built_in">set</span> (0.00 sec)<br><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-3-安装-redis-服务"><a href="#2-3-3-安装-redis-服务" class="headerlink" title="2.3.3 安装 redis 服务"></a>2.3.3 安装 redis 服务</h4><p>官方说明</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://docs.jumpserver.org/zh/master/install/prod/distributed_04/<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-3-1-启动-redis"><a href="#2-3-3-1-启动-redis" class="headerlink" title="2.3.3.1 启动 redis"></a>2.3.3.1 启动 redis</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#docker run -d -p 6379:6379 --name redis --restart always redis:5.0.9</span><br><br>Unable to find image <span class="hljs-string">&#x27;redis:5.0.9&#x27;</span> locally<br>5.0.9: Pulling from library/redis<br>bb79b6b2107f: Pull complete <br>1ed3521a5dcb: Pull complete <br>5999b99cee8f: Pull complete <br>bfee6cb5fdad: Pull complete <br>fd36a1ebc672: Pull complete <br>97481c7992eb: Pull complete <br>Digest: sha256:2a9865e55c37293b71df051922022898d8e4ec0f579c9b53a0caee1b170bc81c<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> redis:5.0.9<br>8c0ef9dd29c09bc2a959b149b56a1893ca6f943fdc3db5b0256d80b4e2b2a01f<br><br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-3-2-验证-redis连接"><a href="#2-3-3-2-验证-redis连接" class="headerlink" title="2.3.3.2 验证 redis连接"></a>2.3.3.2 验证 redis连接</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos7 ~]<span class="hljs-comment">#yum -y install redis</span><br>[root@centos7 ~]<span class="hljs-comment">#redis-cli -h 10.0.0.8</span><br>10.0.0.8:6379&gt; info<br><span class="hljs-comment"># Server</span><br>redis_version:5.0.9<br>redis_git_sha1:00000000<br>redis_git_dirty:0<br></code></pre></td></tr></table></figure>
+
+<h4 id="2-3-4-部署-JumpServer"><a href="#2-3-4-部署-JumpServer" class="headerlink" title="2.3.4 部署 JumpServer"></a>2.3.4 部署 JumpServer</h4><h5 id="2-3-4-1-生成-key-和-token"><a href="#2-3-4-1-生成-key-和-token" class="headerlink" title="2.3.4.1 生成 key 和 token"></a>2.3.4.1 生成 key 和 token</h5><p>参考官方说明: <a target="_blank" rel="noopener" href="https://docs.jumpserver.org/zh/master/install/docker_install/">https://docs.jumpserver.org/zh/master/install/docker_install/</a></p>
+<p>需要先生成 key 和 token</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer6.jpg" srcset="/blog/img/loading.gif"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos7 ~]<span class="hljs-comment">#vim key.sh</span><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-keyword">if</span> [ ! <span class="hljs-string">&quot;<span class="hljs-variable">$SECRET_KEY</span>&quot;</span> ]; <span class="hljs-keyword">then</span><br>	SECRET_KEY=`cat /dev/urandom | tr -dc A-Za-z0-9 | head -c 50`;<br>	<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;SECRET_KEY=<span class="hljs-variable">$SECRET_KEY</span>&quot;</span> &gt;&gt; ~/.bashrc;<br>	<span class="hljs-built_in">echo</span> <span class="hljs-variable">$SECRET_KEY</span>;<br><span class="hljs-keyword">else</span><br>	<span class="hljs-built_in">echo</span> <span class="hljs-variable">$SECRET_KEY</span>;<br><span class="hljs-keyword">fi</span> <br><span class="hljs-keyword">if</span> [ ! <span class="hljs-string">&quot;<span class="hljs-variable">$BOOTSTRAP_TOKEN</span>&quot;</span> ]; <span class="hljs-keyword">then</span><br>	BOOTSTRAP_TOKEN=`cat /dev/urandom | tr -dc A-Za-z0-9 | head -c 16`;<br>	<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;BOOTSTRAP_TOKEN=<span class="hljs-variable">$BOOTSTRAP_TOKEN</span>&quot;</span> &gt;&gt; ~/.bashrc;<br>	<span class="hljs-built_in">echo</span> <span class="hljs-variable">$BOOTSTRAP_TOKEN</span>;<br><span class="hljs-keyword">else</span><br>	<span class="hljs-built_in">echo</span> <span class="hljs-variable">$BOOTSTRAP_TOKEN</span>;<br><span class="hljs-keyword">fi</span><br><br>[root@centos7 ~]<span class="hljs-comment">#bash key.sh</span><br><br>[root@centos7 ~]<span class="hljs-comment">#tail -n2 .bashrc</span><br>SECRET_KEY=9RTRBg3AjHjvUUNCUpHUH5LirSFazRozk1UyOQcoKkwMExeUEm<br>BOOTSTRAP_TOKEN=1OlaSdCoUpSQPjH6<br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-4-2-运行容器"><a href="#2-3-4-2-运行容器" class="headerlink" title="2.3.4.2 运行容器"></a>2.3.4.2 运行容器</h5><p>范例: jumpserver 2.5.3版</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#docker run --name jms_all -d \</span><br>-v /opt/jumpserver/data:/opt/jumpserver/data \<br>-p 80:80 \<br>-p 2222:2222 \<br>--restart always \<br>-e SECRET_KEY=9RTRBg3AjHjvUUNCUpHUH5LirSFazRozk1UyOQcoKkwMExeUEm \<br>-e BOOTSTRAP_TOKEN=1OlaSdCoUpSQPjH6 \<br>-e DB_HOST=10.0.0.18 \  <span class="hljs-comment">#这里必须为mysql服务器地址</span><br>-e DB_PORT=3306 \<br>-e DB_USER=root \<br>-e DB_PASSWORD=123456 \<br>-e DB_NAME=jumpserver \<br>-e REDIS_HOST=10.0.0.18 \ <span class="hljs-comment">#如果所有东西都放在同一台服务器上这里可以是127.0.0.1，不然也是写安装redis的服务器地址</span><br>-e REDIS_PORT=6379 \<br>-e REDIS_PASSWORD=<span class="hljs-string">&#x27;&#x27;</span> \<br>--privileged=<span class="hljs-literal">true</span> \<br>jumpserver/jms_all:v2.5.3<br><br>Unable to find image <span class="hljs-string">&#x27;jumpserver/jms_all:v2.5.3&#x27;</span> locally<br>v2.5.3: Pulling from jumpserver/jms_all<br>2d473b07cdd5: Pull complete <br>eb360af8e881: Pull complete <br>3d760ba553e4: Pull complete <br>43cd78655795: Pull complete <br>790790002806: Pull complete <br>eca069b7f00b: Pull complete <br>Digest: sha256:40586bb03b009563882075f4f2d6bcc638005c7f0b8e05c0bfd88e1b5d9ba6d3<br>Status: Downloaded newer image <span class="hljs-keyword">for</span> jumpserver/jms_all:v2.5.3<br>c677c812ccf9b1dd6846f92758eacdaca8c8978827076ef6868f5c7036776798<br><br><span class="hljs-comment">#初次启动容器需要等待一会儿才能完成</span><br></code></pre></td></tr></table></figure>
+
+<p>范例: jumpserver 2.1.2版</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos7 ~]<span class="hljs-comment">#docker run --name jms_all -d  -v /opt/jumpserver/data:/opt/jumpserver/data  -p 80:80  -p 2222:2222  -e SECRET_KEY=9RTRBg3AjHjvUUNCUpHUH5LirSFazRozk1UyOQcoKkwMExeUEm  -e BOOTSTRAP_TOKEN=1OlaSdCoUpSQPjH6  -e DB_HOST=10.0.0.8 -e DB_PORT=3306  -e DB_USER=root -e DB_PASSWORD=123456  -e DB_NAME=jumpserver  -e REDIS_HOST=10.0.0.8  -e REDIS_PORT=6379 -e REDIS_PASSWORD=&#x27;&#x27;  jumpserver/jms_all:v2.1.2</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2-3-4-3-验证是否成功"><a href="#2-3-4-3-验证是否成功" class="headerlink" title="2.3.4.3 验证是否成功"></a>2.3.4.3 验证是否成功</h5><h6 id="2-3-4-3-1-查看日志"><a href="#2-3-4-3-1-查看日志" class="headerlink" title="2.3.4.3.1 查看日志"></a>2.3.4.3.1 查看日志</h6><p>范例: 查看jumpserver 2.5.3日志确认成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#docker logs -f jms_all</span><br>2020-12-08 15:35:31 Tue Dec  8 15:35:31 2020<br>2020-12-08 15:35:31 JumpServer version v2.5.3, more see<br>https://www.jumpserver.org<br>2020-12-08 15:35:31 Check database connection ...<br>users<br>[ ] 0001_initial<br>[ ] 0002_auto_20171225_1157_squashed_0019_auto_20190304_1459 (18 squashed<br>migrations)<br>[ ] 0020_auto_20190612_1825<br>[ ] 0021_auto_20190625_1104<br>[ ] 0022_auto_20190625_1105<br>[ ] 0023_auto_20190724_1525<br>[ ] 0024_auto_20191118_1612<br>[ ] 0025_auto_20200206_1216<br>[ ] 0026_auto_20200508_2105<br>[ ] 0027_auto_20200616_1503<br>[ ] 0028_auto_20200728_1805<br>[ ] 0029_auto_20200814_1650<br>[ ] 0030_auto_20200819_2041<br>2020-12-08 15:35:37 Database connect success<br>2020-12-08 15:35:37 Check database structure change ...<br>2020-12-08 15:35:37 Migrate model change to database ...<br>Operations to perform:<br>Apply all migrations: admin, applications, assets, audits, auth,<br>authentication, captcha, common, contenttypes, django_cas_ng,<br>django_celery_beat, jms_oidc_rp, ops, orgs, perms, sessions, settings, terminal,<br>tickets, users<br>Running migrations:<br>Applying contenttypes.0001_initial... OK<br>Applying contenttypes.0002_remove_content_type_name... OK<br>Applying auth.0001_initial... OK<br>Applying auth.0002_alter_permission_name_max_length... OK<br>Applying auth.0003_alter_user_email_max_length... OK<br>Applying auth.0004_alter_user_username_opts... OK<br>Applying auth.0005_alter_user_last_login_null... OK<br>Applying auth.0006_require_contenttypes_0002... OK<br>Applying auth.0007_alter_validators_add_error_messages... OK<br>Applying auth.0008_alter_user_username_max_length... OK<br>Applying users.0001_initial... OK<br>Applying admin.0001_initial... OK<br>Applying admin.0002_logentry_remove_auto_add... OK<br>Applying admin.0003_logentry_add_action_flag_choices... OK<br>Applying assets.0001_initial... OK<br>Applying assets.0002_auto_20180105_1807_squashed_0009_auto_20180307_1212... OK<br>Applying assets.0010_auto_20180307_1749_squashed_0019_auto_20180816_1320... OK<br>Applying assets.0020_auto_20180816_1652... OK<br>Applying assets.0021_auto_20180903_1132... OK<br>Applying assets.0022_auto_20181012_1717... OK<br>Applying assets.0023_auto_20181016_1650... OK<br>Applying assets.0024_auto_20181219_1614... OK<br>Applying assets.0025_auto_20190221_1902... OK<br>Applying assets.0026_auto_20190325_2035... OK<br>Applying assets.0027_auto_20190521_1703... OK<br>Applying assets.0028_protocol... OK<br>Applying assets.0029_auto_20190522_1114... OK<br>Applying assets.0030_auto_20190619_1135... OK<br>Applying assets.0031_auto_20190621_1332... OK<br>Applying assets.0032_auto_20190624_2108... OK<br>Applying assets.0033_auto_20190624_2108... OK<br>Applying assets.0034_auto_20190705_1348... OK<br>Applying assets.0035_auto_20190711_2018... OK<br>Applying assets.0036_auto_20190716_1535... OK<br>Applying assets.0037_auto_20190724_2002... OK<br>Applying assets.0038_auto_20190911_1634... OK<br>Applying assets.0039_authbook_is_active... OK<br>Applying assets.0040_auto_20190917_2056... OK<br>Applying assets.0041_gathereduser... OK<br>Applying assets.0042_favoriteasset... OK<br>Applying assets.0043_auto_20191114_1111... OK<br>Applying assets.0044_platform... OK<br>Applying assets.0045_auto_20191206_1607... OK<br>Applying assets.0046_auto_20191218_1705... OK<br>Applying assets.0047_assetuser... OK<br>Applying assets.0048_auto_20191230_1512... OK<br>Applying assets.0049_systemuser_sftp_root... OK<br>Applying assets.0050_auto_20200711_1740... OK<br>Applying assets.0051_auto_20200713_1143... OK<br>Applying assets.0052_auto_20200715_1535... OK<br>Applying assets.0053_auto_20200723_1232... OK<br>Applying assets.0054_auto_20200807_1032... OK<br>Applying assets.0055_auto_20200811_1845... OK<br>Applying assets.0056_auto_20200904_1751... OK<br>Applying assets.0057_fill_node_value_assets_amount_and_parent_key...<br><br>................................................................. OK<br>Applying users.0002_auto_20171225_1157_squashed_0019_auto_20190304_1459... OK<br>Applying perms.0001_initial... OK<br>Applying perms.0002_auto_20171228_0025_squashed_0009_auto_20180903_1132... OK<br>Applying perms.0003_action... OK<br>Applying perms.0004_assetpermission_actions... OK<br>Applying applications.0001_initial... OK<br>Applying perms.0005_auto_20190521_1619... OK<br>Applying perms.0006_auto_20190628_1921... OK<br>Applying perms.0007_remove_assetpermission_actions... OK<br>Applying perms.0008_auto_20190911_1907... OK<br>Applying perms.0009_remoteapppermission_system_users... OK<br>Applying applications.0002_remove_remoteapp_system_user... OK<br>Applying applications.0003_auto_20191210_1659... OK<br>Applying applications.0004_auto_20191218_1705... OK<br>Applying applications.0005_k8sapp... OK<br>Applying applications.0006_application... OK<br>Applying assets.0058_auto_20201023_1115... OK<br>Applying assets.0059_auto_20201027_1905... OK<br>Applying assets.0060_node_full_value...<br>- Start migrate node value <span class="hljs-keyword">if</span> has /<br>- Start migrate node full value<br>OK<br>Applying assets.0061_auto_20201116_1757... OK<br>Applying assets.0062_auto_20201117_1938... OK<br>Applying audits.0001_initial... OK<br>Applying audits.0002_ftplog_org_id... OK<br>Applying audits.0003_auto_20180816_1652... OK<br>Applying audits.0004_operatelog_passwordchangelog_userloginlog... OK<br>Applying audits.0005_auto_20190228_1715... OK<br>Applying audits.0006_auto_20190726_1753... OK<br>Applying audits.0007_auto_20191202_1010... OK<br>Applying audits.0008_auto_20200508_2105... OK<br>Applying audits.0009_auto_20200624_1654... OK<br>Applying audits.0010_auto_20200811_1122... OK<br>Applying auth.0009_alter_user_last_name_max_length... OK<br>Applying auth.0010_alter_group_name_max_length... OK<br>Applying auth.0011_update_proxy_permissions... OK<br>Applying authentication.0001_initial... OK<br>Applying authentication.0002_auto_20190729_1423... OK<br>Applying authentication.0003_loginconfirmsetting... OK<br>Applying authentication.0004_ssotoken... OK<br>Applying captcha.0001_initial... OK<br>Applying common.0001_initial... OK<br>Applying common.0002_auto_20180111_1407... OK<br>Applying common.0003_setting_category... OK<br>Applying common.0004_setting_encrypted... OK<br>Applying common.0005_auto_20190221_1902... OK<br>Applying common.0006_auto_20190304_1515... OK<br>Applying django_cas_ng.0001_initial... OK<br>Applying django_celery_beat.0001_initial... OK<br>Applying django_celery_beat.0002_auto_20161118_0346... OK<br>Applying django_celery_beat.0003_auto_20161209_0049... OK<br>Applying django_celery_beat.0004_auto_20170221_0000... OK<br>Applying django_celery_beat.0005_add_solarschedule_events_choices... OK<br>Applying django_celery_beat.0006_auto_20180322_0932... OK<br>Applying django_celery_beat.0007_auto_20180521_0826... OK<br>Applying django_celery_beat.0008_auto_20180914_1922... OK<br>Applying django_celery_beat.0006_auto_20180210_1226... OK<br>Applying django_celery_beat.0006_periodictask_priority... OK<br>Applying django_celery_beat.0009_periodictask_headers... OK<br>Applying django_celery_beat.0010_auto_20190429_0326... OK<br>Applying django_celery_beat.0011_auto_20190508_0153... OK<br>Applying django_celery_beat.0012_periodictask_expire_seconds... OK<br>Applying jms_oidc_rp.0001_initial... OK<br>Applying ops.0001_initial... OK<br>Applying ops.0002_celerytask... OK<br>Applying ops.0003_auto_20181207_1744... OK<br>Applying ops.0004_adhoc_run_as... OK<br>Applying ops.0005_auto_20181219_1807... OK<br>Applying ops.0006_auto_20190318_1023... OK<br>Applying ops.0007_auto_20190724_2002... OK<br>Applying ops.0008_auto_20190919_2100... OK<br>Applying ops.0009_auto_20191217_1713... OK<br>Applying ops.0010_auto_20191217_1758... OK<br>Applying ops.0011_auto_20200106_1534... OK<br>Applying ops.0012_auto_20200108_1659... OK<br>Applying ops.0013_auto_20200108_1706... OK<br>Applying ops.0014_auto_20200108_1749... OK<br>Applying ops.0015_auto_20200108_1809... OK<br>Applying ops.0016_commandexecution_org_id... OK<br>Applying ops.0017_auto_20200306_1747... OK<br>Applying ops.0018_auto_20200509_1434... OK<br>Applying orgs.0001_initial... OK<br>Applying orgs.0002_auto_20180903_1132... OK<br>Applying orgs.0003_auto_20190916_1057... OK<br>Applying orgs.0004_organizationmember... OK<br>Applying orgs.0005_auto_20200721_1937... OK<br>Applying orgs.0006_auto_20200721_1937... OK<br>Applying orgs.0007_auto_20200728_1805... OK<br>Applying orgs.0008_auto_20200819_2041... OK<br>Applying orgs.0009_auto_20201023_1628... OK<br>Applying users.0020_auto_20190612_1825... OK<br>Applying users.0021_auto_20190625_1104... OK<br>Applying users.0022_auto_20190625_1105... OK<br>Applying users.0023_auto_20190724_1525... OK<br>Applying users.0024_auto_20191118_1612... OK<br>Applying users.0025_auto_20200206_1216... OK<br>Applying users.0026_auto_20200508_2105... OK<br>Applying users.0027_auto_20200616_1503... OK<br>Applying users.0028_auto_20200728_1805... OK<br>Applying users.0029_auto_20200814_1650... OK<br>Applying users.0030_auto_20200819_2041... OK<br>Applying perms.0010_auto_20191218_1705... OK<br>Applying perms.0011_auto_20200721_1739... OK<br>Applying perms.0012_k8sapppermission... OK<br>2020-12-08 15:36:04 [node ERROR] Node parent node <span class="hljs-keyword">in</span> mapper: Default<br>Applying perms.0013_rebuildusertreetask_usergrantedmappingnode... OK<br>Applying perms.0014_build_users_perm_tree... OK<br>Applying perms.0015_auto_20200929_1728... OK<br>Applying perms.0016_applicationpermission... OK<br>Applying sessions.0001_initial... OK<br>Applying settings.0001_initial... OK<br>Applying terminal.0001_initial... OK<br>Applying terminal.0002_auto_20171228_0025_squashed_0009_auto_20180326_0957...<br>OK<br>Applying terminal.0010_auto_20180423_1140... OK<br>Applying terminal.0011_auto_20180807_1116... OK<br>Applying terminal.0012_auto_20180816_1652... OK<br>Applying terminal.0013_auto_20181123_1113... OK<br>Applying terminal.0014_auto_20181226_1441... OK<br>Applying terminal.0015_auto_20190923_1529... OK<br>Applying terminal.0016_commandstorage_replaystorage... OK<br>Applying terminal.0017_auto_20191125_0931... OK<br>Applying terminal.0018_auto_20191202_1010... OK<br>Applying terminal.0019_auto_20191206_1000... OK<br>Applying terminal.0020_auto_20191218_1721... OK<br>Applying terminal.0021_auto_20200213_1316... OK<br>Applying terminal.0022_session_is_success... OK<br>Applying terminal.0023_command_risk_level... OK<br>Applying terminal.0024_auto_20200715_1713... OK<br>Applying terminal.0025_auto_20200810_1735... OK<br>Applying terminal.0026_auto_20201027_1905... OK<br>Applying terminal.0027_auto_20201102_1651... OK<br>Applying terminal.0028_auto_20201110_1918... OK<br>Applying terminal.0029_auto_20201116_1757... OK<br>Applying tickets.0001_initial... OK<br>Applying tickets.0002_auto_20200728_1146... OK<br>Applying tickets.0003_auto_20200804_1551... OK<br>Applying tickets.0004_ticket_comment... OK<br>Applying tickets.0005_ticket_meta_confirmed_system_users... OK<br>Applying tickets.0006_auto_20201023_1628... OK<br>2020-12-08 15:36:06 Collect static files<br>2020-12-08 15:36:10 Collect static files <span class="hljs-keyword">done</span><br>Starting guacd: SUCCESS<br>guacd[89]: INFO: Guacamole proxy daemon (guacd) version 1.2.0 started<br>Tomcat started.<br>Jumpserver ALL v2.5.3<br>官网 http://www.jumpserver.org<br>文档 http://docs.jumpserver.org<br><br>进入容器命令 docker <span class="hljs-built_in">exec</span> -it jms_all /bin/bash<br></code></pre></td></tr></table></figure>
+
+<p>范例: 查看 jumpserver 2.1.2版日志</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos7 ~]<span class="hljs-comment">#docker logs -f jms_all</span><br>2020-08-16 17:40:00 Sun Aug 16 17:40:00 2020<br>2020-08-16 17:40:00 Jumpserver version v2.1.2, more see<br>https://www.jumpserver.org<br>2020-08-16 17:40:00 Check database connection ...<br>users<br>[ ] 0001_initial<br>[ ] 0002_auto_20171225_1157_squashed_0019_auto_20190304_1459 (18 squashed<br>migrations)<br>[ ] 0020_auto_20190612_1825<br>[ ] 0021_auto_20190625_1104<br>[ ] 0022_auto_20190625_1105<br>[ ] 0023_auto_20190724_1525<br>[ ] 0024_auto_20191118_1612<br>[ ] 0025_auto_20200206_1216<br>[ ] 0026_auto_20200508_2105<br>[ ] 0027_auto_20200616_1503<br>2020-08-16 17:40:06 Database connect success<br>2020-08-16 17:40:06 Check database structure change ...<br>2020-08-16 17:40:06 Migrate model change to database ...<br>Operations to perform:<br>Apply all migrations: admin, applications, assets, audits, auth,<br>authentication, captcha, common, contenttypes, django_cas_ng,<br>django_celery_beat, jms_oidc_rp, ops, orgs, perms, sessions, settings, terminal,<br>tickets, users<br>Running migrations:<br>Applying contenttypes.0001_initial... OK<br>Applying contenttypes.0002_remove_content_type_name... OK<br>Applying auth.0001_initial... OK<br>Applying auth.0002_alter_permission_name_max_length... OK<br>Applying auth.0003_alter_user_email_max_length... OK<br>Applying auth.0004_alter_user_username_opts... OK<br>Applying auth.0005_alter_user_last_login_null... OK<br>Applying auth.0006_require_contenttypes_0002... OK<br>Applying auth.0007_alter_validators_add_error_messages... OK<br>Applying auth.0008_alter_user_username_max_length... OK<br>Applying users.0001_initial... OK<br>Applying admin.0001_initial... OK<br>Applying admin.0002_logentry_remove_auto_add... OK<br>Applying admin.0003_logentry_add_action_flag_choices... OK<br>Applying users.0002_auto_20171225_1157_squashed_0019_auto_20190304_1459... OK<br>Applying assets.0001_initial... OK<br>Applying perms.0001_initial... OK<br>Applying assets.0002_auto_20180105_1807_squashed_0009_auto_20180307_1212... OK<br>Applying assets.0010_auto_20180307_1749_squashed_0019_auto_20180816_1320... OK<br>Applying perms.0002_auto_20171228_0025_squashed_0009_auto_20180903_1132... OK<br>Applying perms.0003_action... OK<br>Applying perms.0004_assetpermission_actions... OK<br>Applying assets.0020_auto_20180816_1652... OK<br>Applying assets.0021_auto_20180903_1132... OK<br>Applying assets.0022_auto_20181012_1717... OK<br>Applying assets.0023_auto_20181016_1650... OK<br>Applying assets.0024_auto_20181219_1614... OK<br>Applying assets.0025_auto_20190221_1902... OK<br>Applying assets.0026_auto_20190325_2035... OK<br>Applying applications.0001_initial... OK<br>Applying perms.0005_auto_20190521_1619... OK<br>Applying perms.0006_auto_20190628_1921... OK<br>Applying perms.0007_remove_assetpermission_actions... OK<br>Applying perms.0008_auto_20190911_1907... OK<br>Applying assets.0027_auto_20190521_1703... OK<br>Applying assets.0028_protocol... OK<br>Applying assets.0029_auto_20190522_1114... OK<br>Applying assets.0030_auto_20190619_1135... OK<br>Applying assets.0031_auto_20190621_1332... OK<br>Applying assets.0032_auto_20190624_2108... OK<br>Applying assets.0033_auto_20190624_2108... OK<br>Applying assets.0034_auto_20190705_1348... OK<br>Applying assets.0035_auto_20190711_2018... OK<br>Applying assets.0036_auto_20190716_1535... OK<br>Applying assets.0037_auto_20190724_2002... OK<br>Applying assets.0038_auto_20190911_1634... OK<br>Applying perms.0009_remoteapppermission_system_users... OK<br>Applying applications.0002_remove_remoteapp_system_user... OK<br>Applying applications.0003_auto_20191210_1659... OK<br>Applying applications.0004_auto_20191218_1705... OK<br>Applying assets.0039_authbook_is_active... OK<br>Applying assets.0040_auto_20190917_2056... OK<br>Applying assets.0041_gathereduser... OK<br>Applying assets.0042_favoriteasset... OK<br>Applying assets.0043_auto_20191114_1111... OK<br>Applying assets.0044_platform... OK<br>Applying assets.0045_auto_20191206_1607... OK<br>Applying assets.0046_auto_20191218_1705... OK<br>Applying assets.0047_assetuser... OK<br>Applying assets.0048_auto_20191230_1512... OK<br>Applying assets.0049_systemuser_sftp_root... OK<br>Applying assets.0050_auto_20200711_1740... OK<br>Applying assets.0051_auto_20200713_1143... OK<br>Applying assets.0052_auto_20200715_1535... OK<br>Applying audits.0001_initial... OK<br>Applying audits.0002_ftplog_org_id... OK<br>Applying audits.0003_auto_20180816_1652... OK<br>Applying audits.0004_operatelog_passwordchangelog_userloginlog... OK<br>Applying audits.0005_auto_20190228_1715... OK<br>Applying audits.0006_auto_20190726_1753... OK<br>Applying audits.0007_auto_20191202_1010... OK<br>Applying audits.0008_auto_20200508_2105... OK<br>Applying audits.0009_auto_20200624_1654... OK<br>Applying auth.0009_alter_user_last_name_max_length... OK<br>Applying auth.0010_alter_group_name_max_length... OK<br>Applying auth.0011_update_proxy_permissions... OK<br>Applying authentication.0001_initial... OK<br>Applying authentication.0002_auto_20190729_1423... OK<br>Applying authentication.0003_loginconfirmsetting... OK<br>Applying captcha.0001_initial... OK<br>Applying common.0001_initial... OK<br>Applying common.0002_auto_20180111_1407... OK<br>Applying common.0003_setting_category... OK<br>Applying common.0004_setting_encrypted... OK<br>Applying common.0005_auto_20190221_1902... OK<br>Applying common.0006_auto_20190304_1515... OK<br>Applying django_cas_ng.0001_initial... OK<br>Applying django_celery_beat.0001_initial... OK<br>Applying django_celery_beat.0002_auto_20161118_0346... OK<br>Applying django_celery_beat.0003_auto_20161209_0049... OK<br>Applying django_celery_beat.0004_auto_20170221_0000... OK<br>Applying<br>django_celery_beat.0005_add_solarschedule_events_choices_squashed_0009_merge_201<br>81012_1416... OK<br>Applying django_celery_beat.0006_periodictask_priority... OK<br>Applying jms_oidc_rp.0001_initial... OK<br>Applying ops.0001_initial... OK<br>Applying ops.0002_celerytask... OK<br>Applying ops.0003_auto_20181207_1744... OK<br>Applying ops.0004_adhoc_run_as... OK<br>Applying ops.0005_auto_20181219_1807... OK<br>Applying ops.0006_auto_20190318_1023... OK<br>Applying ops.0007_auto_20190724_2002... OK<br>Applying ops.0008_auto_20190919_2100... OK<br>Applying ops.0009_auto_20191217_1713... OK<br>Applying ops.0010_auto_20191217_1758... OK<br>Applying ops.0011_auto_20200106_1534... OK<br>Applying ops.0012_auto_20200108_1659... OK<br>Applying ops.0013_auto_20200108_1706... OK<br>Applying ops.0014_auto_20200108_1749... OK<br>Applying ops.0015_auto_20200108_1809... OK<br>Applying ops.0016_commandexecution_org_id... OK<br>Applying ops.0017_auto_20200306_1747... OK<br>Applying ops.0018_auto_20200509_1434... OK<br>Applying orgs.0001_initial... OK<br>Applying orgs.0002_auto_20180903_1132... OK<br>Applying orgs.0003_auto_20190916_1057... OK<br>Applying users.0020_auto_20190612_1825... OK<br>Applying users.0021_auto_20190625_1104... OK<br>Applying users.0022_auto_20190625_1105... OK<br>Applying users.0023_auto_20190724_1525... OK<br>Applying users.0024_auto_20191118_1612... OK<br>Applying perms.0010_auto_20191218_1705... OK<br>Applying sessions.0001_initial... OK<br>Applying settings.0001_initial... OK<br>Applying terminal.0001_initial... OK<br>Applying terminal.0002_auto_20171228_0025_squashed_0009_auto_20180326_0957...<br>OK<br>Applying terminal.0010_auto_20180423_1140... OK<br>Applying terminal.0011_auto_20180807_1116... OK<br>Applying terminal.0012_auto_20180816_1652... OK<br>Applying terminal.0013_auto_20181123_1113... OK<br>Applying terminal.0014_auto_20181226_1441... OK<br>Applying terminal.0015_auto_20190923_1529... OK<br>Applying terminal.0016_commandstorage_replaystorage... OK<br>Applying terminal.0017_auto_20191125_0931... OK<br>Applying terminal.0018_auto_20191202_1010... OK<br>Applying terminal.0019_auto_20191206_1000... OK<br>Applying terminal.0020_auto_20191218_1721... OK<br>Applying terminal.0021_auto_20200213_1316... OK<br>Applying terminal.0022_session_is_success... OK<br>Applying terminal.0023_command_risk_level... OK<br>Applying terminal.0024_auto_20200715_1713... OK<br>Applying tickets.0001_initial... OK<br>Applying users.0025_auto_20200206_1216... OK<br>Applying users.0026_auto_20200508_2105... OK<br>Applying users.0027_auto_20200616_1503... OK<br>2020-08-16 17:40:30 Collect static files<br>2020-08-16 17:40:34 Collect static files <span class="hljs-keyword">done</span><br>guacd[81]: INFO: Guacamole proxy daemon (guacd) version 1.2.0 started<br>Starting guacd: SUCCESS<br>Tomcat started.<br>Jumpserver ALL v2.1.2<br>官网 http://www.jumpserver.org<br>文档 http://docs.jumpserver.org<br>有问题请参考 http://docs.jumpserver.org/zh/docs/faq.html<br><br>进入容器命令 docker <span class="hljs-built_in">exec</span> -it jms_all /bin/bash<br>[root@centos7 ~]<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<h6 id="2-3-4-3-2-查看-MySQL-中生成相关表"><a href="#2-3-4-3-2-查看-MySQL-中生成相关表" class="headerlink" title="2.3.4.3.2 查看 MySQL 中生成相关表"></a>2.3.4.3.2 查看 MySQL 中生成相关表</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#docker exec -it mysql sh</span><br><span class="hljs-comment"># mysql -ujumpserver -p123456 jumperserver</span><br>mysql&gt; show tables;<br>+----------------------------------------------+<br>| Tables_in_jumpserver                         |<br>+----------------------------------------------+<br>| applications_databaseapp                     |<br>| applications_remoteapp                       |<br>| assets_adminuser                             |<br>| assets_asset                                 |<br>| assets_asset_labels                          |<br>| assets_asset_nodes                           |<br>| assets_assetgroup                            |<br>| assets_authbook                              |<br>| assets_cluster                               |<br>| assets_commandfilter                         |<br>| assets_commandfilterrule                     |<br>| assets_domain                                |<br>| assets_favoriteasset                         |<br>| assets_gateway                               |<br>| assets_gathereduser                          |<br>| assets_label                                 |<br>| assets_node                                  |<br>| assets_platform                              |<br>| assets_systemuser                            |<br>| assets_systemuser_assets                     |<br>| assets_systemuser_cmd_filters                |<br>| assets_systemuser_groups                     |<br>| assets_systemuser_nodes                      |<br>| assets_systemuser_users                      |<br>| audits_ftplog                                |<br>| audits_operatelog                            |<br>| audits_passwordchangelog                     |<br>| audits_userloginlog                          |<br>| auth_group                                   |<br>| auth_group_permissions                       |<br>| auth_permission                              |<br>| authentication_accesskey                     |<br>| authentication_loginconfirmsetting           |<br>| authentication_loginconfirmsetting_reviewers |<br>| authentication_privatetoken                  |<br>| captcha_captchastore                         |<br>| django_admin_log                             |<br>| django_cas_ng_proxygrantingticket            |<br>| django_cas_ng_sessionticket                  |<br>| django_celery_beat_crontabschedule           |<br>| django_celery_beat_intervalschedule          |<br>| django_celery_beat_periodictask              |<br>| django_celery_beat_periodictasks             |<br>| django_celery_beat_solarschedule             |<br>| django_content_type                          |<br>| django_migrations                            |<br>| django_session                               |<br>| jms_oidc_rp_oidcuser                         |<br>| ops_adhoc                                    |<br>| ops_adhoc_execution                          |<br>| ops_adhoc_hosts                              | <br>| ops_celerytask                               |<br>| ops_commandexecution                         |<br>| ops_commandexecution_hosts                   |<br>| ops_task                                     |<br>| orgs_organization                            |<br>| orgs_organization_admins                     |<br>| orgs_organization_auditors                   |<br>| orgs_organization_users                      |<br>| perms_assetpermission                        |<br>| perms_assetpermission_assets                 |<br>| perms_assetpermission_nodes                  |<br>| perms_assetpermission_system_users           |<br>| perms_assetpermission_user_groups            |<br>| perms_assetpermission_users                  |<br>| perms_databaseapppermission                  |<br>| perms_databaseapppermission_database_apps    |<br>| perms_databaseapppermission_system_users     |<br>| perms_databaseapppermission_user_groups      |<br>| perms_databaseapppermission_users            |<br>| perms_remoteapppermission                    |<br>| perms_remoteapppermission_remote_apps        |<br>| perms_remoteapppermission_system_users       |<br>| perms_remoteapppermission_user_groups        |<br>| perms_remoteapppermission_users              |<br>| settings_setting                             |<br>| terminal                                     |<br>| terminal_command                             |<br>| terminal_commandstorage                      |<br>| terminal_replaystorage                       |<br>| terminal_session                             |<br>| terminal_status                              |<br>| terminal_task                                |<br>| tickets_comment                              |<br>| tickets_ticket                               |<br>| tickets_ticket_assignees                     |<br>| users_user                                   |<br>| users_user_groups                            |<br>| users_user_user_permissions                  |<br>| users_usergroup                              |<br>+----------------------------------------------+<br>90 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)<br><br>[root@centos7 ~]<span class="hljs-comment"># ll /data/mysql/jumpserver/</span><br>total 15424<br>-rw-r-----. 1 polkitd ssh_keys   8930 Mar 15 16:44 applications_application.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 applications_application.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8918 Mar 15 16:44 applications_databaseapp.frm<br>-rw-r-----. 1 polkitd ssh_keys 163840 Mar 15 16:44 applications_databaseapp.ibd<br>-rw-r-----. 1 polkitd ssh_keys  12994 Mar 15 16:44 applications_k8sapp.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 applications_k8sapp.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8876 Mar 15 16:44 applications_remoteapp.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 applications_remoteapp.ibd<br>-rw-r-----. 1 polkitd ssh_keys  13220 Mar 15 16:44 assets_adminuser.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_adminuser.ibd<br>-rw-r-----. 1 polkitd ssh_keys  21986 Mar 15 16:44 assets_asset.frm<br>-rw-r-----. 1 polkitd ssh_keys   8710 Mar 15 16:44 assets_assetgroup.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 assets_assetgroup.ibd<br>-rw-r-----. 1 polkitd ssh_keys 196608 Mar 15 16:44 assets_asset.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8632 Mar 15 16:44 assets_asset_labels.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_asset_labels.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8630 Mar 15 16:44 assets_asset_nodes.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_asset_nodes.ibd<br>-rw-r-----. 1 polkitd ssh_keys  13162 Mar 15 16:44 assets_authbook.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_authbook.ibd<br>-rw-r-----. 1 polkitd ssh_keys   9016 Mar 15 16:44 assets_cluster.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 assets_cluster.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8830 Mar 15 16:44 assets_commandfilter.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 assets_commandfilter.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8938 Mar 15 16:44 assets_commandfilterrule.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 assets_commandfilterrule.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8702 Mar 15 16:44 assets_domain.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 assets_domain.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8764 Mar 15 16:44 assets_favoriteasset.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_favoriteasset.ibd<br>-rw-r-----. 1 polkitd ssh_keys  13222 Mar 15 16:44 assets_gateway.frm<br>-rw-r-----. 1 polkitd ssh_keys 180224 Mar 15 16:44 assets_gateway.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8894 Mar 15 16:44 assets_gathereduser.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_gathereduser.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8812 Mar 15 16:44 assets_label.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 assets_label.ibd<br>-rw-r-----. 1 polkitd ssh_keys  21156 Mar 15 16:44 assets_node.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_node.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8756 Mar 15 16:44 assets_platform.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 assets_platform.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8642 Mar 15 16:44 assets_systemuser_assets.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_systemuser_assets.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8658 Mar 15 16:44 assets_systemuser_cmd_filters.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_systemuser_cmd_filters.ibd<br>-rw-r-----. 1 polkitd ssh_keys  38150 Mar 15 16:44 assets_systemuser.frm<br>-rw-r-----. 1 polkitd ssh_keys   8650 Mar 15 16:44 assets_systemuser_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_systemuser_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_systemuser.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8640 Mar 15 16:44 assets_systemuser_nodes.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_systemuser_nodes.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8640 Mar 15 16:44 assets_systemuser_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 assets_systemuser_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys  17090 Mar 15 16:44 audits_ftplog.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 audits_ftplog.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8822 Mar 15 16:44 audits_operatelog.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 audits_operatelog.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8708 Mar 15 16:44 audits_passwordchangelog.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:44 audits_passwordchangelog.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8856 Mar 15 16:44 audits_userloginlog.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:44 audits_userloginlog.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8712 Mar 15 16:44 authentication_accesskey.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 authentication_accesskey.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8766 Mar 15 16:44 authentication_loginconfirmsetting.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 authentication_loginconfirmsetting.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8658 Mar 15 16:44 authentication_loginconfirmsetting_reviewers.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 authentication_loginconfirmsetting_reviewers.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8630 Mar 15 16:44 authentication_privatetoken.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 authentication_privatetoken.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8814 Mar 15 16:44 authentication_ssotoken.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 authentication_ssotoken.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8586 Mar 15 16:44 auth_group.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 auth_group.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8642 Mar 15 16:44 auth_group_permissions.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 auth_group_permissions.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8676 Mar 15 16:44 auth_permission.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 auth_permission.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8712 Mar 15 16:44 captcha_captchastore.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 captcha_captchastore.ibd<br>-rw-r-----. 1 polkitd ssh_keys     61 Mar 15 16:10 db.opt<br>-rw-r-----. 1 polkitd ssh_keys   8866 Mar 15 16:44 django_admin_log.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 django_admin_log.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8728 Mar 15 16:44 django_cas_ng_proxygrantingticket.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 django_cas_ng_proxygrantingticket.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8634 Mar 15 16:44 django_cas_ng_sessionticket.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:44 django_cas_ng_sessionticket.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8638 Mar 15 16:44 django_celery_beat_clockedschedule.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:44 django_celery_beat_clockedschedule.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8796 Mar 15 16:44 django_celery_beat_crontabschedule.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:45 django_celery_beat_crontabschedule.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8622 Mar 15 16:44 django_celery_beat_intervalschedule.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:45 django_celery_beat_intervalschedule.ibd<br>-rw-r-----. 1 polkitd ssh_keys  13564 Mar 15 16:44 django_celery_beat_periodictask.frm<br>-rw-r-----. 1 polkitd ssh_keys 180224 Mar 15 16:45 django_celery_beat_periodictask.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8606 Mar 15 16:44 django_celery_beat_periodictasks.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:45 django_celery_beat_periodictasks.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8666 Mar 15 16:44 django_celery_beat_solarschedule.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 django_celery_beat_solarschedule.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8628 Mar 15 16:44 django_content_type.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 django_content_type.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8650 Mar 15 16:44 django_migrations.frm<br>-rw-r-----. 1 polkitd ssh_keys  98304 Mar 15 16:45 django_migrations.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8664 Mar 15 16:44 django_session.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 django_session.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8658 Mar 15 16:44 jms_oidc_rp_oidcuser.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 jms_oidc_rp_oidcuser.ibd<br>-rw-r-----. 1 polkitd ssh_keys   9042 Mar 15 16:44 ops_adhoc_execution.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 ops_adhoc_execution.ibd<br>-rw-r-----. 1 polkitd ssh_keys  17124 Mar 15 16:44 ops_adhoc.frm<br>-rw-r-----. 1 polkitd ssh_keys   8632 Mar 15 16:44 ops_adhoc_hosts.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 ops_adhoc_hosts.ibd<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 ops_adhoc.ibd<br>-rw-r-----. 1 polkitd ssh_keys  12894 Mar 15 16:44 ops_celerytask.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 ops_celerytask.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8918 Mar 15 16:44 ops_commandexecution.frm<br>-rw-r-----. 1 polkitd ssh_keys   8654 Mar 15 16:44 ops_commandexecution_hosts.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 ops_commandexecution_hosts.ibd<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 ops_commandexecution.ibd<br>-rw-r-----. 1 polkitd ssh_keys   9170 Mar 15 16:44 ops_task.frm<br>-rw-r-----. 1 polkitd ssh_keys 180224 Mar 15 16:44 ops_task.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8710 Mar 15 16:44 orgs_organization.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 orgs_organization.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8790 Mar 15 16:44 orgs_organization_members.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 orgs_organization_members.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8676 Mar 15 16:44 perms_applicationpermission_applications.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_applicationpermission_applications.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8940 Mar 15 16:44 perms_applicationpermission.frm<br>-rw-r-----. 1 polkitd ssh_keys 163840 Mar 15 16:44 perms_applicationpermission.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8674 Mar 15 16:44 perms_applicationpermission_system_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_applicationpermission_system_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8672 Mar 15 16:44 perms_applicationpermission_user_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_applicationpermission_user_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8662 Mar 15 16:44 perms_applicationpermission_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:45 perms_applicationpermission_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8652 Mar 15 16:44 perms_assetpermission_assets.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_assetpermission_assets.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8908 Mar 15 16:44 perms_assetpermission.frm<br>-rw-r-----. 1 polkitd ssh_keys 163840 Mar 15 16:44 perms_assetpermission.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8650 Mar 15 16:44 perms_assetpermission_nodes.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_assetpermission_nodes.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8662 Mar 15 16:44 perms_assetpermission_system_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_assetpermission_system_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8660 Mar 15 16:44 perms_assetpermission_user_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_assetpermission_user_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8650 Mar 15 16:44 perms_assetpermission_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_assetpermission_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8676 Mar 15 16:44 perms_databaseapppermission_database_apps.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_databaseapppermission_database_apps.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8872 Mar 15 16:44 perms_databaseapppermission.frm<br>-rw-r-----. 1 polkitd ssh_keys 163840 Mar 15 16:44 perms_databaseapppermission.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8674 Mar 15 16:44 perms_databaseapppermission_system_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_databaseapppermission_system_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8672 Mar 15 16:44 perms_databaseapppermission_user_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_databaseapppermission_user_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8662 Mar 15 16:44 perms_databaseapppermission_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_databaseapppermission_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8872 Mar 15 16:44 perms_k8sapppermission.frm<br>-rw-r-----. 1 polkitd ssh_keys 163840 Mar 15 16:44 perms_k8sapppermission.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8656 Mar 15 16:44 perms_k8sapppermission_k8s_apps.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_k8sapppermission_k8s_apps.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8664 Mar 15 16:44 perms_k8sapppermission_system_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_k8sapppermission_system_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8662 Mar 15 16:44 perms_k8sapppermission_user_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_k8sapppermission_user_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8652 Mar 15 16:44 perms_k8sapppermission_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_k8sapppermission_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8768 Mar 15 16:44 perms_rebuildusertreetask.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 perms_rebuildusertreetask.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8872 Mar 15 16:44 perms_remoteapppermission.frm<br>-rw-r-----. 1 polkitd ssh_keys 163840 Mar 15 16:44 perms_remoteapppermission.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8668 Mar 15 16:44 perms_remoteapppermission_remote_apps.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_remoteapppermission_remote_apps.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8670 Mar 15 16:44 perms_remoteapppermission_system_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 perms_remoteapppermission_system_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8668 Mar 15 16:44 perms_remoteapppermission_user_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_remoteapppermission_user_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8658 Mar 15 16:44 perms_remoteapppermission_users.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 perms_remoteapppermission_users.ibd<br>-rw-r-----. 1 polkitd ssh_keys   9006 Mar 15 16:44 perms_usergrantedmappingnode.frm<br>-rw-r-----. 1 polkitd ssh_keys 196608 Mar 15 16:44 perms_usergrantedmappingnode.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8768 Mar 15 16:44 settings_setting.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:44 settings_setting.ibd<br>-rw-r-----. 1 polkitd ssh_keys  12976 Mar 15 16:44 terminal_command.frm<br>-rw-r-----. 1 polkitd ssh_keys 229376 Mar 15 16:45 terminal_command.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8816 Mar 15 16:44 terminal_commandstorage.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 terminal_commandstorage.ibd<br>-rw-r-----. 1 polkitd ssh_keys   9014 Mar 15 16:44 terminal.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 terminal.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8816 Mar 15 16:44 terminal_replaystorage.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 terminal_replaystorage.ibd<br>-rw-r-----. 1 polkitd ssh_keys  13336 Mar 15 16:44 terminal_session.frm<br>-rw-r-----. 1 polkitd ssh_keys 294912 Mar 15 16:45 terminal_session.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8898 Mar 15 16:44 terminal_status.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 terminal_status.ibd<br>-rw-r-----. 1 polkitd ssh_keys  12894 Mar 15 16:44 terminal_task.frm<br>-rw-r-----. 1 polkitd ssh_keys 114688 Mar 15 16:45 terminal_task.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8842 Mar 15 16:44 tickets_comment.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:45 tickets_comment.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8632 Mar 15 16:44 tickets_ticket_assignees.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:45 tickets_ticket_assignees.ibd<br>-rw-r-----. 1 polkitd ssh_keys   9186 Mar 15 16:44 tickets_ticket.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:45 tickets_ticket.ibd<br>-rw-r-----. 1 polkitd ssh_keys  13634 Mar 15 16:44 users_user.frm<br>-rw-r-----. 1 polkitd ssh_keys   8744 Mar 15 16:44 users_usergroup.frm<br>-rw-r-----. 1 polkitd ssh_keys 131072 Mar 15 16:44 users_usergroup.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8638 Mar 15 16:44 users_user_groups.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 users_user_groups.ibd<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:45 users_user.ibd<br>-rw-r-----. 1 polkitd ssh_keys   8640 Mar 15 16:44 users_user_user_permissions.frm<br>-rw-r-----. 1 polkitd ssh_keys 147456 Mar 15 16:44 users_user_user_permissions.ibd<br><br><br></code></pre></td></tr></table></figure>
+
+<h6 id="2-3-4-3-3-查看端口"><a href="#2-3-4-3-3-查看端口" class="headerlink" title="2.3.4.3.3 查看端口"></a>2.3.4.3.3 查看端口</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#ss -ntl</span><br>State  Recv-Q Send-Q  Local Address:Port  Peer Address:Port     <br>LISTEN  0    128       0.0.0.0:22      0.0.0.0:*       <br>LISTEN  0    100      127.0.0.1:25      0.0.0.0:*       <br>LISTEN  0    128          *:2222       *:*       <br>LISTEN  0    128          *:80        *:*       <br>LISTEN  0    128        [::]:22       [::]:*       <br>LISTEN  0    100        [::1]:25       [::]:*  <br></code></pre></td></tr></table></figure>
+
+<h6 id="2-3-4-3-4-验证登录"><a href="#2-3-4-3-4-验证登录" class="headerlink" title="2.3.4.3.4 验证登录"></a>2.3.4.3.4 验证登录</h6><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer7.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer8.jpg" srcset="/blog/img/loading.gif"></p>
+<h2 id="三、使用-JumpServer"><a href="#三、使用-JumpServer" class="headerlink" title="三、使用 JumpServer"></a>三、使用 JumpServer</h2><p>官方文档:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://docs.jumpserver.org/zh/master/<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-1-登录并初始化配置"><a href="#3-1-登录并初始化配置" class="headerlink" title="3.1 登录并初始化配置"></a>3.1 登录并初始化配置</h3><h4 id="3-1-1-首次登录"><a href="#3-1-1-首次登录" class="headerlink" title="3.1.1 首次登录"></a>3.1.1 首次登录</h4><h5 id="3-1-1-1-浏览器访问"><a href="#3-1-1-1-浏览器访问" class="headerlink" title="3.1.1.1 浏览器访问"></a>3.1.1.1 浏览器访问</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">http:&lt;JumpServerIP&gt;<br></code></pre></td></tr></table></figure>
+
+<p>登录 JumpServer 默认用户: admin 密码: admin</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer9.jpg" srcset="/blog/img/loading.gif"></p>
+<p>第一次登录要求重置密码</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer10.jpg" srcset="/blog/img/loading.gif"></p>
+<p>用新密码重新登录</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer11.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer12.jpg" srcset="/blog/img/loading.gif"></p>
+<h5 id="3-1-1-2-ssh-登录"><a href="#3-1-1-2-ssh-登录" class="headerlink" title="3.1.1.2 ssh 登录"></a>3.1.1.2 ssh 登录</h5><p>可以用admin用户和修改过的新密码, 连接jumpserver的ssh端口2222/tcp进行连接访问</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer13.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-1-2-修改-admin-用户的密码"><a href="#3-1-2-修改-admin-用户的密码" class="headerlink" title="3.1.2 修改 admin 用户的密码"></a>3.1.2 修改 admin 用户的密码</h4><p>点击网页右上角 –&gt; 个人信息 –&gt; 登录密码设置</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer14.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-1-3-配置邮件"><a href="#3-1-3-配置邮件" class="headerlink" title="3.1.3 配置邮件"></a>3.1.3 配置邮件</h4><p>（左边最后一个）系统设置 –&gt; 邮件设置</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer15.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer16.jpg" srcset="/blog/img/loading.gif"></p>
+<p>测试连接,可以收到邮件</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer17.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-2-创建用户和组"><a href="#3-2-创建用户和组" class="headerlink" title="3.2 创建用户和组"></a>3.2 创建用户和组</h3><p>JumpServer 支持三种用户</p>
+<ul>
+<li>系统管理员</li>
+<li>用户</li>
+<li>系统审计员</li>
+</ul>
+<h4 id="3-2-1-创建用户"><a href="#3-2-1-创建用户" class="headerlink" title="3.2.1 创建用户"></a>3.2.1 创建用户</h4><p>用户管理 –&gt; 用户列表 –&gt; 创建</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer18.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer19.jpg" srcset="/blog/img/loading.gif"></p>
+<p><strong>相同方法再创建xiaoming用户</strong></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer20.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer21.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer22.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-2-2-创建组并将用户加入组中"><a href="#3-2-2-创建组并将用户加入组中" class="headerlink" title="3.2.2 创建组并将用户加入组中"></a>3.2.2 创建组并将用户加入组中</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer23.jpg" srcset="/blog/img/loading.gif"></p>
+<p>创建development组,并将前面创建的用户加入组中</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer24.jpg" srcset="/blog/img/loading.gif"></p>
+<p>创建test组,将入用户</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer25.jpg" srcset="/blog/img/loading.gif"></p>
+<p>查看创建的组</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer26.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-2-3-使用新用户登录"><a href="#3-2-3-使用新用户登录" class="headerlink" title="3.2.3 使用新用户登录"></a>3.2.3 使用新用户登录</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer27.jpg" srcset="/blog/img/loading.gif"></p>
+<p>首次登录完善个人信息</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer28.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer29.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-2-4-禁用和启用用户"><a href="#3-2-4-禁用和启用用户" class="headerlink" title="3.2.4 禁用和启用用户"></a>3.2.4 禁用和启用用户</h4><p><strong>禁用用户</strong></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer30.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer31.jpg" srcset="/blog/img/loading.gif"></p>
+<p><strong>启用用户</strong></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer32.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer33.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-2-5-启用用户多因子认证功能"><a href="#3-2-5-启用用户多因子认证功能" class="headerlink" title="3.2.5 启用用户多因子认证功能"></a>3.2.5 启用用户多因子认证功能</h4><p>多因子认证Multi-Factor Authentication (MFA) 是一种简单有效的最佳安全实践方法，用户要通过两种以上的认证机制之后，才能得到授权，使用计算机资源</p>
+<p>JumpServer 启用 MFA 后，用户登录网站时，系统将要求输入用户名和密码（第一安全要素），然后要求输入来自其 MFA 设备的动态验证码（第二安全要素），双因素的安全认证将为您的账户提供更高的安全保护</p>
+<h5 id="3-2-5-1-开启MFA"><a href="#3-2-5-1-开启MFA" class="headerlink" title="3.2.5.1 开启MFA"></a>3.2.5.1 开启MFA</h5><p>在用户列表中,对指定用户更新配置</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer34.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer35.jpg" srcset="/blog/img/loading.gif"></p>
+<h5 id="3-2-5-2-绑定手机APP"><a href="#3-2-5-2-绑定手机APP" class="headerlink" title="3.2.5.2 绑定手机APP"></a>3.2.5.2 绑定手机APP</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer36.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer37.jpg" srcset="/blog/img/loading.gif"></p>
+<p>按下图下载APP并安装</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer38.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer39.jpg" srcset="/blog/img/loading.gif"></p>
+<h5 id="3-2-5-3-重新登录验证"><a href="#3-2-5-3-重新登录验证" class="headerlink" title="3.2.5.3 重新登录验证"></a>3.2.5.3 重新登录验证</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer40.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer41.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer42.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-2-6-创建系统审计员"><a href="#3-2-6-创建系统审计员" class="headerlink" title="3.2.6 创建系统审计员"></a>3.2.6 创建系统审计员</h4><p>系统审计员即查看录像带的人(M42期宽宽语录)</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer43.jpg" srcset="/blog/img/loading.gif"></p>
+<p>使用审计员用户登录</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer44.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-3-管理资产"><a href="#3-3-管理资产" class="headerlink" title="3.3 管理资产"></a>3.3 管理资产</h3><p>JumpServer 可以管理各种类型的资产</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer45.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-3-1-创建管理用户"><a href="#3-3-1-创建管理用户" class="headerlink" title="3.3.1 创建管理用户"></a>3.3.1 创建管理用户</h4><p>管理用户是jumpServer用来管理后端服务器或其它资产的管理员用户,此用户必须对后端服务器有管理权限</p>
+<p>管理用户特点:</p>
+<ul>
+<li>通常是后端服务器的root或者是具备root权限的超级用户</li>
+<li>用于推送或者是创建系统用户</li>
+<li>用于获取被管理的硬件资产信息</li>
+</ul>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer46.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer47.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer48.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-3-2-创建资产"><a href="#3-3-2-创建资产" class="headerlink" title="3.3.2 创建资产"></a>3.3.2 创建资产</h4><p>创建可以被jumpServer用户访问的后端服务器和其它资产,比如:路由器,交换机等</p>
+<h5 id="3-3-2-1-创建资产"><a href="#3-3-2-1-创建资产" class="headerlink" title="3.3.2.1 创建资产"></a>3.3.2.1 创建资产</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer49.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer50.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer51.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer52.jpg" srcset="/blog/img/loading.gif"></p>
+<p>创建多个资产</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer53.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer54.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer55.jpg" srcset="/blog/img/loading.gif"></p>
+<h5 id="3-3-2-2-创建节点实现资产分类"><a href="#3-3-2-2-创建节点实现资产分类" class="headerlink" title="3.3.2.2 创建节点实现资产分类"></a>3.3.2.2 创建节点实现资产分类</h5><p>创建节点将资产分类</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer56.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer57.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer58.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer59.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-4-授权管理"><a href="#3-4-授权管理" class="headerlink" title="3.4 授权管理"></a>3.4 授权管理</h3><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer60.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-4-1-创建系统用户"><a href="#3-4-1-创建系统用户" class="headerlink" title="3.4.1 创建系统用户"></a>3.4.1 创建系统用户</h4><p>系统用户是分配给JumpServer用户,用来让JumpServer用户在连接后端服务器和其它资产,一般不会给管理权限</p>
+<p>生产环境中,一般都会利用自动化运维工具提前在后端服务器创建好系统用户,在所有后端服务器统一用户ID信息,而非在jumpserver中创建</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer61.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer62.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer63.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer64.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-4-2-推送系统用户"><a href="#3-4-2-推送系统用户" class="headerlink" title="3.4.2 推送系统用户"></a>3.4.2 推送系统用户</h4><p>将前面创建的系统用户利用ansible推送到后端服务器并自动创建</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer65.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer66.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer67.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer68.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer69.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer70.jpg" srcset="/blog/img/loading.gif"></p>
+<p>在后端服务器验证用户创建成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@ubuntu1804 ~]<span class="hljs-comment">#id magedu</span><br>uid=1001(magedu) gid=1001(magedu) groups=1001(magedu)<br>[root@centos7 ~]<span class="hljs-comment">#id magedu</span><br>uid=1002(magedu) gid=1002(magedu) groups=1002(magedu)<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-4-3-创建授权规则"><a href="#3-4-3-创建授权规则" class="headerlink" title="3.4.3 创建授权规则"></a>3.4.3 创建授权规则</h4><p>通过授权规则, 为用户分配可以访问的资产</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer71.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer72.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer73.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer74.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer75.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer76.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer77.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer78.jpg" srcset="/blog/img/loading.gif"></p>
+<p>同样再创建授权规则</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer79.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer80.jpg" srcset="/blog/img/loading.gif"></p>
+<p>3.4.4 测试登录访问后端服务器</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer81.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer82.jpg" srcset="/blog/img/loading.gif"></p>
+<p>选中主机后,输入命令,再执行</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer83.jpg" srcset="/blog/img/loading.gif"></p>
+<p>点右上角的web终端,可以打开终端界面</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer84.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-4-5-测试上传和下载文件"><a href="#3-4-5-测试上传和下载文件" class="headerlink" title="3.4.5 测试上传和下载文件"></a>3.4.5 测试上传和下载文件</h4><p>可以通过web方式或者通过filezilla等工具直接连接jumpserver的2222端口都可以实现文件的上传下载</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer85.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer86.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer87.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer88.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer89.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer90.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-4-6-ssh连接JumpServer"><a href="#3-4-6-ssh连接JumpServer" class="headerlink" title="3.4.6 ssh连接JumpServer"></a>3.4.6 ssh连接JumpServer</h4><p>JumpServer 还支持用户通过ssh连接其2222/tcp端口进行访问</p>
+<p>连接方式:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">ssh -p 2222 user@jumpserver<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer91.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-5-数据库授权"><a href="#3-5-数据库授权" class="headerlink" title="3.5 数据库授权"></a>3.5 数据库授权</h3><h4 id="3-5-1-在后端服务器安装MySQL并创建数据库和用户"><a href="#3-5-1-在后端服务器安装MySQL并创建数据库和用户" class="headerlink" title="3.5.1 在后端服务器安装MySQL并创建数据库和用户"></a>3.5.1 在后端服务器安装MySQL并创建数据库和用户</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">[root@centos8 ~]<span class="hljs-comment">#hostname -I</span><br>10.0.0.200<br>[root@centos8 ~]<span class="hljs-comment">#dnf -y install mariadb-server</span><br><br>[root@centos8 ~]<span class="hljs-comment">#systemctl enable --now mariadb</span><br>[root@centos8 ~]<span class="hljs-comment">#mysql</span><br>MariaDB [(none)]&gt; create database wordpress;<br>MariaDB [(none)]&gt; grant all on wordpress.* to wordpress@<span class="hljs-string">&#x27;10.0.0.%&#x27;</span> identified<br>by <span class="hljs-string">&#x27;123456&#x27;</span>;<br>MariaDB [(none)]&gt; <span class="hljs-built_in">exit</span><br>Bye<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-5-2-创建数据库应用"><a href="#3-5-2-创建数据库应用" class="headerlink" title="3.5.2 创建数据库应用"></a>3.5.2 创建数据库应用</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer92.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer93.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-5-3-创建数据库的系统用户"><a href="#3-5-3-创建数据库的系统用户" class="headerlink" title="3.5.3 创建数据库的系统用户"></a>3.5.3 创建数据库的系统用户</h4><p>创建针对数据库的专用系统用户<br><strong>注意: 协议选择mysql</strong></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer94.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer95.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer96.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-5-4-创建数据库授权规则"><a href="#3-5-4-创建数据库授权规则" class="headerlink" title="3.5.4 创建数据库授权规则"></a>3.5.4 创建数据库授权规则</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer97.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer98.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer99.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-5-5-测试数据库连接"><a href="#3-5-5-测试数据库连接" class="headerlink" title="3.5.5 测试数据库连接"></a>3.5.5 测试数据库连接</h4><h5 id="3-5-5-1-web-方式连接MySQL资产"><a href="#3-5-5-1-web-方式连接MySQL资产" class="headerlink" title="3.5.5.1 web 方式连接MySQL资产"></a>3.5.5.1 web 方式连接MySQL资产</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer100.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer101.jpg" srcset="/blog/img/loading.gif"></p>
+<p>注意: v2.5.3有 bug,无法连接</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer102.jpg" srcset="/blog/img/loading.gif"></p>
+<h5 id="3-5-5-2-用ssh连接MySQL资产"><a href="#3-5-5-2-用ssh连接MySQL资产" class="headerlink" title="3.5.5.2 用ssh连接MySQL资产"></a>3.5.5.2 用ssh连接MySQL资产</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer103.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer104.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer105.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-6-会话管理"><a href="#3-6-会话管理" class="headerlink" title="3.6 会话管理"></a>3.6 会话管理</h3><p>会话管理-命令记录、历史会话里面可以看到用户操作过并且已经退出的录像记录</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer106.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-6-1-查看在线会话"><a href="#3-6-1-查看在线会话" class="headerlink" title="3.6.1 查看在线会话"></a>3.6.1 查看在线会话</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer107.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer108.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-6-2-查看历史会话"><a href="#3-6-2-查看历史会话" class="headerlink" title="3.6.2 查看历史会话"></a>3.6.2 查看历史会话</h4><h5 id="3-6-2-1-在线回放"><a href="#3-6-2-1-在线回放" class="headerlink" title="3.6.2.1 在线回放"></a>3.6.2.1 在线回放</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer109.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer110.jpg" srcset="/blog/img/loading.gif"></p>
+<p>3.6.2.2 离线查看录像<br>可以将历史会话过程下载再播放,但需要下载相关的播放器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://github.com/jumpserver/VideoPlayer/releases<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer111.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer112.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer113.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer114.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer115.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer116.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-6-3-查看命令历史"><a href="#3-6-3-查看命令历史" class="headerlink" title="3.6.3 查看命令历史"></a>3.6.3 查看命令历史</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer117.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-6-4-终端管理"><a href="#3-6-4-终端管理" class="headerlink" title="3.6.4 终端管理"></a>3.6.4 终端管理</h4><p>可以在线监控用户正在进行的操作,或者可以强制中断用户的连接</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer118.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-7-命令过滤器"><a href="#3-7-命令过滤器" class="headerlink" title="3.7 命令过滤器"></a>3.7 命令过滤器</h3><p>使用命令过滤器可以禁止用户执行特定的危险命令,防止误操作或恶意行为</p>
+<p>系统用户可以绑定一些命令过滤器，一个过滤器可以定义一些规则 当用户使用这个系统用户登录资产，然后执行一个命令.这个命令需要被绑定过滤器的所有规则匹配，高优先级先被匹配， 当一个规则匹配到了，如果规则的动作是允许，这个命令会被放行， 如果规则的动作是禁止，命令将会被禁止执行，否则就匹配下一个规则，如果最后没有匹配到规则，则允许执行</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer119.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-7-1-创建命令过滤器"><a href="#3-7-1-创建命令过滤器" class="headerlink" title="3.7.1 创建命令过滤器"></a>3.7.1 创建命令过滤器</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer120.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer121.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer122.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer123.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-7-2-将过滤器绑定系统用户"><a href="#3-7-2-将过滤器绑定系统用户" class="headerlink" title="3.7.2 将过滤器绑定系统用户"></a>3.7.2 将过滤器绑定系统用户</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer124.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-7-3-测试"><a href="#3-7-3-测试" class="headerlink" title="3.7.3 测试"></a>3.7.3 测试</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer125.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="3-8-资产的批量导出和导入"><a href="#3-8-资产的批量导出和导入" class="headerlink" title="3.8 资产的批量导出和导入"></a>3.8 资产的批量导出和导入</h3><p>当后端服务器众多时,一台一台主机手动导入效率很低,可以利用资产的导出导入功能实现批量导入</p>
+<h4 id="3-8-1-资产的批量导出"><a href="#3-8-1-资产的批量导出" class="headerlink" title="3.8.1 资产的批量导出"></a>3.8.1 资产的批量导出</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer126.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer127.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer128.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="3-8-2-批量导入资产"><a href="#3-8-2-批量导入资产" class="headerlink" title="3.8.2 批量导入资产"></a>3.8.2 批量导入资产</h4><p>参考上面导出的文件格式,生成导入的文件,再批量导入资产</p>
+<p>注意: 删除id列,修改主机名和IP字段,再导入</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer129.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer130.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer131.jpg" srcset="/blog/img/loading.gif"></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer132.jpg" srcset="/blog/img/loading.gif"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-JumpServer/">Linux JumpServer</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Devops之基于Jenkins的CI与CD</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/03/11/%E8%BF%90%E7%BB%B4%E8%87%AA%E8%BF%90%E5%8C%96%E4%B9%8BANSIBLE/">
+                        <span class="hidden-mobile">运维自运化之ANSIBLE</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
