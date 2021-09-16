@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>高性能WEB服务Nginx（一）介绍Nginx - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="高性能WEB服务Nginx（一）介绍Nginx">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-02-27 21:44" pubdate>
+        2021年2月27日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      98
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">高性能WEB服务Nginx（一）介绍Nginx</h1>
+            
+            <div class="markdown-body">
+              <h1 id="高性能WEB服务NGINX"><a href="#高性能WEB服务NGINX" class="headerlink" title="高性能WEB服务NGINX"></a>高性能WEB服务NGINX</h1><h1 id="一、Web-基础介绍"><a href="#一、Web-基础介绍" class="headerlink" title="一、Web 基础介绍"></a>一、Web 基础介绍</h1><p>正常情况下的单词web服务访问流程：</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce1.jpg" srcset="/blog/img/loading.gif"></p>
+<h2 id="1-1-互联网发展历程回顾"><a href="#1-1-互联网发展历程回顾" class="headerlink" title="1.1 互联网发展历程回顾"></a>1.1 互联网发展历程回顾</h2><p>1993年3月2日，中国科学院高能物理研究所租用AT&amp;T公司的国际卫星信道建立的接入美国SLAC国家实<br>验室的64K专线正式开通，成为我国连入Internet的第一根专线。<br>参考链接: <a target="_blank" rel="noopener" href="http://www.ihep.cas.cn/kxcb/kpcg/jsywl/201407/t20140714_4156699.html">http://www.ihep.cas.cn/kxcb/kpcg/jsywl/201407/t20140714_4156699.html</a><br>1995年马云开始创业并推出了一个web网站 中国黄页<br>1999年创建阿里巴巴 <a target="_blank" rel="noopener" href="http://www.alibabagroup.com/">www.alibabagroup.com</a><br>2003年5月10日创立淘宝网<br>2004年12月，马云创立第三方网上支付平台支付宝（蚂蚁金服旗下，共有蚂蚁金服支付宝、余额宝、招财宝、蚂蚁聚宝、网商银行、蚂蚁花呗、芝麻信用等子业务板块）<br>2009年开始举办双十一购物狂欢节，以下是历年交易成交额：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">2009年双十一：5000万元<br>2010年双十一：9.36亿元<br>2011年双十一：33.6亿元<br>2012年双十一：191亿元<br>2013年双十一：350亿元<br>2014年双十一：571亿元<br>2015年双十一：912.17亿元<br>2016年双十一：1207亿元<br>2017年双十一：1682.69亿元<br>2018年双十一：2135亿元<br>2019年双十一：2684亿元<br>2020年双十一：4982亿元<br></code></pre></td></tr></table></figure>
+
+<p>2012年1月11日淘宝商城正式更名为“天猫”<br>2014年9月19日里巴巴集团于纽约证券交易所正式挂牌上市</p>
+<h2 id="1-2-Web-服务介绍"><a href="#1-2-Web-服务介绍" class="headerlink" title="1.2 Web 服务介绍"></a>1.2 Web 服务介绍</h2><p>Netcraft公司于1994年底在英国成立，多年来一直致力于互联网市场以及在线安全方面的咨询服务，其中在国际上最具影响力的当属其针对网站服务器，域名解析/主机提供商，以及SSL市场所做的客观严谨的分析研究。</p>
+<p><a target="_blank" rel="noopener" href="https://news.netcraft.com/">https://news.netcraft.com/</a></p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce2.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-2-1-Apache-经典的-Web-服务端"><a href="#1-2-1-Apache-经典的-Web-服务端" class="headerlink" title="1.2.1 Apache 经典的 Web 服务端"></a>1.2.1 Apache 经典的 Web 服务端</h3><p>Apache起初由美国的伊利诺伊大学香槟分校的国家超级计算机应用中心开发，目前经历了两大版本分别是1.X和2.X，其可以通过编译安装实现特定的功能，官方网站：<a target="_blank" rel="noopener" href="http://www.apache.org/">http://www.apache.org</a></p>
+<h4 id="1-2-1-1-Apache-prefork-模型"><a href="#1-2-1-1-Apache-prefork-模型" class="headerlink" title="1.2.1.1 Apache prefork 模型"></a>1.2.1.1 Apache prefork 模型</h4><p>预派生模式，有一个主控制进程，然后生成多个子进程，使用select模型，最大并发1024，每个子进程有一个独立的线程响应用户请求，相对比较占用内存，但是比较稳定，可以设置最大和最小进程数，是最古老的一种模式，也是最稳定的模式，适用于访问量不是很大的场景。<br>优点：稳定<br>缺点：慢，占用资源，1024个进程不适用于高并发场景</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce3.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-2-1-2-Apache-worker-模型"><a href="#1-2-1-2-Apache-worker-模型" class="headerlink" title="1.2.1.2 Apache worker 模型"></a>1.2.1.2 Apache worker 模型</h4><p>一种多进程和多线程混合的模型，有一个控制进程，启动多个子进程，每个子进程里面包含固定的线程，使用线程程来处理请求，当线程不够使用的时候会再启动一个新的子进程，然后在进程里面再启动线程处理请求，由于其使用了线程处理请求，因此可以承受更高的并发。<br>优点：相比prefork 占用的内存较少，可以同时处理更多的请求<br>缺点：使用keepalive的长连接方式，某个线程会一直被占据，即使没有传输数据，也需要一直等待到超时才会被释放。如果过多的线程，被这样占据，也会导致在高并发场景下的无服务线程可用。（该问题在prefork模式下，同样会发生）</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce4.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-2-1-3-Apache-event模型"><a href="#1-2-1-3-Apache-event模型" class="headerlink" title="1.2.1.3 Apache event模型"></a>1.2.1.3 Apache event模型</h4><p>Apache中最新的模式，2012年发布的apache 2.4.X系列正式支持event 模型，属于事件驱动模型<br>(epoll)，每个进程响应多个请求，在现在版本里的已经是稳定可用的模式。它和worker模式很像，最大的区别在于，它解决了keepalive场景下，长期被占用的线程的资源浪费问题（某些线程因为被<br>keepalive空挂在哪里等待，中间几乎没有请求过来，甚至等到超时）。event MPM中，会有一个专门的线程来管理这些keepalive类型的线程，当有真实请求过来的时候，将请求传递给服务线程，执行完毕后，又允许它释放。这样增强了高并发场景下的请求处理能力。<br>优点：单线程响应多请求，占据更少的内存，高并发下表现更优秀，会有一个专门的线程来管理keep-alive类型的线程，当有真实请求过来的时候，将请求传递给服务线程，执行完毕后，又允许它释放<br>缺点：没有线程安全控制</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce5.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-2-2-Nginx高性能的-Web-服务端"><a href="#1-2-2-Nginx高性能的-Web-服务端" class="headerlink" title="1.2.2 Nginx高性能的 Web 服务端"></a>1.2.2 Nginx高性能的 Web 服务端</h3><p>Nginx是由1994年毕业于俄罗斯国立莫斯科鲍曼科技大学的同学为俄罗斯rambler.ru公司开发的，开发<br>工作最早从2002年开始，第一次公开发布时间是2004年10月4日，版本号是0.1.0，官网地址 <a target="_blank" rel="noopener" href="http://www.nginx.org/">www.nginx.org</a><br>Nginx历经十几年的迭代更新（<a target="_blank" rel="noopener" href="https://nginx.org/en/CHANGES%EF%BC%89%EF%BC%8C">https://nginx.org/en/CHANGES），</a> 目前功能已经非常完善且运行稳定，另外Nginx的版本分为开发版、稳定版和过期版，nginx以功能丰富著称，它即可以作为http服务器，也可以作为反向代理服务器或者邮件服务器，能够快速的响应静态网页的请求，支持<br>FastCGI/SSL/Virtual Host/URL Rwrite/Gzip/HTTP Basic Auth/http或者TCP的负载均衡(1.9版本以上且开启stream模块)等功能，并且支持第三方的功能扩展。<br>为什么使用Nginx：<br>天猫 淘宝 京东 小米 163 新浪等一线互联网公司都在用Nginx或者进行二次开发<br>基于Nginx的工作场景：</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce6.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-2-3-用户访问体验和性能"><a href="#1-2-3-用户访问体验和性能" class="headerlink" title="1.2.3 用户访问体验和性能"></a>1.2.3 用户访问体验和性能</h4><h5 id="1-2-3-1-用户访问体验统计"><a href="#1-2-3-1-用户访问体验统计" class="headerlink" title="1.2.3.1 用户访问体验统计"></a>1.2.3.1 用户访问体验统计</h5><p>互联网存在用户速度体验的1-3-10原则，即1秒最优，1-3秒较优，3~10秒比较慢，10秒以上用户无法接受。用户放弃一个产品的代价很低，只是换一个URL而已。</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce7.jpg" srcset="/blog/img/loading.gif"></p>
+<p>全球最大搜索引擎 Google：慢500ms = 20% 将放弃访问。<br>全球最大的电商零售网站亚马逊：慢100ms = 1% 将放弃交易<br>有很多研究都表明，性能对用户的行为有很大的影响：<br>79%的用户表示不太可能再次打开一个缓慢的网站<br>47%的用户期望网页能在2秒钟以内加载<br>40%的用户表示如果加载时间超过三秒钟，就会放弃这个网站<br>页面加载时间延迟一秒可能导致转换损失7%，页面浏览量减少11%<br>8秒定律：用户访问一个网站时，如果等待网页打开的时间超过8秒，会有超过30%的用户放弃等待<br>请珍惜每一毫秒的时间 !</p>
+<h5 id="1-2-3-2-影响用户体验的因素"><a href="#1-2-3-2-影响用户体验的因素" class="headerlink" title="1.2.3.2 影响用户体验的因素"></a>1.2.3.2 影响用户体验的因素</h5><p>据说马云在刚开始创业在给客户演示时，打开一个网站花了不到四个小时。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://www.shuimiao.net/NjHaO/<br></code></pre></td></tr></table></figure>
+
+<p><strong>影响用户体验的因素</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">客户端硬件配置<br>客户端网络速率<br>客户端与服务端距离<br><br>服务端网络速率<br>服务端硬件配置<br>服务端架构设计<br>服务端应用程序工作模式<br>服务端并发数量<br>服务端响应文件大小及数量<br>服务端I/O压力<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-4-服务端-I-O-流程"><a href="#1-2-4-服务端-I-O-流程" class="headerlink" title="1.2.4 服务端 I/O 流程"></a>1.2.4 服务端 I/O 流程</h4><p>I/O在计算机中指Input/Output， IOPS (Input/Output Per Second)即每秒的输入输出量(或读写次数)，是衡量磁盘性能的主要指标之一。IOPS是指单位时间内系统能处理的I/O请求数量，一般以每秒处理的I/O请求数量为单位，I/O请求通常为读或写数据操作请求。<br>一次完整的I/O是用户空间的进程数据与内核空间的内核数据的报文的完整交换，但是由于内核空间与用户空间是严格隔离的，所以其数据交换过程中不能由用户空间的进程直接调用内核空间的内存数据，而是需要经历一次从内核空间中的内存数据copy到用户空间的进程内存当中，所以简单说I/O就是把数据从内核空间中的内存数据复制到用户空间中进程的内存当中。<br>Linux 的 I/O</p>
+<ul>
+<li>磁盘I/O</li>
+<li>网络I/O : 一切皆文件,本质为对socket文件的读写</li>
+</ul>
+<h5 id="1-2-4-1-磁盘-I-O"><a href="#1-2-4-1-磁盘-I-O" class="headerlink" title="1.2.4.1 磁盘 I/O"></a>1.2.4.1 磁盘 I/O</h5><p>磁盘I/O是进程向内核发起系统调用，请求磁盘上的某个资源比如是html 文件或者图片，然后内核通过相应的驱动程序将目标文件加载到内核的内存空间，加载完成之后把数据从内核内存再复制给进程内存，如果是比较大的数据也需要等待时间</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs bash">机械磁盘的寻道时间、旋转延迟和数据传输时间：<br>寻道时间：是指磁头移动到正确的磁道上所花费的时间，寻道时间越短则I/O处理就越快，目前磁盘的寻道时<br>间一般在3-15毫秒左右。<br><br>旋转延迟：是指将磁盘片旋转到数据所在的扇区到磁头下面所花费的时间，旋转延迟取决于磁盘的转速，通常<br>使用磁盘旋转一周所需要时间的1/2之一表示，比如7200转的磁盘平均训传延迟大约为<br>60*1000/7200/2=4.17毫秒，公式的意思为 （每分钟60秒*1000毫秒每秒/7200转每分/2），如果是<br>15000转的则为60*1000/15000/2=2毫秒。<br><br>数据传输时间：指的是读取到数据后传输数据的时间，主要取决于传输速率，这个值等于数据大小除以传输速<br>率，目前的磁盘接口每秒的传输速度可以达到600MB，因此可以忽略不计。<br><br>常见的机械磁盘平均寻道时间值：<br>7200转/分的磁盘平均物理寻道时间：9毫秒<br>10000转/分的磁盘平均物理寻道时间：6毫秒<br>15000转/分的磁盘平均物理寻道时间：4毫秒<br><br>常见磁盘的平均延迟时间：<br>7200转的机械盘平均延迟：60*1000/7200/2 = 4.17ms<br>10000转的机械盘平均延迟：60*1000/10000/2 = 3ms<br>15000转的机械盘平均延迟：60*1000/15000/2 = 2ms<br><br>每秒最大IOPS的计算方法：<br>7200转的磁盘IOPS计算方式：1000毫秒/(9毫秒的寻道时间+4.17毫秒的平均旋转延迟时间)=1000/13.13=75.9 IOPS<br>10000转的磁盘的IOPS计算方式：1000毫秒/(6毫秒的寻道时间+3毫秒的平均旋转延迟间)=1000/9=111<br>IOPS<br>15000转的磁盘的IOPS计算方式：15000毫秒/(4毫秒的寻道时间+2毫秒的平均旋转延迟时间)=1000/6=166.6 IOPS<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-2-4-2-网络-I-O"><a href="#1-2-4-2-网络-I-O" class="headerlink" title="1.2.4.2 网络 I/O"></a>1.2.4.2 网络 I/O</h4><p>网络通信就是网络协议栈到用户空间进程的IO就是网络IO</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce8.jpg" srcset="/blog/img/loading.gif"></p>
+<p>网络I/O 处理过程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">获取请求数据，客户端与服务器建立连接发出请求，服务器接受请求（1-3）<br>构建响应，当服务器接收完请求，并在用户空间处理客户端的请求，直到构建响应完成（4）<br>返回数据，服务器将已构建好的响应再通过内核空间的网络 I/O 发还给客户端（5-7）<br></code></pre></td></tr></table></figure>
+
+<p>不论磁盘和网络I/O</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">每次I/O，都要经由两个阶段：<br>第一步：将数据从文件先加载至内核内存空间（缓冲区），等待数据准备完成，时间较长<br>第二步：将数据从内核缓冲区复制到用户空间的进程的内存中，时间较短<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-3-I-O-模型"><a href="#1-3-I-O-模型" class="headerlink" title="1.3 I/O 模型"></a>1.3 I/O 模型</h2><h3 id="1-3-1-I-O-模型相关概念"><a href="#1-3-1-I-O-模型相关概念" class="headerlink" title="1.3.1 I/O 模型相关概念"></a>1.3.1 I/O 模型相关概念</h3><p>同步/异步：关注的是消息通信机制，即调用者在等待一件事情的处理结果时，被调用者是否提供完成状态的通知。</p>
+<ul>
+<li>同步：synchronous，被调用者并不提供事件的处理结果相关的通知消息，需要调用者主动询问事情是否处理完成</li>
+<li>异步：asynchronous，被调用者通过状态、通知或回调机制主动通知调用者被调用者的运行状态</li>
+</ul>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce9.jpg" srcset="/blog/img/loading.gif"></p>
+<p>阻塞/非阻塞：关注调用者在等待结果返回之前所处的状态</p>
+<ul>
+<li>阻塞：blocking，指IO操作需要彻底完成后才返回到用户空间，调用结果返回之前，调用者被挂<br>起，干不了别的事情。</li>
+<li>非阻塞：nonblocking，指IO操作被调用后立即返回给用户一个状态值，而无需等到IO操作彻底完<br>成，在最终的调用结果返回之前，调用者不会被挂起，可以去做别的事情。</li>
+</ul>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce10.jpg" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-3-2-网络-I-O-模型"><a href="#1-3-2-网络-I-O-模型" class="headerlink" title="1.3.2 网络 I/O 模型"></a>1.3.2 网络 I/O 模型</h3><p>阻塞型、非阻塞型、复用型、信号驱动型、异步</p>
+<h4 id="1-3-2-1-阻塞型-I-O-模型（blocking-IO）"><a href="#1-3-2-1-阻塞型-I-O-模型（blocking-IO）" class="headerlink" title="1.3.2.1 阻塞型 I/O 模型（blocking IO）"></a>1.3.2.1 阻塞型 I/O 模型（blocking IO）</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce11.jpg" srcset="/blog/img/loading.gif"></p>
+<p>阻塞IO模型是最简单的I/O模型，用户线程在内核进行IO操作时被阻塞<br>用户线程通过系统调用read发起I/O读操作，由用户空间转到内核空间。内核等到数据包到达后，然后将接收的数据拷贝到用户空间，完成read操作。<br>用户需要等待read将数据读取到buffer后，才继续处理接收的数据。整个I/O请求的过程中，用户线程是被阻塞的，这导致用户在发起IO请求时，不能做任何事情，对CPU的资源利用率不够<br>优点：程序简单，在阻塞等待数据期间进程/线程挂起，基本不会占用 CPU 资源<br>缺点：每个连接需要独立的进程/线程单独处理，当并发请求量大时为了维护程序，内存、线程切换开销较大，apache 的preforck使用的是这种模式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">同步阻塞：程序向内核发送I/O请求后一直等待内核响应，如果内核处理请求的IO操作不能立即返回,则进程将一直等待并不再接受新的请求，并由进程轮训查看I/O是否完成，完成后进程将I/O结果返回给Client，在IO没有返回期间进程不能接受其他客户的请求，而且是有进程自己去查看I/O是否完成，这种方式简单，但是比较慢，用的比较少。<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-3-2-2-非阻塞型-I-O-模型-nonblocking-IO"><a href="#1-3-2-2-非阻塞型-I-O-模型-nonblocking-IO" class="headerlink" title="1.3.2.2 非阻塞型 I/O 模型 (nonblocking IO)"></a>1.3.2.2 非阻塞型 I/O 模型 (nonblocking IO)</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce12.jpg" srcset="/blog/img/loading.gif"></p>
+<p>用户线程发起IO请求时立即返回。但并未读取到任何数据，用户线程需要不断地发起IO请求，直到数据到达后，才真正读取到数据，继续执行。即 “轮询”机制存在两个问题：如果有大量文件描述符都要等，那么就得一个一个的read。这会带来大量的Context Switch（read是系统调用，每调用一次就得在用户态和核心态切换一次）。轮询的时间不好把握。这里是要猜多久之后数据才能到。等待时间设的太长，程序响应延迟就过大;设的太短，就会造成过于频繁的重试，干耗CPU而已，是比较浪费CPU的方式，一般很少直接使用这种模型，而是在其他IO模型中使用非阻塞IO这一特性。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">非阻塞：程序向内核发送请I/O求后一直等待内核响应，如果内核处理请求的IO操作不能立即返回IO结果，进程将不再等待，而且继续处理其他请求，但是仍然需要进程隔一段时间就要查看内核I/O是否完成。<br></code></pre></td></tr></table></figure>
+
+<p>查看上图可知，在设置连接为非阻塞时，当应用进程系统调用 recvfrom 没有数据返回时，内核会立即返回一个 EWOULDBLOCK 错误，而不会一直阻塞到数据准备好。如上图在第四次调用时有一个数据报准备好了，所以这时数据会被复制到应用进程缓冲区 ，于是 recvfrom 成功返回数据</p>
+<p>当一个应用进程这样循环调用 recvfrom 时，称之为轮询 polling 。这么做往往会耗费大量CPU时间，实际使用很少</p>
+<h4 id="1-3-2-3-多路复用-I-O-型-I-O-multiplexing"><a href="#1-3-2-3-多路复用-I-O-型-I-O-multiplexing" class="headerlink" title="1.3.2.3 多路复用 I/O 型(I/O multiplexing)"></a>1.3.2.3 多路复用 I/O 型(I/O multiplexing)</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce13.jpg" srcset="/blog/img/loading.gif"> </p>
+<p>I/O multiplexing 主要包括:select，poll，epoll三种系统调用，select/poll/epoll的好处就在于单个process就可以同时处理多个网络连接的IO。它的基本原理就是select/poll/epoll这个function会不断的轮询所负责的所有socket，当某个socket有数据到达了，就通知用户进程。<br>当用户进程调用了select，那么整个进程会被block，而同时，kernel会“监视”所有select负责的socket，当任何一个socket中的数据准备好了，select就会返回。这个时候用户进程再调用read操作，将数据从kernel拷贝到用户进程。<br>Apache prefork是此模式的select，work是poll模式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">IO多路复用（IO Multiplexing) ：是一种机制，程序注册一组socket文件描述符给操作系统，表示“我要监视这些fd是否有IO事件发生，有了就告诉程序处理”<br><br>IO多路复用一般和NIO一起使用的。NIO和IO多路复用是相对独立的。NIO仅仅是指IO API总是能立刻返回，不会被Blocking;而IO多路复用仅仅是操作系统提供的一种便利的通知机制。操作系统并不会强制这俩必须得一起用，可以只用IO多路复用 + BIO，这时还是当前线程被卡住。IO多路复用和NIO是要配合一起使用才有实际意义<br><br>IO多路复用是指内核一旦发现进程指定的一个或者多个IO条件准备读取，就通知该进程多个连接共用一个等待机制，本模型会阻塞进程，但是进程是阻塞在select或者poll这两个系统调用上，而不是阻塞在真正的IO操作上用户首先将需要进行IO操作添加到select中，同时等待select系统调用返回。当数据到达时，IO被激活，select函数返回。用户线程正式发起<span class="hljs-built_in">read</span>请求，读取数据并继续执行<br><br>从流程上来看，使用select函数进行IO请求和同步阻塞模型没有太大的区别，甚至还多了添加监视IO，以及调用select函数的额外操作，效率更差。并且阻塞了两次，但是第一次阻塞在select上时，select可以监控多个IO上是否已有IO操作准备就绪，即可达到在同一个线程内同时处理多个IO请求的目的。而不像阻塞IO那种，一次只能监控一个IO<br>虽然上述方式允许单线程内处理多个IO请求，但是每个IO请求的过程还是阻塞的（在select函数上阻塞），平均时间甚至比同步阻塞IO模型还要长。如果用户线程只是注册自己需要的IO请求，然后去做自己的事情，等到数据到来时再进行处理，则可以提高CPU的利用率<br><br>IO多路复用是最常使用的IO模型，但是其异步程度还不够“彻底”，因它使用了会阻塞线程的select系统调用。因此IO多路复用只能称为异步阻塞IO模型，而非真正的异步IO<br></code></pre></td></tr></table></figure>
+
+<p>优缺点</p>
+<ul>
+<li>优点：可以基于一个阻塞对象，同时在多个描述符上等待就绪，而不是使用多个线程(每个文件描述符一个线程)，这样可以大大节省系统资源</li>
+<li>缺点：当连接数较少时效率相比多线程+阻塞 I/O 模型效率较低，可能延迟更大，因为单个连接处理需要 2 次系统调用，占用时间会有增加</li>
+</ul>
+<p>IO多路复用适用如下场合：</p>
+<ul>
+<li>当客户端处理多个描述符时（一般是交互式输入和网络套接口），必须使用I/O复用</li>
+<li>当一个客户端同时处理多个套接字时，此情况可能的但很少出现</li>
+<li>当一个服务器既要处理监听套接字，又要处理已连接套接字，一般也要用到I/O复用</li>
+<li>当一个服务器即要处理TCP，又要处理UDP，一般要使用I/O复用</li>
+<li>当一个服务器要处理多个服务或多个协议，一般要使用I/O复用</li>
+</ul>
+<h5 id="1-3-2-4-信号驱动式-I-O-模型-signal-driven-IO"><a href="#1-3-2-4-信号驱动式-I-O-模型-signal-driven-IO" class="headerlink" title="1.3.2.4 信号驱动式 I/O 模型 (signal-driven IO)"></a>1.3.2.4 信号驱动式 I/O 模型 (signal-driven IO)</h5><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce14.jpg" srcset="/blog/img/loading.gif"></p>
+<p>信号驱动I/O的意思就是我们现在不用傻等着了，也不用去轮询。而是让内核在数据就绪时，发送信号通知我们。</p>
+<p>调用的步骤是，通过系统调用 sigaction ，并注册一个信号处理的回调函数，该调用会立即返回，然后主程序可以继续向下执行，当有I/O操作准备就绪,即内核数据就绪时，内核会为该进程产生一个SIGIO 信号，并回调注册的信号回调函数，这样就可以在信号回调函数中系统调用 recvfrom 获取数据,将用户进程所需要的数据从内核空间拷贝到用户空间此模型的优势在于等待数据报到达期间进程不被阻塞。用户主程序可以继续执行，只要等待来自信号处理函数的通知。</p>
+<p>在信号驱动式 I/O 模型中，应用程序使用套接口进行信号驱动 I/O，并安装一个信号处理函数，进程继续运行并不阻塞<br>当数据准备好时，进程会收到一个 SIGIO 信号，可以在信号处理函数中调用 I/O 操作函数处理数据。</p>
+<p>优点：线程并没有在等待数据时被阻塞，内核直接返回调用接收信号，不影响进程继续处理其他请求因此可以提高资源的利用率<br>缺点：信号 I/O 在大量 IO 操作时可能会因为信号队列溢出导致没法通知</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">异步阻塞：程序进程向内核发送IO调用后，不用等待内核响应，可以继续接受其他请求，内核收到进程请求后进行的IO如果不能立即返回，就由内核等待结果，直到IO完成后内核再通知进程，apache event是此模<br>式。<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-3-2-5-异步-I-O-模型-asynchronous-IO"><a href="#1-3-2-5-异步-I-O-模型-asynchronous-IO" class="headerlink" title="1.3.2.5 异步 I/O 模型 (asynchronous IO)"></a>1.3.2.5 异步 I/O 模型 (asynchronous IO)</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce15.jpg" srcset="/blog/img/loading.gif"></p>
+<p>异步I/O 与 信号驱动I/O最大区别在于，信号驱动是内核通知我们何时开始一个I/O操作，而异步I/O是由内核通知我们I/O操作何时完成，两者有本质区别,相当于不用去饭店场吃饭，直接点个外卖，把等待上菜的时间也给省了</p>
+<p>相对于同步I/O，异步I/O不是顺序执行。用户进程进行aio_read系统调用之后，无论内核数据是否准备好，都会直接返回给用户进程，然后用户态进程可以去做别的事情。等到socket数据准备好了，内核直接复制数据给进程，然后从内核向进程发送通知。IO两个阶段，进程都是非阻塞的。</p>
+<p>异步IO与信号驱动IO最主要的区别是信号驱动IO是由内核通知应用程序何时可以进行IO操作，而异步IO 则是由内核告诉用户线程IO操作何时完成。信号驱动IO当内核通知触发信号处理程序时，信号处理程序 还需要阻塞在从内核空间缓冲区拷贝数据到用户空间缓冲区这个阶段，而异步IO直接是在第二个阶段完成后，内核直接通知用户线程可以进行后续操作了</p>
+<p>优点：异步I/O能够充分利用DMA特性，让I/O操作与计算重叠</p>
+<p>缺点：要实现真正的异步 I/O，操作系统需要做大量的工作。目前 Windows下通过IOCP实现了真正的异步 I/O，在 Linux 系统下，Linux 2.6才引入，目前 AIO 并不完善，因此在 Linux 下实现高并发网络编程时以 IO 复用模型模式+多线程任务的架构基本可以满足需求</p>
+<p>Linux提供了AIO库函数实现异步，但是用的很少。目前有很多开源的异步IO库，例如libevent、libev、libuv。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">异步非阻塞：程序进程向内核发送IO调用后，不用等待内核响应，可以继续接受其他请求，内核调用的IO如果不能立即返回，内核会继续处理其他事物，直到IO完成后将结果通知给内核，内核在将IO完成的结果返回给进程，期间进程可以接受新的请求，内核也可以处理新的事物，因此相互不影响，可以实现较大的同时并实现较高的IO复用，因此异步非阻塞使用最多的一种通信方式。<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-3-3-五种-IO-对比"><a href="#1-3-3-五种-IO-对比" class="headerlink" title="1.3.3  五种 IO 对比"></a>1.3.3  五种 IO 对比</h4><p>这五种 I/O 模型中，越往后，阻塞越少，理论上效率也是最优前四种属于同步 I/O，因为其中真正的I/O 操作(recvfrom)将阻塞进程/线程，只有异步 I/O 模型才与 POSIX 定义的异步 I/O 相匹配</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce16.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-3-4-I-O-的具体实现方式"><a href="#1-3-4-I-O-的具体实现方式" class="headerlink" title="1.3.4  I/O 的具体实现方式"></a>1.3.4  I/O 的具体实现方式</h4><h5 id="1-3-4-1-I-O常见实现"><a href="#1-3-4-1-I-O常见实现" class="headerlink" title="1.3.4.1  I/O常见实现"></a>1.3.4.1  I/O常见实现</h5><p>Nginx支持在多种不同的操作系统实现不同的事件驱动模型，但是其在不同的操作系统甚至是不同的系  统版本上面的实现方式不尽相同，主要有以下实现方式：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs bash">1、select：<br>select库是在linux和windows平台都基本支持的事件驱动模型库，并且在接口的定义也基本相同，只是部分参数的含义略有差异，最大并发限制1024，是最早期的事件驱动模型。<br><br>2、poll：<br>在Linux的基本驱动模型，windows不支持此驱动模型，是select的升级版，取消了最大的并发限制，在编译nginx的时候可以使用--with-poll_module和--without-poll_module这两个指定是否编译select库。<br><br>3、epoll：<br>epoll是库，是Nginx服务器支持的最高性能的事件驱动库之一，是公认的非常优秀的事件驱动模型，它和select和poll有很大的区别，epoll是poll的升级版，但是与poll有很大的区别。<br>epoll的处理方式是创建一个待处理的事件列表，然后把这个列表发给内核，返回的时候在去轮询检查这个表，以判断事件是否发生，epoll支持一个进程打开的最大事件描述符的上限是系统可以打开的文件的最大数，同时epoll库的I/O效率不随描述符数目增加而线性下降，因为它只会对内核上报的“活跃”的描述符进行操作。<br><br>4、rtsig：<br>不是一个常用事件驱动，最大队列1024，不是很常用<br><br>5、kqueue：<br>用于支持BSD系列平台的高校事件驱动模型，主要用在FreeBSD 4.1及以上版本、OpenBSD 2.0级以上版本，NetBSD级以上版本及Mac OS X 平台上，该模型也是poll库的变种，因此和epoll没有本质上的区别，都是通过避免轮训操作提供效率。<br><br>6、/dev/poll:<br>用于支持unix衍生平台的高效事件驱动模型，主要在Solaris平台、HP/UX，该模型是sun公司在开发Solaris系列平台的时候提出的用于完成事件驱动机制的方案，它使用了虚拟的/dev/poll设备，开发人员将要见识的文件描述符加入这个设备，然后通过ioctl()调用来获取事件通知，因此运行在以上系列平台的时候请使用/dev/poll事件驱动机制。<br><br>7、eventport：<br>该方案也是sun公司在开发Solaris的时候提出的事件驱动库，支持Solaris10以上的版本，该驱动库能防止内核崩溃等情况的发生。<br><br>8、Iocp：<br>Windows系统上的实现方式，对应第5种（异步I/O）模型。<br></code></pre></td></tr></table></figure>
+
+<h4 id="1-3-1-1-常用I-O模型比较"><a href="#1-3-1-1-常用I-O模型比较" class="headerlink" title="1.3.1.1  常用I/O模型比较"></a>1.3.1.1  常用I/O模型比较</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce17.jpg" srcset="/blog/img/loading.gif"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">Select：<br>POSIX所规定，目前几乎在所有的平台上支持，其良好跨平台支持也是它的一个优点，本质上是通过设置或者检查存放fd标志位的数据结构来进行下一步处理<br><br>缺点<br>1.单个进程能够监视的文件描述符的数量存在最大限制，在Linux上一般为1024，可以通过修改宏定义FD_SETSIZE，再重新编译内核实现，但是这样也会造成效率的降低<br>2.单个进程可监视的fd数量被限制，默认是1024，修改此值需要重新编译内核对socket是线性扫描，即采用轮询的方法，效率较低<br><br>select采取了内存拷贝方法来实现内核将FD消息通知给用户空间，这样一个用来存放大量fd的数据结构，这样会使得用户空间和内核空间在传递该结构时复制开销大<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">poll：<br>本质上和select没有区别，它将用户传入的数组拷贝到内核空间，然后查询每个fd对应的设备状态其没有最大连接数的限制，原因是它是基于链表来存储的大量的fd的数组被整体复制于用户态和内核地址空间之间，而不管这样的复制是不是有意义<br>poll特点是“水平触发”，如果报告了fd后，没有被处理，那么下次poll时会再次报告该fdselect是边缘触发即只通知一次<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">epoll：<br>在Linux 2.6内核中提出的select和poll的增强版本，支持水平触发LT和边缘触发ET，最大的特点在于边缘触发，它只告诉进程哪些fd刚刚变为就绪态，并且只会通知一次<br>使用“事件”的就绪通知方式，通过epoll_ctl注册fd，一旦该fd就绪，内核就会采用类似callback的回调机制来激活该fd，epoll_wait便可以收到通知<br><br>优点:<br>没有最大并发连接的限制：能打开的FD的上限远大于1024(1G的内存能监听约10万个端口)，具体查看/proc/sys/fs/file-max，此值和系统内存大小相关<br><br>效率提升：非轮询的方式，不会随着FD数目的增加而效率下降;只有活跃可用的FD才会调用callback函数，即epoll最大的优点就在于它只管理“活跃”的连接，而跟连接总数无关<br>内存拷贝，利用mmap(Memory Mapping)加速与内核空间的消息传递;即epoll使用mmap减少复制开销<br></code></pre></td></tr></table></figure>
+
+<p>范例: 最大并发连接数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#内存1G</span><br>free -h<br>              total        used        free      shared  buff/cache   available<br>Mem:           976M        490M        145M        6.7M        339M        307M<br>Swap:          1.5G          0B        1.5G<br>cat /proc/sys/fs/file-max<br>96105<br><br><span class="hljs-comment">#内存2G</span><br>              total        used        free      shared  buff/cache   available<br>Mem:           1.9G        132M        1.3G        6.9M        529M        1.6G<br>Swap:          2.0G          0B        2.0G<br>cat /proc/sys/fs/file-max<br>195920<br></code></pre></td></tr></table></figure>
+
+<p>范例: 内核限制</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">grep -R FD_SETSIZE linux-5.8/*<br>linux-5.8/Documentation/userspace-api/media/v4l/func-select.rst: <br> ``FD_SETSIZE``.<br>linux-5.8/include/uapi/linux/posix_types.h:<span class="hljs-comment">#undef __FD_SETSIZE</span><br>linux-5.8/include/uapi/linux/posix_types.h:<span class="hljs-comment">#define __FD_SETSIZE 1024 #单个进程能够监视的文件描述符的文件最大数量</span><br>linux-5.8/include/uapi/linux/posix_types.h: unsigned long fds_bits[__FD_SETSIZE<br>/ (8 * sizeof(long))];<br>linux-5.8/tools/include/nolibc/nolibc.h:<span class="hljs-comment">#define FD_SETSIZE 256</span><br>linux-5.8/tools/include/nolibc/nolibc.h:typedef struct &#123; uint32_t fd32[FD_SETSIZE/32]; &#125; fd_set;<br>linux-5.8/tools/include/nolibc/nolibc.h: <span class="hljs-keyword">if</span> (fd &lt; 0 || fd &gt;= FD_SETSIZE)<br>linux-5.8/tools/testing/selftests/net/nettest.c: rc = select(FD_SETSIZE,NULL, &amp;wfd, NULL, tv);<br></code></pre></td></tr></table></figure>
+
+<p>范例: select 和epoll 帮助</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash">whatis epoll<br>epoll (7)       - I/O event notification facility<br><br>whatis select<br>select (2)      - synchronous I/O multiplexing<br>select (3)      - synchronous I/O multiplexing<br>select (3p)      - synchronous I/O multiplexing<br><br>whatis poll<br>poll (2)       - <span class="hljs-built_in">wait</span> <span class="hljs-keyword">for</span> some event on a file descriptor<br>poll (3p)       - input/output multiplexing<br><br>man 2 select<br>SELECT(2)                                        Linux Programmer<span class="hljs-string">&#x27;s Manual                                       SELECT(2)</span><br><span class="hljs-string"></span><br><span class="hljs-string">NAME</span><br><span class="hljs-string">       select, pselect, FD_CLR, FD_ISSET, FD_SET, FD_ZERO - synchronous I/O multiplexing</span><br><span class="hljs-string"></span><br><span class="hljs-string">man 2 poll</span><br><span class="hljs-string">POLL(2)                                          Linux Programmer&#x27;</span>s Manual                                         POLL(2)<br><br>NAME<br>       poll, ppoll - <span class="hljs-built_in">wait</span> <span class="hljs-keyword">for</span> some event on a file descriptor<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-4-零拷贝"><a href="#1-4-零拷贝" class="headerlink" title="1.4 零拷贝"></a>1.4 零拷贝</h2><h3 id="1-4-1-零拷贝介绍"><a href="#1-4-1-零拷贝介绍" class="headerlink" title="1.4.1 零拷贝介绍"></a>1.4.1 零拷贝介绍</h3><h4 id="1-4-1-1-传统-Linux中-I-O-的问题"><a href="#1-4-1-1-传统-Linux中-I-O-的问题" class="headerlink" title="1.4.1.1 传统 Linux中 I/O 的问题"></a>1.4.1.1 传统 Linux中 I/O 的问题</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce18.jpg" srcset="/blog/img/loading.gif"></p>
+<p>传统的 Linux 系统的标准 I/O 接口（read、write）是基于数据拷贝的，也就是数据都是 copy_to_user或者 copy_from_user，这样做的好处是，通过中间缓存的机制，减少磁盘 I/O 的操作，但是坏处也很明显，大量数据的拷贝，用户态和内核态的频繁切换，会消耗大量的 CPU 资源，严重影响数据传输的性能，统计表明，在Linux协议栈中，数据包在内核态和用户态之间的拷贝所用的时间甚至占到了数据包整个处理流程时间的57.1%</p>
+<h4 id="1-4-1-2-什么是零拷贝"><a href="#1-4-1-2-什么是零拷贝" class="headerlink" title="1.4.1.2 什么是零拷贝"></a>1.4.1.2 什么是零拷贝</h4><p>零拷贝就是上述问题的一个解决方案，通过尽量避免拷贝操作来缓解 CPU 的压力。零拷贝并没有真正做到“0”拷贝，它更多是一种思想，很多的零拷贝技术都是基于这个思想去做的优化</p>
+<h3 id="1-4-2-零拷页相关技术"><a href="#1-4-2-零拷页相关技术" class="headerlink" title="1.4.2 零拷页相关技术"></a>1.4.2 零拷页相关技术</h3><h4 id="1-4-2-1-MMAP-Memory-Mapping"><a href="#1-4-2-1-MMAP-Memory-Mapping" class="headerlink" title="1.4.2.1 MMAP ( Memory Mapping )"></a>1.4.2.1 MMAP ( Memory Mapping )</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce19.jpg" srcset="/blog/img/loading.gif"></p>
+<p>mmap()系统调用使得进程之间通过映射同一个普通文件实现共享内存。普通文件被映射到进程地址空间后，进程可以向访问普通内存一样对文件进行访问。</p>
+<p>mmap是一种内存映射文件的方法，即将一个文件或者其它对象映射到进程的地址空间，实现文件磁盘地址和进程虚拟地址空间中一段虚拟地址的一一对映关系。</p>
+<p>实现这样的映射关系后，进程就可以采用指针的方式读写操作这一段内存，而系统会自动回写脏页面到对应的文件磁盘上，即完成了对文件的操作而不必再调用read,write等系统调用函数。相反，内核空间对这段区域的修改也直接反映用户空间，从而可以实现不同进程间的文件共享。</p>
+<p>内存映射减少数据在用户空间和内核空间之间的拷贝操作,适合大量数据传输</p>
+<h4 id="1-4-2-2-SENDFILE"><a href="#1-4-2-2-SENDFILE" class="headerlink" title="1.4.2.2 SENDFILE"></a>1.4.2.2 SENDFILE</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce20.jpg" srcset="/blog/img/loading.gif"></p>
+<h4 id="1-4-2-3-DMA-辅助的-SENDFILE"><a href="#1-4-2-3-DMA-辅助的-SENDFILE" class="headerlink" title="1.4.2.3 DMA 辅助的 SENDFILE"></a>1.4.2.3 DMA 辅助的 SENDFILE</h4><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-intrduce21.jpg" srcset="/blog/img/loading.gif"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%BA%8C%EF%BC%89Nginx%E6%9E%B6%E6%9E%84%E5%92%8C%E5%AE%89%E8%A3%85/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">高性能WEB服务Nginx（二）Nginx架构和安装</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1NGINX%E4%BB%8B%E7%BB%8D/">
+                        <span class="hidden-mobile">高性能WEB服务NGINX介绍</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
