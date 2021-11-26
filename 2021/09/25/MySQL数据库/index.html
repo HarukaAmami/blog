@@ -767,7 +767,7 @@
 
 <p>范例：</p>
 <p>查看wordpress@’10.0.0.%’权限<br>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
-<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#x77;&#111;&#114;&#x64;&#x70;&#114;&#101;&#115;&#115;&#x40;&#49;&#48;&#46;&#x30;&#x2e;&#x30;">&#x77;&#111;&#114;&#x64;&#x70;&#114;&#101;&#115;&#115;&#x40;&#49;&#48;&#46;&#x30;&#x2e;&#x30;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
+<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#x77;&#x6f;&#x72;&#100;&#112;&#x72;&#x65;&#115;&#115;&#x40;&#x31;&#x30;&#x2e;&#x30;&#x2e;&#x30;">&#x77;&#x6f;&#x72;&#100;&#112;&#x72;&#x65;&#115;&#115;&#x40;&#x31;&#x30;&#x2e;&#x30;&#x2e;&#x30;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
 <p><font color='red'>注意：MariaDB服务进程启动时会读取mysql库中所有授权表至内存</font></p>
 <ol>
 <li>GRANT或REVOKE等执行权限操作会保存于系统表中，MariaDB的服务进程通常会自动重读授权表，使之生效</li>
@@ -780,7 +780,7 @@
 <p>mysql&gt; revoke delete on wordpress.* from ‘wordpress‘@’10.0.0.%’;</p>
 <p>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
 <p>+—————————————————————————————————————-+</p>
-<p>| Grants for <a href="mailto:&#119;&#111;&#114;&#x64;&#112;&#x72;&#x65;&#115;&#115;&#64;&#49;&#x30;&#46;&#48;&#x2e;&#x30;">&#119;&#111;&#114;&#x64;&#112;&#x72;&#x65;&#115;&#115;&#64;&#49;&#x30;&#46;&#48;&#x2e;&#x30;</a>.%                                                                                 |</p>
+<p>| Grants for <a href="mailto:&#x77;&#111;&#114;&#x64;&#112;&#114;&#101;&#x73;&#115;&#x40;&#x31;&#x30;&#46;&#48;&#x2e;&#48;">&#x77;&#111;&#114;&#x64;&#112;&#114;&#101;&#x73;&#115;&#x40;&#x31;&#x30;&#46;&#48;&#x2e;&#48;</a>.%                                                                                 |</p>
 <p>+—————————————————————————————————————-+</p>
 <p>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                        |</p>
 <p>| GRANT SELECT, INSERT, UPDATE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |</p>
@@ -5430,6 +5430,12 @@
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/blog/2021/10/02/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">面试准备</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">

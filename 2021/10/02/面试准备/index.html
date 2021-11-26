@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>面试准备 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="面试准备">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-10-02 16:43" pubdate>
+        2021年10月2日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      15
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">面试准备</h1>
+            
+            <div class="markdown-body">
+              <h1 id="面试准备"><a href="#面试准备" class="headerlink" title="面试准备"></a>面试准备</h1><h1 id="一、面试技术篇"><a href="#一、面试技术篇" class="headerlink" title="一、面试技术篇"></a>一、面试技术篇</h1><h2 id="1-1-linxu常用命令面试题"><a href="#1-1-linxu常用命令面试题" class="headerlink" title="1.1 linxu常用命令面试题"></a>1.1 linxu常用命令面试题</h2><p>将所有命令都练习，然后再找“linux常用命令面试题”</p>
+<p>如何查看占用8080端口的进程</p>
+<p>netstat –apn | grep 8080</p>
+<h2 id="1-2-Linux系统知识面试题"><a href="#1-2-Linux系统知识面试题" class="headerlink" title="1.2 Linux系统知识面试题"></a>1.2 Linux系统知识面试题</h2><h3 id="1-2-1linux开机启动流程"><a href="#1-2-1linux开机启动流程" class="headerlink" title="1.2.1linux开机启动流程"></a>1.2.1linux开机启动流程</h3><ol>
+<li>开机自检bios</li>
+<li>mbr引导</li>
+<li>grub引导菜单</li>
+<li>加载内核</li>
+<li>启动init进程</li>
+<li>读取inittab文件，执行rc.sysinit.rc等脚本</li>
+<li>启动mingetty进程，进入系统登入界面</li>
+</ol>
+<h3 id="1-2-2-Linux忘记密码怎么破解"><a href="#1-2-2-Linux忘记密码怎么破解" class="headerlink" title="1.2.2 Linux忘记密码怎么破解"></a>1.2.2 Linux忘记密码怎么破解</h3><p>重启启单用户模式  或启动光盘进入修复模式</p>
+<h3 id="1-2-3-写出下面服务的常用端口ftp-http-dns-snmp-pop3-dhcp-nfs-mysql-samba等服务"><a href="#1-2-3-写出下面服务的常用端口ftp-http-dns-snmp-pop3-dhcp-nfs-mysql-samba等服务" class="headerlink" title="1.2.3 写出下面服务的常用端口ftp http dns snmp pop3 dhcp nfs mysql samba等服务"></a>1.2.3 写出下面服务的常用端口ftp http dns snmp pop3 dhcp nfs mysql samba等服务</h3><p>80     http 用于万维网（WWW）服务的超文本传输协议（HTTP）<br>20     ftp-data FTP 数据端口<br>21     ftp 文件传输协议（FTP）端口；有时被文件服务协议（FSP）使用<br>53     domain 域名服务（如 BIND）<br>161    snmp 简单网络管理协议（SNMP）<br>110    pop3 邮局协议版本3<br>67     bootps 引导协议（BOOTP）服务；还被动态主机配置协议（DHCP）服务使用<br>68     bootpc Bootstrap（BOOTP）客户；还被动态主机配置协议（DHCP）客户使用<br>2049   nfs [nfsd] 网络文件系统（NFS）<br>3306   mysql MySQL 数据库服务<br>137    netbios-ns 在红帽企业 Linux 中被 Samba 使用的 NETBIOS 名称服务<br>138    netbios-dgm 在红帽企业 Linux 中被 Samba 使用的 NETBIOS 数据报服务<br>139    netbios-ssn 在红帽企业 Linux 中被 Samba 使用的NET BIOS 会话服务</p>
+<h2 id="1-3-Shell面试题"><a href="#1-3-Shell面试题" class="headerlink" title="1.3 Shell面试题"></a>1.3 Shell面试题</h2><h3 id="1-3-1写一个脚本，判断一个指定的脚本是否语法错误，如果有则提醒用户"><a href="#1-3-1写一个脚本，判断一个指定的脚本是否语法错误，如果有则提醒用户" class="headerlink" title="1.3.1写一个脚本，判断一个指定的脚本是否语法错误，如果有则提醒用户"></a>1.3.1写一个脚本，判断一个指定的脚本是否语法错误，如果有则提醒用户</h3><h2 id="1-4-Nginx面试题"><a href="#1-4-Nginx面试题" class="headerlink" title="1.4 Nginx面试题"></a>1.4 Nginx面试题</h2><h2 id="1-5-Keepalived面试题"><a href="#1-5-Keepalived面试题" class="headerlink" title="1.5 Keepalived面试题"></a>1.5 Keepalived面试题</h2><h2 id="1-6-Haproxy面试题"><a href="#1-6-Haproxy面试题" class="headerlink" title="1.6 Haproxy面试题"></a>1.6 Haproxy面试题</h2><h2 id="1-7-Ansible面试题"><a href="#1-7-Ansible面试题" class="headerlink" title="1.7 Ansible面试题"></a>1.7 Ansible面试题</h2><h2 id="1-8-MySQL面试题"><a href="#1-8-MySQL面试题" class="headerlink" title="1.8 MySQL面试题"></a>1.8 MySQL面试题</h2><h2 id="1-9-Zabbix面试题"><a href="#1-9-Zabbix面试题" class="headerlink" title="1.9 Zabbix面试题"></a>1.9 Zabbix面试题</h2><h2 id="1-10-Tomcat面试题"><a href="#1-10-Tomcat面试题" class="headerlink" title="1.10 Tomcat面试题"></a>1.10 Tomcat面试题</h2><h2 id="1-11-Docker面试题"><a href="#1-11-Docker面试题" class="headerlink" title="1.11 Docker面试题"></a>1.11 Docker面试题</h2><h2 id="1-13-apache面试题"><a href="#1-13-apache面试题" class="headerlink" title="1.13 apache面试题"></a>1.13 apache面试题</h2><h3 id="1-13-1-写出apache2-x版本的两种工作模式，以及各自工作原理"><a href="#1-13-1-写出apache2-x版本的两种工作模式，以及各自工作原理" class="headerlink" title="1.13.1 写出apache2.x版本的两种工作模式，以及各自工作原理"></a>1.13.1 写出apache2.x版本的两种工作模式，以及各自工作原理</h3><p>apache有两种工作模式，一种为prefork模式，另一种为work模式<br>prefork：一个进程仅有一个线程接待一个访问请求，稳定性高，一个进程崩溃后不影响其它进程，但是占用内存较多，对硬件要求高。<br>work：一个进程具有多个线程，并分别响应访问请求，占用内存小，但是一个进程崩溃会影响其它请求</p>
+<h3 id="1-13-2-查看apache当前支持的所有模块可查看是工作再哪种模式"><a href="#1-13-2-查看apache当前支持的所有模块可查看是工作再哪种模式" class="headerlink" title="1.13.2 查看apache当前支持的所有模块可查看是工作再哪种模式"></a>1.13.2 查看apache当前支持的所有模块可查看是工作再哪种模式</h3><p>查看支持模块：httpd-l</p>
+<p>查看工作模式：httpd-V</p>
+<h1 id="二、面试项目篇"><a href="#二、面试项目篇" class="headerlink" title="二、面试项目篇"></a>二、面试项目篇</h1><h1 id="三、面试HR篇"><a href="#三、面试HR篇" class="headerlink" title="三、面试HR篇"></a>三、面试HR篇</h1><h2 id="3-1-公司类的面试问题"><a href="#3-1-公司类的面试问题" class="headerlink" title="3.1 公司类的面试问题"></a>3.1 公司类的面试问题</h2><h3 id="3-1-1-请做一下自我介绍"><a href="#3-1-1-请做一下自我介绍" class="headerlink" title="3.1.1 请做一下自我介绍"></a>3.1.1 请做一下自我介绍</h3><h3 id="3-1-2-你上家公司是哪家公司？"><a href="#3-1-2-你上家公司是哪家公司？" class="headerlink" title="3.1.2 你上家公司是哪家公司？"></a>3.1.2 你上家公司是哪家公司？</h3><p>广州亿元游众科技有限公司</p>
+<h3 id="3-1-3-你们公司的业务是什么？"><a href="#3-1-3-你们公司的业务是什么？" class="headerlink" title="3.1.3 你们公司的业务是什么？"></a>3.1.3 你们公司的业务是什么？</h3><p>大数据分析和移动办公</p>
+<h3 id="3-1-4-你们公司的产品是什么"><a href="#3-1-4-你们公司的产品是什么" class="headerlink" title="3.1.4 你们公司的产品是什么"></a>3.1.4 你们公司的产品是什么</h3><p>数据检测系统和类似微信那样的通讯系统</p>
+<h3 id="3-1-5-公司主营产品是什么"><a href="#3-1-5-公司主营产品是什么" class="headerlink" title="3.1.5 公司主营产品是什么"></a>3.1.5 公司主营产品是什么</h3><h3 id="3-1-6-公司有几个运维"><a href="#3-1-6-公司有几个运维" class="headerlink" title="3.1.6 公司有几个运维"></a>3.1.6 公司有几个运维</h3><p>4个</p>
+<h3 id="3-1-7-你们这几个运维怎么分工的"><a href="#3-1-7-你们这几个运维怎么分工的" class="headerlink" title="3.1.7 你们这几个运维怎么分工的"></a>3.1.7 你们这几个运维怎么分工的</h3><h3 id="3-1-8-你们公司有多少服务器"><a href="#3-1-8-你们公司有多少服务器" class="headerlink" title="3.1.8 你们公司有多少服务器"></a>3.1.8 你们公司有多少服务器</h3><p>比如：</p>
+<p>web端： 8核16G 3台</p>
+<p>负载均衡： 8核心16G 4台（也有专门应对DDOS的负载均衡）</p>
+<p>微服务层： 16核心32G 4台 （前面有4个负载均衡）</p>
+<p>cronjob: 定时任务： 4核心8G 云服务器</p>
+<p>数据库：2个实例，6台机器的MySQL</p>
+<p>mongoDB: 20台</p>
+<p>reids: 14台</p>
+<p>中间件： zookeeper（6台），kafka(6台） ,ELK(4台）</p>
+<p>大数据：CDH全家桶（10机器）</p>
+<p>其他：认证服务器，图片服务器，DNS ，冷备份服务器，存储（10台）</p>
+<p>线上一共：95台</p>
+<p>线下：(供开发，测试以及运维日常使用）</p>
+<p>线下CDH全家桶：14台</p>
+<p>开发用服务器：8台</p>
+<p>代码托管：6台</p>
+<p>容器环境：20台</p>
+<p>CEPH ：6台</p>
+<p>数据冷备份：4台</p>
+<p>其他：6台</p>
+<p>线下一共64台</p>
+<p>编的：</p>
+<h3 id="3-1-9-你们的前端，后端web等各有多少台"><a href="#3-1-9-你们的前端，后端web等各有多少台" class="headerlink" title="3.1.9 你们的前端，后端web等各有多少台"></a>3.1.9 你们的前端，后端web等各有多少台</h3><h3 id="3-1-10-你们公司的技术栈是啥"><a href="#3-1-10-你们公司的技术栈是啥" class="headerlink" title="3.1.10 你们公司的技术栈是啥"></a>3.1.10 你们公司的技术栈是啥</h3><h3 id="3-1-11-你们公司tomcat跑什么"><a href="#3-1-11-你们公司tomcat跑什么" class="headerlink" title="3.1.11 你们公司tomcat跑什么"></a>3.1.11 你们公司tomcat跑什么</h3><h3 id="3-1-12-你们的日志分析有几个节点"><a href="#3-1-12-你们的日志分析有几个节点" class="headerlink" title="3.1.12 你们的日志分析有几个节点"></a>3.1.12 你们的日志分析有几个节点</h3><h3 id="3-1-13-你们公司的系统应用架构图是什么样的"><a href="#3-1-13-你们公司的系统应用架构图是什么样的" class="headerlink" title="3.1.13 你们公司的系统应用架构图是什么样的"></a>3.1.13 你们公司的系统应用架构图是什么样的</h3><h3 id="3-1-14-日志分析的话分析什么数据？"><a href="#3-1-14-日志分析的话分析什么数据？" class="headerlink" title="3.1.14 日志分析的话分析什么数据？"></a>3.1.14 日志分析的话分析什么数据？</h3><h3 id="3-1-15-日志分析的话分析什么数据？"><a href="#3-1-15-日志分析的话分析什么数据？" class="headerlink" title="3.1.15 日志分析的话分析什么数据？"></a>3.1.15 日志分析的话分析什么数据？</h3><h3 id="3-1-16-你们的代码上线流程"><a href="#3-1-16-你们的代码上线流程" class="headerlink" title="3.1.16 你们的代码上线流程"></a>3.1.16 你们的代码上线流程</h3><h3 id="3-1-17-jenkins用到哪些插件"><a href="#3-1-17-jenkins用到哪些插件" class="headerlink" title="3.1.17 jenkins用到哪些插件"></a>3.1.17 jenkins用到哪些插件</h3><h3 id="3-1-18-jenkins如何知道gitlab代码更新"><a href="#3-1-18-jenkins如何知道gitlab代码更新" class="headerlink" title="3.1.18 jenkins如何知道gitlab代码更新"></a>3.1.18 jenkins如何知道gitlab代码更新</h3><h3 id="3-1-19-jenkins使用什么插件进行部署上线"><a href="#3-1-19-jenkins使用什么插件进行部署上线" class="headerlink" title="3.1.19 jenkins使用什么插件进行部署上线"></a>3.1.19 jenkins使用什么插件进行部署上线</h3><h3 id="3-1-20-jenkins的数据如备份备份哪个目录"><a href="#3-1-20-jenkins的数据如备份备份哪个目录" class="headerlink" title="3.1.20 jenkins的数据如备份备份哪个目录"></a>3.1.20 jenkins的数据如备份备份哪个目录</h3><h3 id="3-1-21-你在公司里汇报对象是谁"><a href="#3-1-21-你在公司里汇报对象是谁" class="headerlink" title="3.1.21 你在公司里汇报对象是谁"></a>3.1.21 你在公司里汇报对象是谁</h3><h3 id="3-1-22-你门机房温度是多少"><a href="#3-1-22-你门机房温度是多少" class="headerlink" title="3.1.22 你门机房温度是多少"></a>3.1.22 你门机房温度是多少</h3><h3 id="3-1-23-你们的机房在哪"><a href="#3-1-23-你们的机房在哪" class="headerlink" title="3.1.23 你们的机房在哪"></a>3.1.23 你们的机房在哪</h3><h3 id="3-1-24-你们的产品针对的用户群体是谁"><a href="#3-1-24-你们的产品针对的用户群体是谁" class="headerlink" title="3.1.24 你们的产品针对的用户群体是谁"></a>3.1.24 你们的产品针对的用户群体是谁</h3><h3 id="3-1-25-你们并发量是多少"><a href="#3-1-25-你们并发量是多少" class="headerlink" title="3.1.25 你们并发量是多少"></a>3.1.25 你们并发量是多少</h3><h3 id="3-1-26-你们并发量是多少"><a href="#3-1-26-你们并发量是多少" class="headerlink" title="3.1.26 你们并发量是多少"></a>3.1.26 你们并发量是多少</h3><h3 id="3-1-17-平时的最大在线人数有多少"><a href="#3-1-17-平时的最大在线人数有多少" class="headerlink" title="3.1.17 平时的最大在线人数有多少"></a>3.1.17 平时的最大在线人数有多少</h3><h3 id="3-1-28-每天活跃人数是多少"><a href="#3-1-28-每天活跃人数是多少" class="headerlink" title="3.1.28 每天活跃人数是多少"></a>3.1.28 每天活跃人数是多少</h3><h3 id="3-1-29-你在公司遇到的棘手的问题？"><a href="#3-1-29-你在公司遇到的棘手的问题？" class="headerlink" title="3.1.29 你在公司遇到的棘手的问题？"></a>3.1.29 你在公司遇到的棘手的问题？</h3><h3 id="3-1-30-开发给你包是tar还是war包，还是jar包"><a href="#3-1-30-开发给你包是tar还是war包，还是jar包" class="headerlink" title="3.1.30 开发给你包是tar还是war包，还是jar包"></a>3.1.30 开发给你包是tar还是war包，还是jar包</h3><h1 id="四、面试心理篇"><a href="#四、面试心理篇" class="headerlink" title="四、面试心理篇"></a>四、面试心理篇</h1><h1 id="五、面试准备方法篇"><a href="#五、面试准备方法篇" class="headerlink" title="五、面试准备方法篇"></a>五、面试准备方法篇</h1><h1 id="六、面试入职篇"><a href="#六、面试入职篇" class="headerlink" title="六、面试入职篇"></a>六、面试入职篇</h1><h1 id="七、成长指南"><a href="#七、成长指南" class="headerlink" title="七、成长指南"></a>七、成长指南</h1>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/linux-%E9%9D%A2%E8%AF%95/">linux 面试</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/09/25/MySQL%E6%95%B0%E6%8D%AE%E5%BA%93/">
+                        <span class="hidden-mobile">MySQL数据库</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
