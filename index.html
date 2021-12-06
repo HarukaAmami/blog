@@ -181,6 +181,173 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/blog/2021/12/06/jeknins%E9%AB%98%E7%89%88%E6%9C%AC%E6%97%A0%E6%B3%95%E5%85%B3%E9%97%AD%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%B3%95/">jeknins高版本无法关闭跨站请求伪造保护方法</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2021/12/06/jeknins%E9%AB%98%E7%89%88%E6%9C%AC%E6%97%A0%E6%B3%95%E5%85%B3%E9%97%AD%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%B3%95/">
+          
+          
+            
+          
+          Jenkins高版本无法关闭跨站请求伪造保护方法（jenkins-2.263.2-1.1.noarch）方法一：修改/etc/sysconfig/jenkins文件123456789101112131415# vim /etc/sysconfig/jenkins...... 41 ## Type: string 42 ## Default:     &quot;-Djava.awt.headles
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-12-06 22:43" pubdate>
+              2021-12-06
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/linux-jenkins/">linux jenkins</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2021/12/05/linux%E5%AE%89%E8%A3%85maven%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85%E5%B7%A5%E5%85%B7/">linux安装maven编译打包工具</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2021/12/05/linux%E5%AE%89%E8%A3%85maven%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85%E5%B7%A5%E5%85%B7/">
+          
+          
+            
+          
+          一、yum安装maven打包工具123456789# yum install -y maven# mvn -vApache Maven 3.0.5 (Red Hat 3.0.5-17)Maven home: /usr/share/mavenJava version: 1.8.0_312, vendor: Red Hat, Inc.Java home: /usr/lib/jvm/java-1.8.0
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-12-05 16:36" pubdate>
+              2021-12-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/linux-maven/">linux maven</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2021/12/05/linux%E5%AE%89%E8%A3%85jdk/">linux安装jdk</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2021/12/05/linux%E5%AE%89%E8%A3%85jdk/">
+          
+          
+            
+          
+          一、使用二进制安装包安装java环境1.1 到Oracle官网下载jdk二进制包过程略
+1.2 解压二进制包并床架软连接123# tar xvf jdk-8u311-linux-x64.tar.gz -C /usr/local/# ln -sv /usr/local/jdk1.8.0_311 /usr/local/jdk
+
+1.3 配置环境变量123456# vim /etc/profile.d/
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-12-05 16:07" pubdate>
+              2021-12-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-jdk/">Linux jdk</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2021/12/05/centos7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Jenkins/">centos7使用rpm安装Jenkins</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2021/12/05/centos7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Jenkins/">
+          
+          
+            
+          
+          Centos7使用rpm安装Jenkins一、准备java环境1.1 使用二进制安装包安装java环境1234567891011121314151617# cd /usr/local/src# 下载java包，过程略# tar xvf jdk-8u311-linux-x64.tar.gz -C /usr/local/# ln -sv /usr/local/jdk1.8.0_311 /usr/loc
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-12-05 10:17" pubdate>
+              2021-12-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Jenkins/">Linux Jenkins</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/blog/2021/10/02/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/">面试准备</a>
       </h1>
 
@@ -458,182 +625,11 @@ Scale Out：水平扩展，向外扩展,增加设备，并行地运行多个服�
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AB%EF%BC%89docker%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9B%BE%E5%BD%A2%E5%B7%A5%E5%85%B7Portainer/">企业级容器技术docker（八）docker可视化图形工具Portainer</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AB%EF%BC%89docker%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9B%BE%E5%BD%A2%E5%B7%A5%E5%85%B7Portainer/">
-          
-          
-            
-          
-          企业级容器技术docker八、 可视化图形工具Portainer8.1 Portainer介绍
-Portainer是一个可视化的容器镜像的图形管理工具，利用Portainer可以轻松构建，管理和维护Docker环境。 而且完全免费，基于容器化的安装方式，方便高效部署。
-官方站点: https://www.portainer.io/
-8.2 安装 Portainer官方安装说明: https://w
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:31" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">企业级容器技术docker（二）docker镜像制作和管理</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">
-          
-          
-            
-          
-          企业级容器技术docker二、Docker 镜像制作和管理2.1 Docker 镜像说明2.1.1 Docker 镜像中有没有内核从镜像大小上面来说，一个比较小的镜像只有1MB多点或几MB，而内核文件需要几十MB， 因此镜像里面是没有内核的，镜像在被启动为容器后将直接使用宿主机的内核，而镜像本身则只提供相应的rootfs，即系统正常运行所必须的用户空间的文件系统，比如: /dev/，/proc，/
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:30" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">企业级容器技术docker（六）docker单机编排</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">
-          
-          
-            
-          
-          企业级容器技术docker六、 单机编排之Docker Compose6.1 Docker Compse介绍
-当在宿主机启动较多的容器时候，如果都是手动操作会觉得比较麻烦而且容易出错，此时推荐使用docker 单机编排工具 docker-compose
-docker-compose 是 docker 容器的一种单机编排服务，docker-compose 是一个管理多个容器的工具，比如: 可以解决容
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:29" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">企业级容器技术docker（七）docker资源限制</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">
-          
-          
-            
-          
-          企业级容器技术docker七、 docker 的资源限制7.1 docker 资源限制7.1.1 容器资源限制介绍官方文档: https://docs.docker.com/config/containers/resource_constraints/
-默认情况下，容器没有资源的使用限制，可以使用主机内核调度程序允许的尽可能多的资源
-Docker 提供了控制容器使用资源的方法,可以限制容器使用多少
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:29" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><a class="page-number" href="/blog/page/4/">4</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   
