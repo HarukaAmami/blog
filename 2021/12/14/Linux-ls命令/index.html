@@ -1,0 +1,644 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Linux ls命令 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Linux ls命令">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2021-12-14 21:01" pubdate>
+        2021年12月14日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      12
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux ls命令</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Linux-ls命令"><a href="#Linux-ls命令" class="headerlink" title="Linux ls命令"></a>Linux ls命令</h1><p><strong>ls（英文全拼：list files）命令用于显示指定工作目录下之内容（列出目前工作目录所含之文件及子目录)。</strong></p>
+<h1 id="一、ls语法"><a href="#一、ls语法" class="headerlink" title="一、ls语法"></a>一、ls语法</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">ls [OPTION]... [FILE]...<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、ls命令参数"><a href="#二、ls命令参数" class="headerlink" title="二、ls命令参数"></a>二、ls命令参数</h1><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>-a</strong><br/>–all</td>
+<td>列出所有的文件和目录，包括以“.”号开头的</td>
+</tr>
+<tr>
+<td><strong>-A</strong><br/>–almost-all</td>
+<td>列出所有的文件和目录，包括以“.”号开头的（除了“.”和“..”）</td>
+</tr>
+<tr>
+<td><strong>-b</strong><br/>–escape</td>
+<td>将文件名中的不可见字符，使用“\”开头的八进制转换字符表示</td>
+</tr>
+<tr>
+<td>–block-size=SIZE</td>
+<td>指定每块的大小，如果指定了此值，将显示块数，不再显示文件大小<br/>可能的值：<br/>　　数　 　字，如：50、1024、102400<br/>　　数字+单位，如：1k、2m、5g、10t</td>
+</tr>
+<tr>
+<td>-B<br/>–ignore-backups</td>
+<td>不要显示以“~”结尾的文件</td>
+</tr>
+<tr>
+<td>-c</td>
+<td>按文件修改时间排序，可以使用“-l”选项显示创建时间</td>
+</tr>
+<tr>
+<td>-C</td>
+<td>使用列的顺序输出文件列表</td>
+</tr>
+<tr>
+<td>–color[=WHEN]</td>
+<td>是否使用不同的颜色区分文件类型，可能的值：<br/>　　never：从不<br/>　　always：总是<br/>　　auto：自动</td>
+</tr>
+<tr>
+<td><strong>-d</strong><br/>–directory</td>
+<td>列出目录的信息，而不是列出命令里面的内容</td>
+</tr>
+<tr>
+<td>-D<br/>–dired</td>
+<td>Generate output designed for Emacs’ dired mode</td>
+</tr>
+<tr>
+<td>-f</td>
+<td>不排序, 使用“-aU”选项, 停用“-lst”选项</td>
+</tr>
+<tr>
+<td><strong>-F</strong><br/>–classify</td>
+<td>给文件名末尾添加一个标识符（*/=@|中的一个）：<br/>“*”：可执行文件<br/>“/”：目录<br/>“=”：socket文件<br/>“@”：符号链接（symbolic link）文件<br/>“|”：FIFOs文件；</td>
+</tr>
+<tr>
+<td>–format=WORD</td>
+<td>设置输出的格式，可能的值：<br/>　　across：相当于“-x”<br/>　　commas：相当于“-m”<br/>　　horizontal：相当于“-x”<br/>　　long：相当于“-l”<br/>　　single-column：相当于“-1”<br/>　　verbose：相当于“-l”<br/>　　vertical：相当于“-C”</td>
+</tr>
+<tr>
+<td><strong>–full-time</strong></td>
+<td>列出文件完整的修改日期和时间</td>
+</tr>
+<tr>
+<td>-g</td>
+<td>类似 -l，但是不显示文件的所有者</td>
+</tr>
+<tr>
+<td>-G<br/>–no-group</td>
+<td>不显示文件的用户组</td>
+</tr>
+<tr>
+<td><strong>-h</strong><br/>–human-readable</td>
+<td>自动将文件大小使用方便阅读的方式表示，如：1.23K, 2.4M, 9G</td>
+</tr>
+<tr>
+<td>-H<br/>–si</td>
+<td>单位转换使用1000，而不是1024<br/>如：1M = 1000K，而不是 1M = 1024K</td>
+</tr>
+<tr>
+<td>–indicator-style=WORD</td>
+<td>按指定样式给文件名追加一个标识，可能的值：<br/>　　none：不添加，默认值<br/>　　classify：相当于“-F”<br/>　　file-type： 相当于“-p”<br/>　　slash：目录添加斜杠</td>
+</tr>
+<tr>
+<td><strong>-i</strong><br/>–inode</td>
+<td>输出文件使用的index node</td>
+</tr>
+<tr>
+<td>-I<br/>–ignore=PATTERN</td>
+<td>Do not list implied entries matching shell PATTERN</td>
+</tr>
+<tr>
+<td><strong>-k</strong><br/>–kilobytes</td>
+<td>以K为单位显示文件大小，相当于“–block-size=1024”</td>
+</tr>
+<tr>
+<td>-l</td>
+<td>以长列表的形式显示文件的详细信息</td>
+</tr>
+<tr>
+<td>-L<br/>–dereference</td>
+<td>列出符号链接指向的条目，而不是列出符号链接</td>
+</tr>
+<tr>
+<td>-m</td>
+<td>所有的相连并使用“,”逗号分隔</td>
+</tr>
+<tr>
+<td><strong>-n</strong><br/>–numeric-uid-gid</td>
+<td>使用数字UIDs、GIDs来代替名字</td>
+</tr>
+<tr>
+<td>-N<br/>–literal</td>
+<td>输出原始名称，对特殊字符不做特别处理，如：控制字符</td>
+</tr>
+<tr>
+<td>-o</td>
+<td>使用没有组信息的长列表格式</td>
+</tr>
+<tr>
+<td>-p<br/>–file-type</td>
+<td>根据文件类型，给文件名末尾添加一个标识符（/=@|中的一个）</td>
+</tr>
+<tr>
+<td>-q –hide-control-chars</td>
+<td>以?号代替不可显示字符（默认）</td>
+</tr>
+<tr>
+<td>–show-control-chars</td>
+<td>显示控制字符，不使用?号代替</td>
+</tr>
+<tr>
+<td><strong>-Q</strong><br/>–quote-name</td>
+<td>给名称加上双引号</td>
+</tr>
+<tr>
+<td>–quoting-style=WORD</td>
+<td>条目名称使用的引号样式，可选的值：literal、shell、shell-always、c、c-maybe、escape、clocale</td>
+</tr>
+<tr>
+<td>-r<br/>–reverse</td>
+<td>使用反序排序</td>
+</tr>
+<tr>
+<td><strong>-R</strong><br/>–recursive</td>
+<td>递归列出目录和子目录的文件</td>
+</tr>
+<tr>
+<td><strong>-s</strong><br/>–size</td>
+<td>以块为单位输出文件大小</td>
+</tr>
+<tr>
+<td><strong>-S</strong></td>
+<td>根据文件大小排序</td>
+</tr>
+<tr>
+<td>–sort=WORD</td>
+<td>排序关键词，可能的值: “none”, “time”, “size”, “extension”, “version”</td>
+</tr>
+<tr>
+<td>–time=WORD</td>
+<td>显示文档的指定时间，而不是显示修改时间，可能的值:<br/>　　atime, access, use, ctime or status<br/>如果“–sort=time”，也可以使用此时间作为排序键</td>
+</tr>
+<tr>
+<td>-t</td>
+<td>使用修改时间排序</td>
+</tr>
+<tr>
+<td>-T<br/>–tabsize=COLS</td>
+<td>设置tab制表符的长度，而不是使用默认的8字符长度</td>
+</tr>
+<tr>
+<td>-u</td>
+<td>按最后访问时间排序，使用“-l”显示最后访问时间</td>
+</tr>
+<tr>
+<td>-U</td>
+<td>不排序，使用目录的默认顺序</td>
+</tr>
+<tr>
+<td>-v</td>
+<td>按版本排序</td>
+</tr>
+<tr>
+<td>-w<br/>–width=COLS</td>
+<td>指定屏幕宽度，而不是使用屏幕的实际宽度</td>
+</tr>
+<tr>
+<td>-x</td>
+<td>按行的顺序显示，而不是按列的顺序</td>
+</tr>
+<tr>
+<td>-X</td>
+<td>按字母顺序排序</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>每行显示一个文件</td>
+</tr>
+<tr>
+<td>–help</td>
+<td>显示帮助信息</td>
+</tr>
+<tr>
+<td>–version</td>
+<td>输出版本号</td>
+</tr>
+</tbody></table>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-ls/">Linux ls</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2021/12/06/jeknins%E9%AB%98%E7%89%88%E6%9C%AC%E6%97%A0%E6%B3%95%E5%85%B3%E9%97%AD%E8%B7%A8%E7%AB%99%E8%AF%B7%E6%B1%82%E4%BC%AA%E9%80%A0%E4%BF%9D%E6%8A%A4%E6%96%B9%E6%B3%95/">
+                        <span class="hidden-mobile">jeknins高版本无法关闭跨站请求伪造保护方法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
