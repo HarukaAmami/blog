@@ -767,7 +767,7 @@
 
 <p>范例：</p>
 <p>查看wordpress@’10.0.0.%’权限<br>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
-<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#119;&#x6f;&#x72;&#x64;&#112;&#x72;&#x65;&#115;&#115;&#x40;&#49;&#x30;&#x2e;&#x30;&#46;&#48;">&#119;&#x6f;&#x72;&#x64;&#112;&#x72;&#x65;&#115;&#115;&#x40;&#49;&#x30;&#x2e;&#x30;&#46;&#48;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
+<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#119;&#x6f;&#x72;&#x64;&#x70;&#114;&#x65;&#115;&#115;&#64;&#49;&#48;&#46;&#x30;&#46;&#48;">&#119;&#x6f;&#x72;&#x64;&#x70;&#114;&#x65;&#115;&#115;&#64;&#49;&#48;&#46;&#x30;&#46;&#48;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
 <p><font color='red'>注意：MariaDB服务进程启动时会读取mysql库中所有授权表至内存</font></p>
 <ol>
 <li>GRANT或REVOKE等执行权限操作会保存于系统表中，MariaDB的服务进程通常会自动重读授权表，使之生效</li>
@@ -780,7 +780,7 @@
 <p>mysql&gt; revoke delete on wordpress.* from ‘wordpress‘@’10.0.0.%’;</p>
 <p>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
 <p>+—————————————————————————————————————-+</p>
-<p>| Grants for <a href="mailto:&#119;&#111;&#x72;&#x64;&#x70;&#114;&#101;&#x73;&#x73;&#x40;&#49;&#x30;&#x2e;&#x30;&#46;&#48;">&#119;&#111;&#x72;&#x64;&#x70;&#114;&#101;&#x73;&#x73;&#x40;&#49;&#x30;&#x2e;&#x30;&#46;&#48;</a>.%                                                                                 |</p>
+<p>| Grants for <a href="mailto:&#119;&#x6f;&#x72;&#x64;&#112;&#x72;&#101;&#115;&#x73;&#64;&#49;&#x30;&#x2e;&#x30;&#x2e;&#x30;">&#119;&#x6f;&#x72;&#x64;&#112;&#x72;&#101;&#115;&#x73;&#64;&#49;&#x30;&#x2e;&#x30;&#x2e;&#x30;</a>.%                                                                                 |</p>
 <p>+—————————————————————————————————————-+</p>
 <p>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                        |</p>
 <p>| GRANT SELECT, INSERT, UPDATE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |</p>
@@ -1043,7 +1043,7 @@
 <h3 id="7-5-6-将gender改为sex数据类型改为-CHAR-类型"><a href="#7-5-6-将gender改为sex数据类型改为-CHAR-类型" class="headerlink" title="7.5.6 将gender改为sex数据类型改为 CHAR 类型 ***"></a>7.5.6 将gender改为sex数据类型改为 CHAR 类型 ***</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#格式：<br>alter table 表名 chage 旧列名 新列名 一系列属性;<br>#范例：<br>ALTER TABLE stu CHANGE gender sex CHAR(4) NOT NULL COMMENT &#x27;性别&#x27;;<br>注意：<br>modify：用于修改数据类型的属性（列名除外）<br>change：用于修改数据类型（包含列名）<br></code></pre></td></tr></table></figure>
 
 <h1 id="八、DCL的应用"><a href="#八、DCL的应用" class="headerlink" title="八、DCL的应用"></a>八、DCL的应用</h1><p><strong>使用 show privileges; 查看权限</strong></p>
-<h2 id="8-1-grant授权"><a href="#8-1-grant授权" class="headerlink" title="8.1 grant授权"></a>8.1 grant授权</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#格式：<br>grant 权限 on 数据库对象 to 用户<br>#范例：<br>grant select,insert,update,delete on testdb.* to oldboy@&#x27;%&#x27;;<br>（查看用户获得的权限：show grant for oldboy@&#x27;%&#x27;;）<br></code></pre></td></tr></table></figure>
+<h2 id="8-1-grant授权"><a href="#8-1-grant授权" class="headerlink" title="8.1 grant授权"></a>8.1 grant授权</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#格式：<br>grant 权限 on 数据库对象 to 用户<br>#范例：<br>grant select,insert,update,delete on testdb.* to oldboy@&#x27;%&#x27;;<br>（查看用户获得的权限：show grants for oldboy@&#x27;%&#x27;;）<br></code></pre></td></tr></table></figure>
 
 <h2 id="8-2-revoke回收权限"><a href="#8-2-revoke回收权限" class="headerlink" title="8.2 revoke回收权限"></a>8.2 revoke回收权限</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#格式：<br>revoke 权限 on 数据库对象 to 用户<br>#范例：<br>revoke delete on testdb.* to oldboy@&#x27;%&#x27;;<br></code></pre></td></tr></table></figure>
 
