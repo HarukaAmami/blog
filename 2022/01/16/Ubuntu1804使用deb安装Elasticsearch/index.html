@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Ubuntu1804使用deb安装Elasticsearch - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Ubuntu1804使用deb安装Elasticsearch">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-01-16 21:24" pubdate>
+        2022年1月16日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      702 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      10
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Ubuntu1804使用deb安装Elasticsearch</h1>
+            
+            <div class="markdown-body">
+              <h1 id="一、安装前准备"><a href="#一、安装前准备" class="headerlink" title="一、安装前准备"></a>一、安装前准备</h1><h2 id="1-1-修改limits-conf"><a href="#1-1-修改limits-conf" class="headerlink" title="1.1 修改limits.conf"></a>1.1 修改limits.conf</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># vim /etc/security/limits.conf</span><br><span class="hljs-comment">#root账户的资源软限制和硬限制</span><br>root soft core unlimited<br>root hard core unlimited<br>root soft nproc 1000000<br>root hard nproc 1000000<br>root soft nofile 1000000<br>root hard nofile 1000000<br>root soft memlock 32000<br>root hard memlock 32000<br>root soft msgqueue 8192000<br>root hard msgqueue 8192000<br><span class="hljs-comment">#其他账户的资源软限制和硬限制</span><br>* soft core unlimited<br>* hard core unlimited<br>* soft nproc 1000000<br>* hard nproc 1000000<br>* soft nofile 1000000<br>* hard nofile 1000000<br>* soft memlock 32000<br>* hard memlock 32000<br>* soft msgqueue 8192000<br>* hard msgqueue 8192000<br>elasticsearch soft memlock unlimited<br>elasticsearch hard memlock unlimited<br><br><span class="hljs-comment"># systemctl daemon-reload （在修改了limits.conf文件后，执行这个命令可以立即生效）</span><br><br><span class="hljs-comment">#在安装elasticsearch后可以将elasticsearch的bash类型改成/bin/bash</span><br><span class="hljs-comment">#然后登陆elasticsearch，输入以下命令</span><br>$ <span class="hljs-built_in">ulimit</span> -a<br>core file size          (blocks, -c) unlimited<br>data seg size           (kbytes, -d) unlimited<br>scheduling priority             (-e) 0<br>file size               (blocks, -f) unlimited<br>pending signals                 (-i) 63454<br>max locked memory       (kbytes, -l) unlimited （这里的显示为unlimited）<br>max memory size         (kbytes, -m) unlimited<br>open files                      (-n) 1000000<br>pipe size            (512 bytes, -p) 8<br>POSIX message queues     (bytes, -q) 8192000<br>real-time priority              (-r) 0<br>stack size              (kbytes, -s) 8192<br>cpu time               (seconds, -t) unlimited<br>max user processes              (-u) 4096<br>virtual memory          (kbytes, -v) unlimited<br>file locks                      (-x) unlimited<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-2-安装基本命令"><a href="#1-2-安装基本命令" class="headerlink" title="1.2 安装基本命令"></a>1.2 安装基本命令</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#Ubuntu</span><br><span class="hljs-comment"># apt install -y net-tools vim lrzsz tree screen lsof tcpdump wget ntpdate apt-transport-https</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="1-3-同步时间"><a href="#1-3-同步时间" class="headerlink" title="1.3 同步时间"></a>1.3 同步时间</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#修改时区</span><br><span class="hljs-comment"># cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br><br><span class="hljs-comment">#设置计划任务</span><br><span class="hljs-comment"># echo &quot;*/5 * * * * ntpdate time1.aliyun.com &amp;&gt; /dev/null &amp;&amp; hwclock -w&quot; &gt;&gt; /var/spool/cron/root</span><br><span class="hljs-comment"># systemctl restart crond</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、安装elasticsearch"><a href="#二、安装elasticsearch" class="headerlink" title="二、安装elasticsearch"></a>二、安装elasticsearch</h1><h2 id="2-1-下载并安装elasticsearch"><a href="#2-1-下载并安装elasticsearch" class="headerlink" title="2.1 下载并安装elasticsearch"></a>2.1 下载并安装elasticsearch</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /usr/local/src</span><br><br><span class="hljs-comment">#下载elasticsearch</span><br><span class="hljs-comment"># wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.16.3-amd64.deb</span><br><br><span class="hljs-comment">#安装elasticsearch</span><br><span class="hljs-comment"># dpkg -i elasticsearch-7.16.3-amd64.deb</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-修改配置文件"><a href="#2-2-修改配置文件" class="headerlink" title="2.2 修改配置文件"></a>2.2 修改配置文件</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># vim /etc/elasticsearch/jvm.options</span><br><span class="hljs-comment">#添加</span><br>-Xms2g<br>-Xmx2g<br><br><span class="hljs-comment"># vim  /etc/elasticsearch/elasticsearch.yml</span><br>cluster.name: my-application <span class="hljs-comment">#ELK 的集群名称，名称相同即属于是同一个集群</span><br>node.name: node-1 <span class="hljs-comment">#当前节点在集群内的节点名称</span><br>path.data: /data/esdata/data <span class="hljs-comment">#ES 数据保存目录</span><br>path.logs: /data/esdata/logs <span class="hljs-comment">#ES 日志保存目</span><br>bootstrap.memory_lock: <span class="hljs-literal">true</span> <span class="hljs-comment">#服务启动的时候锁定足够内存，防止数据写入swap</span><br>network.host: 0.0.0.0 <span class="hljs-comment">#监听IP</span><br>http.port: 9200 <span class="hljs-comment">#监听端口</span><br><span class="hljs-comment">#集群初始化哪些节点被选举为master</span><br>cluster,initial_master_nodes: [<span class="hljs-string">&quot;node-1&quot;</span>]<br><span class="hljs-comment">#设置是否可以通过正则或者_all删除或者关闭索引，默认true表示必须需要显示指定索引库名称，生产环境建议设置为true，删除索引库的时候必须指定，否则可能会误删索引库中的索引。</span><br>action.destruction_requires_name:<span class="hljs-literal">true</span><br><br><span class="hljs-comment"># vim /usr/lib/systemd/system/elasticsearch.service</span><br><span class="hljs-comment">#在[Service]和[Install]中添加以下内容</span><br><span class="hljs-comment">#个人建议：</span><br><span class="hljs-comment">#“ExecStart=/usr/share/elasticsearch/bin/...”中添加</span><br>LimitMEMLOCK=infinity<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-3-新建文件夹并设置所属主和所属组"><a href="#2-3-新建文件夹并设置所属主和所属组" class="headerlink" title="2.3 新建文件夹并设置所属主和所属组"></a>2.3 新建文件夹并设置所属主和所属组</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># mkdir -p /data/esdata/&#123;data,logs&#125;</span><br><span class="hljs-comment"># chown -R elasticsearch.elasticsearch /data/esdata</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、启动elasticsearch"><a href="#三、启动elasticsearch" class="headerlink" title="三、启动elasticsearch"></a>三、启动elasticsearch</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># systemctl daemon-reload</span><br><span class="hljs-comment"># systemctl start elasticsearch 注意：如启动有问题就查看elasticsearch启动失败合集</span><br><span class="hljs-comment">#验证elasticsearch</span><br><span class="hljs-comment"># ss -tnl</span><br>State   Recv-Q    Send-Q        Local Address:Port         Peer Address:Port <br>LISTEN    0         128                     *:22                      *:*       <br>LISTEN    0         128                   :::9200                    :::*       <br>LISTEN    0         128                   :::9300                    :::*       <br>LISTEN    0         128                   :::22                      :::*<br><span class="hljs-comment"># curl 172.31.2.101:9200</span><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2022/01/16/Ubuntu1804%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasitcsearch/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Ubuntu1804二进制安装Elasitcsearch</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/">
+                        <span class="hidden-mobile">Ubuntu1804使用apt安装Elasticsearch</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
