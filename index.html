@@ -181,6 +181,342 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/blog/2022/01/20/Shell-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%88%A4%E6%96%AD%E6%8A%A5%E9%94%99/">Shell 字符串判断报错</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Shell-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%88%A4%E6%96%AD%E6%8A%A5%E9%94%99/">
+          
+          
+            
+          
+          Shell 字符串判断报错在shell脚本中，使用if判断字符串出现了报错
+报错内容为：
+1[: xxx: binary operator expected
+
+
+
+错误原因：
+使用了“-z”对一个变量判断是否为空字符串
+因为在shell中使用-z或-n对一个变量判空时，需要注意若直接使用[ -n/-z ${变量} ]这种形式，若${变量}中有空格将会报错
+解决办法：
+在判断时使用
+[[ -n/-z
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 23:14" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-shell/">Linux shell</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/Nginx%E5%85%B3%E4%BA%8Einvalid-URL-prefix-in%E7%9A%84%E5%9D%91/">Nginx关于invalid URL prefix in的坑</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Nginx%E5%85%B3%E4%BA%8Einvalid-URL-prefix-in%E7%9A%84%E5%9D%91/">
+          
+          
+            
+          
+          Nginx关于invalid URL prefix in的坑配置nginx反向代理的时候出现的问题
+nginx: [emerg] invalid URL prefix in /etc/nginx/nginx.conf:70
+原文件内容为
+123456789101112131415upstream mysql_server &#123;  server 10.0.0.102:3306;  serve
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 23:12" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/Logrotate%E6%97%A5%E5%BF%97%E5%88%87%E5%89%B2/">Logrotate日志切割</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Logrotate%E6%97%A5%E5%BF%97%E5%88%87%E5%89%B2/">
+          
+          
+            
+          
+          一、Logrotate介绍1.1 Logrotate简介和作用Logrotate程序是一个日志文件管理工具。用来把旧的日志文件更名或删除，并创建新的日志文件，我们把它叫做“转储”。
+Logrotate是个使日志轮替的程序，有了它就不用看着自己的日志体积一天天的变大，而可以根据你自己的需求来设定日志转储，而这个过程一般通过cron程序来执行。
+1.2 Logrotate在CentOS7.6的版本12
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 23:08" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Logrotate/">Linux Logrotate</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/Linux-unzip%E5%91%BD%E4%BB%A4/">Linux unzip命令</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Linux-unzip%E5%91%BD%E4%BB%A4/">
+          
+          
+            
+          
+          Linux unzip命令Linux unzip命令用于解压缩zip文件，unzip为.zip压缩文件的解压缩程序
+unzip语法
+1unzip [选项] (参数) file
+
+选项和描述
+
+
+
+选项
+描述
+
+
+
+-c
+将解压缩的结果显示到屏幕上，并对字符做适当的转换
+
+
+-f
+更新现有的文件
+
+
+-l
+显示压缩文件内缩包含的文件
+
+
+-p
+与-c参数类似，会将解压缩的结果显示到屏幕上，但不会执行
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 23:06" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/Linux-crond%E4%B9%8B%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%B2%BE%E7%A1%AE%E5%88%B0%E7%A7%92/">Linux crond之定时任务精确到秒</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Linux-crond%E4%B9%8B%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%B2%BE%E7%A1%AE%E5%88%B0%E7%A7%92/">
+          
+          
+            
+          
+          Linux crond之定时任务精确到秒Linux的crond定制任务只能精确到分，如果要精确到秒可以有两种方式来实现。
+第一种（推荐）在crond任务中创建60个任务，然后从第二个任务开始，使用sleep，每个sleep的时间是上一个sleep的时间+1秒
+例子：
+123456789# crontab -e*/1 * * * * * date &gt;&gt; /root/time.txt*/1
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 22:08" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/Elastic-Stack%E9%85%8D%E7%BD%AE%E5%AE%89%E5%85%A8%E6%80%A7%E7%AE%80%E4%BB%8B/">Elastic Stack配置安全性简介</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Elastic-Stack%E9%85%8D%E7%BD%AE%E5%AE%89%E5%85%A8%E6%80%A7%E7%AE%80%E4%BB%8B/">
+          
+          
+            
+          
+          Elastic Stack配置安全性简介从 Elastic Stack 6.8 和 7.1 开始，Elasticsearch在默认分发包中免费提供多项安全功能，例如 TLS 加密通信、基于角色的访问控制 (RBAC)，等等。
+安全需求取决于您是进行本地开发还是在生产环境中保护所有通信。由于安全需求各不相同，以下场景提供了配置 Elastic Stack 的选项。
+最低限度的安全性（Elastics
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 22:06" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/CentOS7%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E7%B1%BB%E5%91%BD%E4%BB%A4/">CentOS7安装网络类命令</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/CentOS7%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E7%B1%BB%E5%91%BD%E4%BB%A4/">
+          
+          
+            
+          
+          CentOS7安装网络类命令CentOS7最小化安装默认没有安装net-tools组件，所以关于ifconfig，netstat，route一系列网络类的命令也就无法使用。
+查看net-tools组件：
+12345678910111213141516171819202122232425262728293031# yum info net-toolsLoaded plugins: fastestmi
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 22:05" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/blog/2022/01/20/CentOS7%E7%B3%BB%E7%BB%9FTab%E8%A1%A5%E5%85%A8%E5%91%BD%E4%BB%A4/">CentOS7系统Tab补全命令</a>
       </h1>
 
@@ -310,372 +646,6 @@ https://www.cnblogs.com/liuguangjiji/p/10471046.html
             <i class="iconfont icon-tags"></i>
             
               <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Ubuntu1804使用apt安装Elasticsearch">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/">Ubuntu1804使用apt安装Elasticsearch</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-16 19:44" pubdate>
-              2022-01-16
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/01/15/Elastaicsearch%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E5%90%88%E9%9B%86/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elastaicsearch启动失败合集">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/01/15/Elastaicsearch%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E5%90%88%E9%9B%86/">Elastaicsearch启动失败合集</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/01/15/Elastaicsearch%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E5%90%88%E9%9B%86/">
-          
-          
-            
-          
-          一、使用systemctl启动超时问题
-使用rpm安装elasticsearch安装完成后，在修改配置无误后，使用systemctl启动elasticsearch出现报错。
-报错的内容如下：
-12#就是指elasticsearch启动超时elasticsearch.service start operation timed out. Terminating.
-
-解决办法：
-123456789101
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-15 14:47" pubdate>
-              2022-01-15
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/01/13/CentOS7%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="CentOS7二进制安装Elasticsearch7.X">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/01/13/CentOS7%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasticsearch/">CentOS7二进制安装Elasticsearch7.X</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/01/13/CentOS7%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasticsearch/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-13 23:04" pubdate>
-              2022-01-13
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/01/13/CentOS7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="CentOS7使用rpm安装Elasticsearch7.X">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/01/13/CentOS7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Elasticsearch/">CentOS7使用rpm安装Elasticsearch7.X</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/01/13/CentOS7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Elasticsearch/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-13 22:21" pubdate>
-              2022-01-13
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/12/16/Linux-tar%E5%91%BD%E4%BB%A4/">Linux tar命令</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/12/16/Linux-tar%E5%91%BD%E4%BB%A4/">
-          
-          
-            
-          
-          Linux tar命令一、tar命令的作用作用：tar命令可以将多个文件或目录打包成一个大的文件，而且也时平时最常用的命令之一。在打包完了之后还可以对文件进行压缩，tar命令也同样提供了压缩的功能。
-二、打包和压缩概念的解释打包：是指将多个文件或多个目录都集中在一个文件里
-压缩：将一个大文件通过压缩算法变成小的文件
-为什么要区分这两个概念呢？这源于Linux中很多压缩程序只能针对一个文件进行压缩，
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-12-16 22:47" pubdate>
-              2021-12-16
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-tar/">Linux tar</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/12/15/Nginx%E4%B9%8B%E9%99%90%E9%80%9F%E6%8C%87%E4%BB%A4-limit-rate/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-title.jpg" srcset="/blog/img/loading.gif" alt="Nginx之限速指令--limit_rate">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/12/15/Nginx%E4%B9%8B%E9%99%90%E9%80%9F%E6%8C%87%E4%BB%A4-limit-rate/">Nginx之限速指令--limit_rate</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/12/15/Nginx%E4%B9%8B%E9%99%90%E9%80%9F%E6%8C%87%E4%BB%A4-limit-rate/">
-          
-          
-            
-          
-          Nginx之限速指令–Limit_rate一、介绍Limit_ratelimit_rate是来自于Nignx的模块ngx_http_core_module中的一个用于控制速度的指令。
-
-
-
-limit_rate
-
-
-
-
-语法
-limit_rate rate
-
-
-默认
-limit_rate 0
-
-
-语境
-http，server，location，if in location
-
-
-limit_rate
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-12-15 22:33" pubdate>
-              2021-12-15
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/12/14/Linux-ls%E5%91%BD%E4%BB%A4/">Linux ls命令</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/12/14/Linux-ls%E5%91%BD%E4%BB%A4/">
-          
-          
-            
-          
-          Linux ls命令ls（英文全拼：list files）命令用于显示指定工作目录下之内容（列出目前工作目录所含之文件及子目录)。
-一、ls语法1ls [OPTION]... [FILE]...
-
-
-
-二、ls命令参数
-
-
-参数
-描述
-
-
-
--a–all
-列出所有的文件和目录，包括以“.”号开头的
-
-
--A–almost-all
-列出所有的文件和目录，包括以“.”号开头的（除了“.”和“..”）
-
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-12-14 21:01" pubdate>
-              2021-12-14
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-ls/">Linux ls</a>
             
           </div>
         
