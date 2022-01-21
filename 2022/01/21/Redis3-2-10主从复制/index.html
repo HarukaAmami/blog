@@ -1,0 +1,501 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Redis3.2.10主从复制 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Redis3.2.10主从复制">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-01-21 20:55" pubdate>
+        2022年1月21日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      30
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Redis3.2.10主从复制</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Redis3-2-10主从复制"><a href="#Redis3-2-10主从复制" class="headerlink" title="Redis3.2.10主从复制"></a>Redis3.2.10主从复制</h1><h1 id="一、redis主从复制架构"><a href="#一、redis主从复制架构" class="headerlink" title="一、redis主从复制架构"></a>一、redis主从复制架构</h1><p><strong>一主二从</strong></p>
+<table>
+<thead>
+<tr>
+<th>服务器地址</th>
+<th>主或从</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10.0.0.101</td>
+<td>主</td>
+</tr>
+<tr>
+<td>10.0.0.102</td>
+<td>从</td>
+</tr>
+<tr>
+<td>10.0.0.103</td>
+<td>从</td>
+</tr>
+</tbody></table>
+<h1 id="二、安装redis3-2-10"><a href="#二、安装redis3-2-10" class="headerlink" title="二、安装redis3.2.10"></a>二、安装redis3.2.10</h1><p>三台服务器都安装redis3.2.10</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="三、修改配置文价"><a href="#三、修改配置文价" class="headerlink" title="三、修改配置文价"></a>三、修改配置文价</h1><p><strong>10.0.0.101服务器修改配置文件</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># grep &quot;^[^#]&quot; /app/redis/etc/redis.conf</span><br><span class="hljs-built_in">bind</span> 0.0.0.0 <span class="hljs-comment">#需要修改监听地址</span><br>protected-mode yes<br>port 6379<br>tcp-backlog 511<br>timeout 0<br>tcp-keepalive 300<br>daemonize yes<br>supervised no<br>pidfile /app/redis/run/redis_6379.pid <span class="hljs-comment">#修改pid存储地址</span><br>loglevel notice<br>logfile /app/redis/<span class="hljs-built_in">log</span>/redis.log <span class="hljs-comment">#修改日志存储地址</span><br>databases 16<br>save 900 1<br>save 300 10<br>save 60 10000<br>stop-writes-on-bgsave-error yes<br>rdbcompression yes<br>rdbchecksum yes<br>dbfilename dump.rdb<br>dir /app/redis/data/ <span class="hljs-comment">#修改数据存储地址</span><br>slave-serve-stale-data yes<br>slave-read-only yes<br>repl-diskless-sync no<br>repl-diskless-sync-delay 5<br>repl-disable-tcp-nodelay no<br>slave-priority 100<br>requirepass 123456 <span class="hljs-comment">#添加密码</span><br>appendonly no<br>appendfilename <span class="hljs-string">&quot;appendonly.aof&quot;</span><br>appendfsync everysec<br>no-appendfsync-on-rewrite no<br>auto-aof-rewrite-percentage 100<br>auto-aof-rewrite-min-size 64mb<br>aof-load-truncated yes<br>lua-time-limit 5000<br>slowlog-log-slower-than 10000<br>slowlog-max-len 128<br>latency-monitor-threshold 0<br>notify-keyspace-events <span class="hljs-string">&quot;&quot;</span><br>hash-max-ziplist-entries 512<br>hash-max-ziplist-value 64<br>list-max-ziplist-size -2<br>list-compress-depth 0<br>set-max-intset-entries 512<br>zset-max-ziplist-entries 128<br>zset-max-ziplist-value 64<br>hll-sparse-max-bytes 3000<br>activerehashing yes<br>client-output-buffer-limit normal 0 0 0<br>client-output-buffer-limit slave 256mb 64mb 60<br>client-output-buffer-limit pubsub 32mb 8mb 60<br>hz 10<br>aof-rewrite-incremental-fsync yes<br></code></pre></td></tr></table></figure>
+
+<p><strong>10.0.0.102服务器修改配置文件</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># grep &quot;^[^#]&quot; /app/redis/etc/redis.conf</span><br><span class="hljs-built_in">bind</span> 0.0.0.0 <span class="hljs-comment">#修改监听地址</span><br>protected-mode yes<br>port 6379<br>tcp-backlog 511<br>timeout 0<br>tcp-keepalive 300<br>daemonize yes <span class="hljs-comment">#修改为后台执行</span><br>supervised no<br>pidfile /app/redis/run/redis_6379.pid <span class="hljs-comment">#pdi存放地址</span><br>loglevel notice<br>logfile /app/redis/<span class="hljs-built_in">log</span>/redis.log <span class="hljs-comment">#修改日志存放地址</span><br>databases 16<br>save 900 1<br>save 300 10<br>save 60 10000<br>stop-writes-on-bgsave-error yes<br>rdbcompression yes<br>rdbchecksum yes<br>dbfilename dump.rdb<br>dir /app/redis/data/ <span class="hljs-comment">#修改数据存放地址</span><br>slaveof 10.0.0.101 6379 <span class="hljs-comment">#添加主服务器ip和地址</span><br>masterauth 123456 <span class="hljs-comment">#添加密码，因为主服务器添加了密码，没有密码是连不上主服务器的</span><br>slave-serve-stale-data yes<br>slave-read-only yes<br>repl-diskless-sync no<br>repl-diskless-sync-delay 5<br>repl-disable-tcp-nodelay no<br>slave-priority 100<br>requirepass 123456 <span class="hljs-comment">#添加密码</span><br>appendonly no<br>appendfilename <span class="hljs-string">&quot;appendonly.aof&quot;</span><br>appendfsync everysec<br>no-appendfsync-on-rewrite no<br>auto-aof-rewrite-percentage 100<br>auto-aof-rewrite-min-size 64mb<br>aof-load-truncated yes<br>lua-time-limit 5000<br>slowlog-log-slower-than 10000<br>slowlog-max-len 128<br>latency-monitor-threshold 0<br>notify-keyspace-events <span class="hljs-string">&quot;&quot;</span><br>hash-max-ziplist-entries 512<br>hash-max-ziplist-value 64<br>list-max-ziplist-size -2<br>list-compress-depth 0<br>set-max-intset-entries 512<br>zset-max-ziplist-entries 128<br>zset-max-ziplist-value 64<br>hll-sparse-max-bytes 3000<br>activerehashing yes<br>client-output-buffer-limit normal 0 0 0<br>client-output-buffer-limit slave 256mb 64mb 60<br>client-output-buffer-limit pubsub 32mb 8mb 60<br>hz 10<br>aof-rewrite-incremental-fsync yes<br></code></pre></td></tr></table></figure>
+
+<p><strong>10.0.0.103服务器修改配置文件</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># grep &quot;^[^#]&quot; /app/redis/etc/redis.conf</span><br><span class="hljs-built_in">bind</span> 0.0.0.0 <span class="hljs-comment">#修改监听地址</span><br>protected-mode yes<br>port 6379<br>tcp-backlog 511<br>timeout 0<br>tcp-keepalive 300<br>daemonize yes<br>supervised no<br>pidfile /app/redis/run/redis_6379.pid <span class="hljs-comment">#修改pid存储地址</span><br>loglevel notice<br>logfile /app/redis/<span class="hljs-built_in">log</span>/redis.log <span class="hljs-comment">#修改日志存储地址</span><br>databases 16<br>save 900 1<br>save 300 10<br>save 60 10000<br>stop-writes-on-bgsave-error yes<br>rdbcompression yes<br>rdbchecksum yes<br>dbfilename dump.rdb<br>dir /app/redis/data/ <span class="hljs-comment">#修改数据存储地址</span><br>slaveof 172.31.2.7 6379 <span class="hljs-comment">#添加主服务器ip和地址</span><br>masterauth 123456 <span class="hljs-comment">#添加密码，因为主服务器添加了密码，没有密码是连不上主服务器的</span><br>slave-serve-stale-data yes<br>slave-read-only yes<br>repl-diskless-sync no<br>repl-diskless-sync-delay 5<br>repl-disable-tcp-nodelay no<br>slave-priority 100<br>requirepass 123456 <span class="hljs-comment">#添加密码</span><br>appendonly no<br>appendfilename <span class="hljs-string">&quot;appendonly.aof&quot;</span><br>appendfsync everysec<br>no-appendfsync-on-rewrite no<br>auto-aof-rewrite-percentage 100<br>auto-aof-rewrite-min-size 64mb<br>aof-load-truncated yes<br>lua-time-limit 5000<br>slowlog-log-slower-than 10000<br>slowlog-max-len 128<br>latency-monitor-threshold 0<br>notify-keyspace-events <span class="hljs-string">&quot;&quot;</span><br>hash-max-ziplist-entries 512<br>hash-max-ziplist-value 64<br>list-max-ziplist-size -2<br>list-compress-depth 0<br>set-max-intset-entries 512<br>zset-max-ziplist-entries 128<br>zset-max-ziplist-value 64<br>hll-sparse-max-bytes 3000<br>activerehashing yes<br>client-output-buffer-limit normal 0 0 0<br>client-output-buffer-limit slave 256mb 64mb 60<br>client-output-buffer-limit pubsub 32mb 8mb 60<br>hz 10<br>aof-rewrite-incremental-fsync yes<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、重启从服务器的redis"><a href="#四、重启从服务器的redis" class="headerlink" title="四、重启从服务器的redis"></a>四、重启从服务器的redis</h1><p><strong>所有从服务器都重启redis</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># systemctl restart redis</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="五、查看主从复制情况"><a href="#五、查看主从复制情况" class="headerlink" title="五、查看主从复制情况"></a>五、查看主从复制情况</h1><p><strong>进入10.0.0.101服务器的redis查看信息</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh">127.0.0.1:6379&gt; info replication<br><span class="hljs-comment"># Replication</span><br>role:master<br>connected_slaves:2<br>slave0:ip=10.0.0.102,port=6379,state=online,offset=211,lag=0<br>slave1:ip=10.0.0.103,port=6379,state=online,offset=211,lag=1<br>master_repl_offset:211<br>repl_backlog_active:1<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:2<br>repl_backlog_histlen:210<br></code></pre></td></tr></table></figure>
+
+<p><strong>进入10.0.0.101服务器查看日志信息</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># tail /app/redis/log/redis.log</span><br>26216:M 09 Dec 14:20:59.587 <span class="hljs-comment"># Server started, Redis version 3.2.10</span><br>26216:M 09 Dec 14:20:59.588 * DB loaded from disk: 0.000 seconds<br>26216:M 09 Dec 14:20:59.588 * The server is now ready to accept connections on port 6379<br>26216:M 09 Dec 14:21:22.910 * Slave 10.0.0.102:6379 asks <span class="hljs-keyword">for</span> synchronization<br>26216:M 09 Dec 14:21:22.910 * Full resync requested by slave 10.0.0.102:6379<br>26216:M 09 Dec 14:21:22.910 * Starting BGSAVE <span class="hljs-keyword">for</span> SYNC with target: disk<br>26216:M 09 Dec 14:21:22.910 * Background saving started by pid 26295<br>26295:C 09 Dec 14:21:22.914 * DB saved on disk<br>26295:C 09 Dec 14:21:22.914 * RDB: 0 MB of memory used by copy-on-write<br>26216:M 09 Dec 14:21:22.949 * Background saving terminated with success<br>26216:M 09 Dec 14:21:22.949 * Synchronization with slave 10.0.0.102:6379 succeeded<br>26216:M 09 Dec 14:23:05.067 * Slave 10.0.0.103:6379 asks <span class="hljs-keyword">for</span> synchronization<br>26216:M 09 Dec 14:23:05.067 * Full resync requested by slave 10.0.0.103:6379<br>26216:M 09 Dec 14:23:05.067 * Starting BGSAVE <span class="hljs-keyword">for</span> SYNC with target: disk<br>26216:M 09 Dec 14:23:05.067 * Background saving started by pid 26525<br>26525:C 09 Dec 14:23:05.072 * DB saved on disk<br>26525:C 09 Dec 14:23:05.072 * RDB: 0 MB of memory used by copy-on-write<br>26216:M 09 Dec 14:23:05.087 * Background saving terminated with success<br>26216:M 09 Dec 14:23:05.087 * Synchronization with slave 10.0.0.103:6379 succeeded<br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>进入10.0.0.102服务器的redis查看信息</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs sh">127.0.0.1:6379&gt; info replication<br><span class="hljs-comment"># Replication</span><br>role:slave<br>master_host:10.0.0.101<br>master_port:6379<br>master_link_status:up<br>master_last_io_seconds_ago:1<br>master_sync_in_progress:0<br>slave_repl_offset:197<br>slave_priority:100<br>slave_read_only:1<br>connected_slaves:0<br>master_repl_offset:0<br>repl_backlog_active:0<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:0<br>repl_backlog_histlen:0<br></code></pre></td></tr></table></figure>
+
+<p><strong>进入10.0.0.102服务器查看redis日志信息</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># tail -f /app/redis/log/redis.log</span><br>28002:S 09 Dec 14:23:04.907 * Connecting to MASTER 10.0.0.101:6379<br>28002:S 09 Dec 14:23:04.907 * MASTER &lt;-&gt; SLAVE sync started<br>28002:S 09 Dec 14:23:04.936 * Non blocking connect <span class="hljs-keyword">for</span> SYNC fired the event.<br>28002:S 09 Dec 14:23:04.966 * Master replied to PING, replication can <span class="hljs-built_in">continue</span>...<br>28002:S 09 Dec 14:23:05.053 * Partial resynchronization not possible (no cached master)<br>28002:S 09 Dec 14:23:05.085 * Full resync from master: e7d663fcac68c1701e75e53f88ace05707f82464:141<br>28002:S 09 Dec 14:23:05.103 * MASTER &lt;-&gt; SLAVE sync: receiving 10374 bytes from master<br>28002:S 09 Dec 14:23:05.103 * MASTER &lt;-&gt; SLAVE sync: Flushing old data<br>28002:S 09 Dec 14:23:05.104 * MASTER &lt;-&gt; SLAVE sync: Loading DB <span class="hljs-keyword">in</span> memory<br>28002:S 09 Dec 14:23:05.104 * MASTER &lt;-&gt; SLAVE sync: Finished with success<br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>进入10.0.0.103服务器的redis查看信息</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs sh">127.0.0.1:6379&gt; info replication<br><span class="hljs-comment"># Replication</span><br>role:slave<br>master_host:10.0.0.101<br>master_port:6379<br>master_link_status:up<br>master_last_io_seconds_ago:1<br>master_sync_in_progress:0<br>slave_repl_offset:197<br>slave_priority:100<br>slave_read_only:1<br>connected_slaves:0<br>master_repl_offset:0<br>repl_backlog_active:0<br>repl_backlog_size:1048576<br>repl_backlog_first_byte_offset:0<br>repl_backlog_histlen:0<br></code></pre></td></tr></table></figure>
+
+<p><strong>进入10.0.0.103服务器查看redis日志信息</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># tail /app/redis/log/redis.log </span><br>25057:S 09 Dec 14:21:22.908 * Connecting to MASTER 42.193.249.75:6379<br>25057:S 09 Dec 14:21:22.908 * MASTER &lt;-&gt; SLAVE sync started<br>25057:S 09 Dec 14:21:22.908 * Non blocking connect <span class="hljs-keyword">for</span> SYNC fired the event.<br>25057:S 09 Dec 14:21:22.909 * Master replied to PING, replication can <span class="hljs-built_in">continue</span>...<br>25057:S 09 Dec 14:21:22.909 * Partial resynchronization not possible (no cached master)<br>25057:S 09 Dec 14:21:22.910 * Full resync from master: e7d663fcac68c1701e75e53f88ace05707f82464:1<br>25057:S 09 Dec 14:21:22.949 * MASTER &lt;-&gt; SLAVE sync: receiving 10374 bytes from master<br>25057:S 09 Dec 14:21:22.949 * MASTER &lt;-&gt; SLAVE sync: Flushing old data<br>25057:S 09 Dec 14:21:22.949 * MASTER &lt;-&gt; SLAVE sync: Loading DB <span class="hljs-keyword">in</span> memory<br>25057:S 09 Dec 14:21:22.950 * MASTER &lt;-&gt; SLAVE sync: Finished with success<br></code></pre></td></tr></table></figure>
+
+
+
+<p>优化参考博客</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41977838/article/details/109061589?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.highlightwordscore&amp;spm=1001.2101.3001.4242.1">https://blog.csdn.net/qq_41977838/article/details/109061589?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0.highlightwordscore&amp;spm=1001.2101.3001.4242.1</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wdliu/p/9407179.html">https://www.cnblogs.com/wdliu/p/9407179.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/gaobinzhan/article/details/106536326">https://blog.csdn.net/gaobinzhan/article/details/106536326</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-Redis/">Linux Redis</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/01/21/Linux-gzip%E5%91%BD%E4%BB%A4/">
+                        <span class="hidden-mobile">Linux gzip命令</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
