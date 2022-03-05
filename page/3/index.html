@@ -178,6 +178,50 @@
   <div class="row mx-auto index-card">
     
     
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/Linux-crond%E4%B9%8B%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%B2%BE%E7%A1%AE%E5%88%B0%E7%A7%92/">Linux crond之定时任务精确到秒</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/Linux-crond%E4%B9%8B%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E7%B2%BE%E7%A1%AE%E5%88%B0%E7%A7%92/">
+          
+          
+            
+          
+          Linux crond之定时任务精确到秒Linux的crond定制任务只能精确到分，如果要精确到秒可以有两种方式来实现。
+第一种（推荐）在crond任务中创建60个任务，然后从第二个任务开始，使用sleep，每个sleep的时间是上一个sleep的时间+1秒
+例子：
+123456789# crontab -e*/1 * * * * * date &gt;&gt; /root/time.txt*/1
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 22:08" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
       <div class="col-12 col-md-4 m-auto index-img">
         <a href="/blog/2022/01/20/Elastic-Stack%E9%85%8D%E7%BD%AE%E5%AE%89%E5%85%A8%E6%80%A7%E7%AE%80%E4%BB%8B/" target="_self">
           <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elastic Stack配置安全性简介">
@@ -596,50 +640,6 @@ https://www.cnblogs.com/liuguangjiji/p/10471046.html
             <i class="iconfont icon-tags"></i>
             
               <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/12/16/Linux-tar%E5%91%BD%E4%BB%A4/">Linux tar命令</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/12/16/Linux-tar%E5%91%BD%E4%BB%A4/">
-          
-          
-            
-          
-          Linux tar命令一、tar命令的作用作用：tar命令可以将多个文件或目录打包成一个大的文件，而且也时平时最常用的命令之一。在打包完了之后还可以对文件进行压缩，tar命令也同样提供了压缩的功能。
-二、打包和压缩概念的解释打包：是指将多个文件或多个目录都集中在一个文件里
-压缩：将一个大文件通过压缩算法变成小的文件
-为什么要区分这两个概念呢？这源于Linux中很多压缩程序只能针对一个文件进行压缩，
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-12-16 22:47" pubdate>
-              2021-12-16
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-tar/">Linux tar</a>
             
           </div>
         
