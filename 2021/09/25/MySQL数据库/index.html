@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      56.6k 字
+      56.7k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      816
+      818
        分钟
     </span>
   
@@ -592,6 +592,10 @@
 
 <h4 id="3-5-12-4-退出数据库，并重启数据库"><a href="#3-5-12-4-退出数据库，并重启数据库" class="headerlink" title="3.5.12.4 退出数据库，并重启数据库"></a>3.5.12.4 退出数据库，并重启数据库</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># /etc/init.d/mysqld restart</span><br></code></pre></td></tr></table></figure>
 
+<h4 id="3-5-12-5-另一种方法"><a href="#3-5-12-5-另一种方法" class="headerlink" title="3.5.12.5 另一种方法"></a>3.5.12.5 另一种方法</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#修改my.cnf文件，在my.cnf文件中的[mysqld]中添加以下内容</span><br><span class="hljs-comment"># vim /etc/my.cnf</span><br>skip-grant-tables<br><br><span class="hljs-comment">#重启MySQL</span><br><span class="hljs-comment"># systemctl restart mysqld</span><br><br><span class="hljs-comment">#登录数据库，修改root@localhost密码</span><br><span class="hljs-comment"># mysql</span><br><span class="hljs-comment">#第一步</span><br>mysql&gt;flush privileges<br><span class="hljs-comment">#第二部</span><br>mysql&gt;alter user root@<span class="hljs-string">&#x27;localhost&#x27;</span> identified by <span class="hljs-string">&#x27;1（密码）&#x27;</span>;<br>或<br>mysql&gt;grant all on *.* to root@<span class="hljs-string">&#x27;localhost&#x27;</span> identified by <span class="hljs-string">&#x27;1&#x27;</span>;<br><span class="hljs-comment">#第三步</span><br>mysql&gt;flush privileges<br><span class="hljs-comment">#退出mysql</span><br><span class="hljs-comment">#注释在my.cnf中刚刚添加的内容</span><br><span class="hljs-comment"># vim /etc/my.cnf</span><br><span class="hljs-comment">#skip-grant-tables</span><br><br><span class="hljs-comment">#最后重启数据库</span><br><span class="hljs-comment"># systemctl restart mysqld</span><br></code></pre></td></tr></table></figure>
+
+
+
 <h2 id="3-6-二进制格式安装-MySQL方式2"><a href="#3-6-二进制格式安装-MySQL方式2" class="headerlink" title="3.6 二进制格式安装 MySQL方式2"></a>3.6 二进制格式安装 MySQL方式2</h2><h3 id="3-6-1准备用户"><a href="#3-6-1准备用户" class="headerlink" title="3.6.1准备用户"></a>3.6.1准备用户</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># groupadd -r -g 306 mysql</span><br><span class="hljs-comment"># useradd -r -g 306 -u 306 -d /data/mysql mysql</span><br></code></pre></td></tr></table></figure>
 
 <h3 id="3-6-2-准备数据目录，建议使用逻辑卷"><a href="#3-6-2-准备数据目录，建议使用逻辑卷" class="headerlink" title="3.6.2 准备数据目录，建议使用逻辑卷"></a>3.6.2 准备数据目录，建议使用逻辑卷</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#可选做，后面的脚本mysql_install_db可自动生成此目录</span><br><span class="hljs-comment"># mkdir /data/mysql</span><br><span class="hljs-comment"># chown mysql:mysql /data/mysql</span><br></code></pre></td></tr></table></figure>
@@ -767,7 +771,7 @@
 
 <p>范例：</p>
 <p>查看wordpress@’10.0.0.%’权限<br>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
-<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#x77;&#x6f;&#114;&#x64;&#112;&#x72;&#x65;&#x73;&#115;&#x40;&#x31;&#x30;&#x2e;&#x30;&#46;&#x30;">&#x77;&#x6f;&#114;&#x64;&#112;&#x72;&#x65;&#x73;&#115;&#x40;&#x31;&#x30;&#x2e;&#x30;&#46;&#x30;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
+<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#119;&#x6f;&#114;&#x64;&#112;&#114;&#x65;&#115;&#x73;&#x40;&#49;&#x30;&#x2e;&#x30;&#x2e;&#48;">&#119;&#x6f;&#114;&#x64;&#112;&#114;&#x65;&#115;&#x73;&#x40;&#49;&#x30;&#x2e;&#x30;&#x2e;&#48;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
 <p><font color='red'>注意：MariaDB服务进程启动时会读取mysql库中所有授权表至内存</font></p>
 <ol>
 <li>GRANT或REVOKE等执行权限操作会保存于系统表中，MariaDB的服务进程通常会自动重读授权表，使之生效</li>
@@ -780,7 +784,7 @@
 <p>mysql&gt; revoke delete on wordpress.* from ‘wordpress‘@’10.0.0.%’;</p>
 <p>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
 <p>+—————————————————————————————————————-+</p>
-<p>| Grants for <a href="mailto:&#119;&#111;&#114;&#x64;&#x70;&#114;&#101;&#115;&#x73;&#x40;&#x31;&#x30;&#x2e;&#48;&#x2e;&#x30;">&#119;&#111;&#114;&#x64;&#x70;&#114;&#101;&#115;&#x73;&#x40;&#x31;&#x30;&#x2e;&#48;&#x2e;&#x30;</a>.%                                                                                 |</p>
+<p>| Grants for <a href="mailto:&#x77;&#x6f;&#114;&#x64;&#x70;&#x72;&#101;&#x73;&#x73;&#64;&#x31;&#48;&#x2e;&#x30;&#46;&#48;">&#x77;&#x6f;&#114;&#x64;&#x70;&#x72;&#101;&#x73;&#x73;&#64;&#x31;&#48;&#x2e;&#x30;&#46;&#48;</a>.%                                                                                 |</p>
 <p>+—————————————————————————————————————-+</p>
 <p>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                        |</p>
 <p>| GRANT SELECT, INSERT, UPDATE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |</p>

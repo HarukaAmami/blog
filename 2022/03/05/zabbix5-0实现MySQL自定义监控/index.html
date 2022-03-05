@@ -1,0 +1,489 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>zabbix5.0实现MySQL自定义监控 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="zabbix5.0实现MySQL自定义监控">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-03-05 16:06" pubdate>
+        2022年3月5日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      36
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">zabbix5.0实现MySQL自定义监控</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Zabbix5-0实现MySQL自定义监控"><a href="#Zabbix5-0实现MySQL自定义监控" class="headerlink" title="Zabbix5.0实现MySQL自定义监控"></a>Zabbix5.0实现MySQL自定义监控</h1><h1 id="一、安装zabbix-agent"><a href="#一、安装zabbix-agent" class="headerlink" title="一、安装zabbix-agent"></a>一、安装zabbix-agent</h1><p>安装过程略</p>
+<h1 id="二、MySQL数据库添加监控用户"><a href="#二、MySQL数据库添加监控用户" class="headerlink" title="二、MySQL数据库添加监控用户"></a>二、MySQL数据库添加监控用户</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># mysql -uroot -p</span><br><span class="hljs-comment"># grant REPLICATION CLIENT,SHOW VIEW ON *.* TO&#x27;zbx_monitor&#x27;@&#x27;localhost&#x27; identified by &#x27;123456&#x27;;</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="三、编写MySQL自定义监控脚本"><a href="#三、编写MySQL自定义监控脚本" class="headerlink" title="三、编写MySQL自定义监控脚本"></a>三、编写MySQL自定义监控脚本</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># mkdir /app/zabbix-agent/scripts</span><br><span class="hljs-comment"># cd /app/zabbix-agent/scripts</span><br><span class="hljs-comment"># vim mysql_status.sh</span><br><span class="hljs-comment">#!/bin/bash</span><br>User=zbx_monitor<br>Password=123456<br>Connection=<span class="hljs-string">&quot;mysql -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span>&quot;</span><br>Item=<span class="hljs-variable">$1</span><br>Databases=<span class="hljs-variable">$2</span><br><br><span class="hljs-comment">#MySQL存活状态</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Status</span></span>() &#123;<br>  Result=`mysqladmin -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span> ping 2&gt; /dev/null`<br>  <span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;Result&#125;</span>&quot;</span> = <span class="hljs-string">&quot;mysqld is alive&quot;</span> ]; <span class="hljs-keyword">then</span><br>      <span class="hljs-built_in">echo</span> 1<br>  <span class="hljs-keyword">else</span><br>      <span class="hljs-built_in">echo</span> 0<br>  <span class="hljs-keyword">fi</span><br>&#125;<br><br><span class="hljs-comment">#MySQL执行的更新个数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Com_Update</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Com_update | head -n1 | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL慢查询语句的个数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Slow_Queries</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Slow_queries | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL执行的查询个数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Com_Select</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Com_select | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL数据回滚的次数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Com_Rollback</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Com_rollback | head -n1 | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL数据提交的次数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Com_Commit</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Com_commit | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL每秒处理的请求次数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Qps</span></span>() &#123;<br>  Questions=`mysqladmin -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span> status 2&gt; /dev/null | awk <span class="hljs-string">&#x27;&#123;print $6&#125;&#x27;</span>`<br>  Uptime=`mysqladmin -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span> status 2&gt; /dev/null | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> $((<span class="hljs-variable">$&#123;Questions&#125;</span>/<span class="hljs-variable">$&#123;Uptime&#125;</span>))<br>&#125;<br><br><span class="hljs-comment">#每秒处理的事务数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Tps</span></span>() &#123;<br>  Rollback=`mysqladmin -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span> extended-status 2&gt; /dev/null | grep -w Com_rollback | awk <span class="hljs-string">&#x27;&#123;print $4&#125;&#x27;</span>`<br>  Commit=`mysqladmin -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span> extended-status 2&gt; /dev/null | grep -w Com_commit | awk <span class="hljs-string">&#x27;&#123;print $4&#125;&#x27;</span>`<br>  Uptime=`mysqladmin -u<span class="hljs-variable">$&#123;User&#125;</span> -p<span class="hljs-variable">$&#123;Password&#125;</span> status 2&gt; /dev/null | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> $[(<span class="hljs-variable">$&#123;Rollback&#125;</span>+<span class="hljs-variable">$&#123;Commit&#125;</span>)/<span class="hljs-variable">$&#123;Uptime&#125;</span>]<br>&#125;<br><br><span class="hljs-comment">#MySQL执行插入的个数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Com_Insert</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Com_insert | head -n1 | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL执行执行删除的个数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Com_Delete</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Com_delete | head -n1 | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL发送的字节数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Bytes_Sent</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Bytes_sent | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL接受的字节数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Bytes_Received</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status&quot;</span> 2&gt; /dev/null | grep Bytes_received | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL用户进程总数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Member_Processes_Numbers</span></span>()&#123;<br>  Result=`ps -ef |awk <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> |grep mysql |grep -v <span class="hljs-string">&quot;grep&quot;</span> |wc -l`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL当前连接数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Connect_Numbers</span></span>()&#123;<br>  Result=`netstat -an |grep 3306 |grep <span class="hljs-string">&quot;ESTABLISHED&quot;</span> |wc -l`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL物理内存使用率</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Use_Mem</span></span>() &#123;<br>  top -b -n 1 &gt; /tmp/top.txt<br>  Result=`grep mysqld /tmp/top.txt | tr -s <span class="hljs-string">&#x27; &#x27;</span> | awk <span class="hljs-string">&#x27;&#123;print $(NF-2)&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQLcpu使用率</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Use_Cpu</span></span>() &#123;<br>  top -b -n 1 &gt; /tmp/top.txt<br>  Result=`grep mysqld /tmp/top.txt | tr -s <span class="hljs-string">&#x27; &#x27;</span> | awk <span class="hljs-string">&#x27;&#123;print $(NF-3)&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL各数据库占用磁盘空间</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_DatabasesSize</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;select TABLE_SCHEMA, concat(truncate(sum(data_length)/1024/1024,2),&#x27; MB&#x27;) as data_size,concat(truncate(sum(index_length)/1024/1024,2),&#x27;MB&#x27;) as index_size from information_schema.tables group by TABLE_SCHEMA order by data_length desc;&quot;</span> 2&gt; /dev/null | grep <span class="hljs-variable">$&#123;Databases&#125;</span> | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL当前开放的连接数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Threads_Connected</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status like &#x27;Threads%&#x27;;&quot;</span> 2&gt; /dev/null | grep Threads_running | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL当前运行的连接数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Threads_Running</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show status like &#x27;Threads%&#x27;;&quot;</span> 2&gt; /dev/null | grep Threads_connected | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL最大连接数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Max_Connection</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show variables like &#x27;%max_connection%&#x27;;&quot;</span> 2&gt; /dev/null | grep max_connections | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL用户最大连接数</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Max_Used_Connection</span></span>()&#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show global status like &#x27;Max_used_connections&#x27;;&quot;</span> 2&gt; /dev/null | grep Max_used_connections | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQLinnodb缓冲池的read命中率</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Innodb_Read_Hit_Rate</span></span>()&#123;<br>  Innodb_Reads=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show global status like &#x27;innodb%read%&#x27;;&quot;</span> 2&gt;/dev/null | grep Innodb_buffer_pool_reads | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  Innodb_Read_Requests=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show global status like &#x27;innodb%read%&#x27;;&quot;</span> 2&gt; /dev/null | grep Innodb_buffer_pool_read_requests | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  Result=`awk <span class="hljs-string">&#x27;BEGIN&#123;printf &quot;%.4f\n&quot;,&#x27;</span>$((<span class="hljs-variable">$&#123;Innodb_Read_Requests&#125;</span>-<span class="hljs-variable">$&#123;Innodb_Reads&#125;</span>))<span class="hljs-string">&#x27;/&#x27;</span><span class="hljs-variable">$&#123;Innodb_Read_Requests&#125;</span><span class="hljs-string">&#x27;&#125;&#x27;</span>`  <br>  <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;Result&#125;</span> * 100&quot;</span> | bc<br>&#125;<br><br><span class="hljs-comment">#MySQL主从复制落后时间</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Seconds_Behind_Master</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show slave status\G&quot;</span> 2&gt; /dev/null | grep Seconds_Behind_Master: | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  <span class="hljs-built_in">echo</span> <span class="hljs-variable">$&#123;Result&#125;</span><br>&#125;<br><br><span class="hljs-comment">#MySQL主从IO线程是否正常</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Slave_IO_Running</span></span>() &#123;<br> Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show slave status\G&quot;</span> 2&gt; /dev/null | grep grep Slave_IO_Running 2&gt; /dev/null| awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  [ <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;Result&#125;</span>&quot;</span> = <span class="hljs-string">&quot;Yes&quot;</span> ] &amp;&amp; <span class="hljs-built_in">echo</span> 1 || <span class="hljs-built_in">echo</span> 0<br>&#125;<br><br><span class="hljs-comment">#MySQL主从SQL线程是否正常</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Slave_SQL_Running</span></span>() &#123;<br>  Result=`<span class="hljs-variable">$&#123;Connection&#125;</span> -e <span class="hljs-string">&quot;show slae status\G&quot;</span> 2&gt; /dev/null | grep Slave_SQL_Running: 2&gt; /dev/null | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span>`<br>  [ <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;Result&#125;</span>&quot;</span> = <span class="hljs-string">&quot;Yes&quot;</span> ] &amp;&amp; <span class="hljs-built_in">echo</span> 1 || <span class="hljs-built_in">echo</span> 0<br>&#125;<br><br><span class="hljs-comment">#检查MySQL全量备份是否争产</span><br><span class="hljs-function"><span class="hljs-title">func_MySQL_Check_Fullbackup</span></span>()&#123;<br>  <span class="hljs-comment">#全量备份文件路径</span><br>  Backup_Dir=/mnt/datadisk0/data/mysql/bgackup/full<br>  <span class="hljs-comment">#当前时间：年-月-日</span><br>  Date=`date +%F`<br>  <span class="hljs-comment">#今日全量备份的文件名</span><br>  Package_Name=`ls <span class="hljs-variable">$&#123;Backup_Dir&#125;</span> | grep <span class="hljs-variable">$&#123;Date&#125;</span>`<br>  <span class="hljs-comment">#判断文件是否存在</span><br>  [ -f <span class="hljs-variable">$&#123;Backup_Dir&#125;</span>/<span class="hljs-variable">$&#123;Package_Name&#125;</span> ] &amp;&amp; Package_Result=1 || Package_Result=0<br>  <span class="hljs-comment">#今日全量备份文件大小</span><br>  Fileszie=`ls -l <span class="hljs-variable">$&#123;Backup_Dir&#125;</span>/<span class="hljs-variable">$&#123;Package_Name&#125;</span> | awk <span class="hljs-string">&#x27;&#123;print $5&#125;&#x27;</span>`<br>  <span class="hljs-comment">#判断全量备份文件大小是否大于20k</span><br>  [[ ! <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;Fileszie&#125;</span>&quot;</span>  &amp;&amp; <span class="hljs-string">&quot;<span class="hljs-variable">$&#123;Fileszie&#125;</span>&quot;</span> -gt <span class="hljs-string">&quot;20&quot;</span> ]] &amp;&amp; Filesize_Result=1 || Filesize_Result=0<br>  <span class="hljs-comment">#如果文件存在同时文件大小大于20k，即全量备份成功</span><br>  [[ <span class="hljs-variable">$&#123;Package_Result&#125;</span> -eq 1 &amp;&amp; <span class="hljs-variable">$&#123;Filesize_Result&#125;</span> -eq 1 ]] &amp;&amp; <span class="hljs-built_in">echo</span> 1 || <span class="hljs-built_in">echo</span> 0<br>&#125;<br><br><span class="hljs-function"><span class="hljs-title">main</span></span>()&#123;<br>  <span class="hljs-keyword">case</span> <span class="hljs-variable">$&#123;Item&#125;</span> <span class="hljs-keyword">in</span><br>  ping)<br>    func_MySQL_Status<br>    ;;<br>  com_update)<br>    func_MySQL_Com_Update<br>    ;;<br>  slow_queries)<br>    func_MySQL_Slow_Queries<br>    ;;<br>  com_select)<br>    func_MySQL_Com_Select<br>    ;;<br>  com_rollback)<br>    func_MySQL_Com_Rollback<br>    ;;<br>  qps) <span class="hljs-comment">#每秒处理的请求次数</span><br>    func_MySQL_Qps<br>    ;;<br>  tps) <span class="hljs-comment">#每秒处理的事务数</span><br>    func_MySQL_Tps<br>    ;;<br>  com_insert)<br>    func_MySQL_Com_Insert<br>    ;;<br>  com_delete)<br>    func_MySQL_Com_Delete<br>    ;;<br>  bytes_sent)<br>    func_MySQL_Bytes_Sent<br>    ;;<br>  bytes_received)<br>    func_MySQL_Bytes_Received<br>    ;;<br>  member_process_numbers)<br>    func_MySQL_Member_Processes_Numbers<br>    ;;<br>  connect_numbers)<br>    func_MySQL_Connect_Numbers<br>    ;;<br>  com_commit)<br>    func_MySQL_Com_Commit<br>    ;;<br>  use_mem)<br>    func_MySQL_Use_Mem<br>    ;;<br>  use_cpu)<br>    func_MySQL_Use_Cpu<br>    ;;<br>  databases_size)<br>    func_MySQL_DatabasesSize<br>    ;;<br>  threads_connected)<br>    func_MySQL_Threads_Connected<br>    ;;<br>  threads_running)<br>    func_MySQL_Threads_Running<br>    ;;<br>  max_connection)<br>    func_MySQL_Max_Connection<br>    ;;<br>  max_used_connection)<br>    func_MySQL_Max_Used_Connection<br>    ;;<br>  innodb_read_hit_rate)<br>    func_MySQL_Innodb_Read_Hit_Rate<br>    ;;<br>  seconds_behind_master)<br>    func_MySQL_Seconds_Behind_Master<br>    ;;<br>  slave_io_running)<br>    func_MySQL_Slave_IO_Running<br>    ;;<br>  slave_sql_running)<br>    func_MySQL_Slave_SQL_Running<br>    ;;<br>  check_fullbackup)<br>    func_MySQL_Check_Fullbackup<br>    ;;<br>  *)<br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;请输入正确的指令！！！&quot;</span><br>    ;;<br>  <span class="hljs-keyword">esac</span><br>&#125;<br><br>main <span class="hljs-variable">$&#123;Item&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="四、编辑zabbix-agent配置文件"><a href="#四、编辑zabbix-agent配置文件" class="headerlink" title="四、编辑zabbix-agent配置文件"></a>四、编辑zabbix-agent配置文件</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /app/zabbix-agent/etc/zabbix_agentd.conf.d</span><br><span class="hljs-comment"># vim userparameter_mysql_master.conf (根据需求添加监控选项)</span><br><span class="hljs-comment">#获取MySQL状态</span><br>UserParameter=mysql.ping[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_update[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.slow_queries[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_select[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_rollback[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.questions[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_insert[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_delete[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.bytes_sent[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.bytes_received[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.member_process_numbers[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.connect_numbers[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_commit[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.qps[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.tps[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.use_mem[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.use_cpu[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.databases_size[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span> <span class="hljs-variable">$2</span><br>UserParameter=mysql.threads_connected[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.threads_running[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.max_connection[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.max_used_connection[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.innodb_read_hit_rate[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.seconds_behind_master[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.slave_io_running[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.slave_sql_running[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.check_fullbackup[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="五、创建zabbix模板"><a href="#五、创建zabbix模板" class="headerlink" title="五、创建zabbix模板"></a>五、创建zabbix模板</h1><p>进入zabbix-server的文本界面，点击“配置”-&gt;“模板”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix248.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“创建模板”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix249.png" srcset="/blog/img/loading.gif"></p>
+<p>填写资料，然后点击添加</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix250.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="六、创建自定义监控项"><a href="#六、创建自定义监控项" class="headerlink" title="六、创建自定义监控项"></a>六、创建自定义监控项</h1><p>点击新建的模板</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix251.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“监控项”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix252.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“创建监控项”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix253.png" srcset="/blog/img/loading.gif"></p>
+<p>根据网页配置填写，填写后点击“添加”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix254.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="七、创建图形"><a href="#七、创建图形" class="headerlink" title="七、创建图形"></a>七、创建图形</h1><p>点击“配置”-&gt;“模板”-&gt;“选择需要创建图形的模板”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix255.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“图形”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix256.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“创建图形”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix257.png" srcset="/blog/img/loading.gif"></p>
+<p>根据网页填写配置，在监控项里点击添加</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix258.png" srcset="/blog/img/loading.gif"></p>
+<p>点击需要添加的监控项-&gt;点击“选择”-&gt;最后点击添加</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix259.png" srcset="/blog/img/loading.gif"></p>
+<p>查看已添加的图形</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix260.png" srcset="/blog/img/loading.gif"></p>
+<p>查看被监控主机的图像</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix261.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="八、创建触发器"><a href="#八、创建触发器" class="headerlink" title="八、创建触发器"></a>八、创建触发器</h1><p>点击“配置”-&gt;“模板”-&gt;需要添加监控的“模板”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix262.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“触发器”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix263.png" srcset="/blog/img/loading.gif"></p>
+<p>点击“创建触发器”</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix264.png" srcset="/blog/img/loading.gif"></p>
+<p>根据网页填写配置，最后点击添加</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix265.png" srcset="/blog/img/loading.gif"></p>
+<p>表达式填写，然后点击添加</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix266.png" srcset="/blog/img/loading.gif"></p>
+<p><strong>测试触发器</strong></p>
+<p>首先关闭MySQL，然后查看zebbix的web网页被监控主机的图像</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix267.png" srcset="/blog/img/loading.gif"></p>
+<p>进入主页查看问题</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix268.png" srcset="/blog/img/loading.gif"></p>
+<p>现在启动MySQL，刷新主页，然后可以看到问题没有了</p>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix269.png" srcset="/blog/img/loading.gif"></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-Zabbix5-0/">Linux Zabbix5.0</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2022/03/05/zabbix5-0%E5%AE%9E%E7%8E%B0%E9%A1%B6%E9%A1%B6%E5%91%8A%E8%AD%A6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">zabbix5.0实现顶顶告警</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/03/03/%E4%BC%81%E4%B8%9A%E7%BA%A7%E4%BA%92%E8%81%94%E7%BD%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84/">
+                        <span class="hidden-mobile">企业级互联网分布式系统应用架构</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
