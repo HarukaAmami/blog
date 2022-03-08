@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.1k 字
+      2.3k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      36
+      39
        分钟
     </span>
   
@@ -234,13 +234,23 @@
 
 <h1 id="四、编辑zabbix-agent配置文件"><a href="#四、编辑zabbix-agent配置文件" class="headerlink" title="四、编辑zabbix-agent配置文件"></a>四、编辑zabbix-agent配置文件</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /app/zabbix-agent/etc/zabbix_agentd.conf.d</span><br><span class="hljs-comment"># vim userparameter_mysql_master.conf (根据需求添加监控选项)</span><br><span class="hljs-comment">#获取MySQL状态</span><br>UserParameter=mysql.ping[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_update[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.slow_queries[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_select[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_rollback[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.questions[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_insert[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_delete[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.bytes_sent[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.bytes_received[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.member_process_numbers[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.connect_numbers[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.com_commit[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.qps[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.tps[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.use_mem[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.use_cpu[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.databases_size[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span> <span class="hljs-variable">$2</span><br>UserParameter=mysql.threads_connected[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.threads_running[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.max_connection[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.max_used_connection[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.innodb_read_hit_rate[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.seconds_behind_master[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.slave_io_running[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.slave_sql_running[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br>UserParameter=mysql.check_fullbackup[*], /bin/bash /app/zabbix-agent/scripts/mysql_status.sh <span class="hljs-variable">$1</span><br></code></pre></td></tr></table></figure>
 
-<h1 id="五、创建zabbix模板"><a href="#五、创建zabbix模板" class="headerlink" title="五、创建zabbix模板"></a>五、创建zabbix模板</h1><p>进入zabbix-server的文本界面，点击“配置”-&gt;“模板”</p>
+<h1 id="五、zabbix-server测试"><a href="#五、zabbix-server测试" class="headerlink" title="五、zabbix-server测试"></a>五、zabbix-server测试</h1><p>在测试时出现的问题：</p>
+<p>在zabbix-server直接使用命令启动”/app/zabbix_server/sbin/zabbix_server -f /app/zabbix_server/etc/zabbix_server.conf”，而zabbix-agent使用systemd启动的时。<br>自定义监控项脚本中命令没有用绝对路径如:”mysqladmin -uroot -p123456 ping”这样的命令，那么在zabbix-server是不能获取到争取的参数的。<br>在zabbix-server测试是否获取正确的参数的结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># /app/zabbix_server/bin/zabbix_get -s10.0.0.103 -p10050 -k&quot;mysql.ping[&quot;ping&quot;]&quot;</span><br>0<br></code></pre></td></tr></table></figure>
+
+<p>在zabbix-agent服务器直接执行自定义监控脚本的结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># bash mysql_status.sh ping</span><br>1<br></code></pre></td></tr></table></figure>
+
+<p>解决办法：<br>将自定义监控脚本中的命令全部使用绝对路径，修改脚本后，在zabbix-server测试是否获取正确的参数的结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># /app/zabbix_server/bin/zabbix_get -s10.0.0.103 -p10050 -k&quot;mysql.ping[&quot;ping&quot;]&quot;</span><br>1<br></code></pre></td></tr></table></figure>
+
+<h1 id="六、创建zabbix模板"><a href="#六、创建zabbix模板" class="headerlink" title="六、创建zabbix模板"></a>六、创建zabbix模板</h1><p>进入zabbix-server的文本界面，点击“配置”-&gt;“模板”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix248.png" srcset="/blog/img/loading.gif"></p>
 <p>点击“创建模板”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix249.png" srcset="/blog/img/loading.gif"></p>
 <p>填写资料，然后点击添加</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix250.png" srcset="/blog/img/loading.gif"></p>
-<h1 id="六、创建自定义监控项"><a href="#六、创建自定义监控项" class="headerlink" title="六、创建自定义监控项"></a>六、创建自定义监控项</h1><p>点击新建的模板</p>
+<h1 id="七、创建自定义监控项"><a href="#七、创建自定义监控项" class="headerlink" title="七、创建自定义监控项"></a>七、创建自定义监控项</h1><p>点击新建的模板</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix251.png" srcset="/blog/img/loading.gif"></p>
 <p>点击“监控项”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix252.png" srcset="/blog/img/loading.gif"></p>
@@ -248,7 +258,7 @@
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix253.png" srcset="/blog/img/loading.gif"></p>
 <p>根据网页配置填写，填写后点击“添加”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix254.png" srcset="/blog/img/loading.gif"></p>
-<h1 id="七、创建图形"><a href="#七、创建图形" class="headerlink" title="七、创建图形"></a>七、创建图形</h1><p>点击“配置”-&gt;“模板”-&gt;“选择需要创建图形的模板”</p>
+<h1 id="八、创建图形"><a href="#八、创建图形" class="headerlink" title="八、创建图形"></a>八、创建图形</h1><p>点击“配置”-&gt;“模板”-&gt;“选择需要创建图形的模板”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix255.png" srcset="/blog/img/loading.gif"></p>
 <p>点击“图形”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix256.png" srcset="/blog/img/loading.gif"></p>
@@ -262,7 +272,7 @@
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix260.png" srcset="/blog/img/loading.gif"></p>
 <p>查看被监控主机的图像</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix261.png" srcset="/blog/img/loading.gif"></p>
-<h1 id="八、创建触发器"><a href="#八、创建触发器" class="headerlink" title="八、创建触发器"></a>八、创建触发器</h1><p>点击“配置”-&gt;“模板”-&gt;需要添加监控的“模板”</p>
+<h1 id="九、创建触发器"><a href="#九、创建触发器" class="headerlink" title="九、创建触发器"></a>九、创建触发器</h1><p>点击“配置”-&gt;“模板”-&gt;需要添加监控的“模板”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix262.png" srcset="/blog/img/loading.gif"></p>
 <p>点击“触发器”</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix263.png" srcset="/blog/img/loading.gif"></p>
