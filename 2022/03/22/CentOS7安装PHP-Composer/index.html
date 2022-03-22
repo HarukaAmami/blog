@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>CentOS7安装PHP Composer - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="CentOS7安装PHP Composer">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-03-22 23:01" pubdate>
+        2022年3月22日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      654 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      9
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CentOS7安装PHP Composer</h1>
+            
+            <div class="markdown-body">
+              <h1 id="CentOS7-安装PHP-Composer"><a href="#CentOS7-安装PHP-Composer" class="headerlink" title="CentOS7 安装PHP Composer"></a>CentOS7 安装PHP Composer</h1><h1 id="安装最新版本的composer"><a href="#安装最新版本的composer" class="headerlink" title="安装最新版本的composer"></a>安装最新版本的composer</h1><p><strong>composer.phar官网：</strong><a target="_blank" rel="noopener" href="https://getcomposer.org/">https://getcomposer.org/</a></p>
+<h1 id="一、安装php"><a href="#一、安装php" class="headerlink" title="一、安装php"></a>一、安装php</h1><p>安装过程略</p>
+<h1 id="二、下载composer-phar文件"><a href="#二、下载composer-phar文件" class="headerlink" title="二、下载composer.phar文件"></a>二、下载composer.phar文件</h1><p>前提需要设定全局的环境变量（/etc/profile或/etc/profile.d/xxx.sh）（略）</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">curl -sS https://getcomposer.org/installer | php<br></code></pre></td></tr></table></figure>
+
+<h1 id="三、将composer-phar移动到php安装目录下的bin文件夹里"><a href="#三、将composer-phar移动到php安装目录下的bin文件夹里" class="headerlink" title="三、将composer.phar移动到php安装目录下的bin文件夹里"></a>三、将composer.phar移动到php安装目录下的bin文件夹里</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">mv composer.phar /app/php74/bin/composer <span class="hljs-comment">#“/app/php74/bin/”为php的安装目录</span><br>chmod +x /app/php74/bin/composer<br></code></pre></td></tr></table></figure>
+
+<h1 id="四、使用国内镜像"><a href="#四、使用国内镜像" class="headerlink" title="四、使用国内镜像"></a>四、使用国内镜像</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">composer config -g repo.packagist composer https://packagist.phpcomposer.com<br></code></pre></td></tr></table></figure>
+
+<p>注意：使用root用户执行composer命令时，会有以下提示。所以最后是使用普通用户执行该命令</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">Do not run Composer as root/super user! See https://getcomposer.org/root <span class="hljs-keyword">for</span> details<br>Continue as root/super user [yes]? yes<br></code></pre></td></tr></table></figure>
+
+<h1 id="五、查看"><a href="#五、查看" class="headerlink" title="五、查看"></a>五、查看</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh">$ composer<br>   ______<br>  / ____/___  ____ ___  ____  ____  ________  _____<br> / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/ _ \/ ___/<br>/ /___/ /_/ / / / / / / /_/ / /_/ (__  )  __/ /<br>\____/\____/_/ /_/ /_/ .___/\____/____/\___/_/<br>                    /_/<br>Composer version 2.2.9 2022-02-25 11:12:27<br><br>Usage:<br>  <span class="hljs-built_in">command</span> [options] [arguments]<br><br></code></pre></td></tr></table></figure>
+
+<p>参考博客：</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/c19c4bcf8e45">https://www.jianshu.com/p/c19c4bcf8e45</a></p>
+<h1 id="安装特定版本的composer"><a href="#安装特定版本的composer" class="headerlink" title="安装特定版本的composer"></a>安装特定版本的composer</h1><h1 id="一、安装php-1"><a href="#一、安装php-1" class="headerlink" title="一、安装php"></a>一、安装php</h1><p>安装过程略</p>
+<h1 id="二、下载composer-phar文件-1"><a href="#二、下载composer-phar文件-1" class="headerlink" title="二、下载composer.phar文件"></a>二、下载composer.phar文件</h1><p>前提需要设定全局的环境变量（/etc/profile或/etc/profile.d/xxx.sh）（略）\</p>
+<p><strong>此次安装的是composer.php的2.2.7版本</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">cd</span> /app/php74/bin/ <span class="hljs-comment">#&quot;/app/php74/&quot;为php安装目录，&quot;/app/php74/bin&quot;是二进制文件目录</span><br>wget https://getcomposer.org/download/2.2.7/composer.phar<br>mv composer.phar /app/php74/bin/composer <span class="hljs-comment">#“/app/php74/bin/”为php的安装目录</span><br>chmod +x /app/php74/bin/composer<br></code></pre></td></tr></table></figure>
+
+<p><strong>composer.phar下载地址：</strong><a target="_blank" rel="noopener" href="https://getcomposer.org/download/">https://getcomposer.org/download/</a></p>
+<h1 id="三、使用国内镜像"><a href="#三、使用国内镜像" class="headerlink" title="三、使用国内镜像"></a>三、使用国内镜像</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">composer config -g repo.packagist composer https://packagist.phpcomposer.com<br></code></pre></td></tr></table></figure>
+
+<h1 id="四、查看"><a href="#四、查看" class="headerlink" title="四、查看"></a>四、查看</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh">$ composer<br>   ______<br>  / ____/___  ____ ___  ____  ____  ________  _____<br> / /   / __ \/ __ `__ \/ __ \/ __ \/ ___/ _ \/ ___/<br>/ /___/ /_/ / / / / / / /_/ / /_/ (__  )  __/ /<br>\____/\____/_/ /_/ /_/ .___/\____/____/\___/_/<br>                    /_/<br>Composer version 2.2.9 2022-02-25 11:12:27<br><br>Usage:<br>  <span class="hljs-built_in">command</span> [options] [arguments]<br></code></pre></td></tr></table></figure>
+
+<p>参考博客：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/52fhy/p/5246013.html">https://www.cnblogs.com/52fhy/p/5246013.html</a></p>
+<br/>
+
+<h1 id="国内composer镜像地址"><a href="#国内composer镜像地址" class="headerlink" title="国内composer镜像地址"></a>国内composer镜像地址</h1><p>阿里镜像：<a target="_blank" rel="noopener" href="https://developer.aliyun.com/composer">https://developer.aliyun.com/composer</a></p>
+<p>华为镜像：<a target="_blank" rel="noopener" href="https://mirrors.huaweicloud.com/repository/php/">https://mirrors.huaweicloud.com/repository/php/</a></p>
+<p>腾讯镜像：<a target="_blank" rel="noopener" href="https://mirrors.cloud.tencent.com/help/composer.html">https://mirrors.cloud.tencent.com/help/composer.html</a></p>
+<p>上海交通大学镜像：<a target="_blank" rel="noopener" href="https://packagist.mirrors.sjtug.sjtu.edu.cn/">https://packagist.mirrors.sjtug.sjtu.edu.cn/</a></p>
+<p>bootcss镜像：<a target="_blank" rel="noopener" href="https://pkg.xyz/">https://pkg.xyz/</a></p>
+<br/>
+
+<h1 id="修改镜像源"><a href="#修改镜像源" class="headerlink" title="修改镜像源"></a>修改镜像源</h1><p>默认的镜像源地址在国外，国内访问的速度肯定很慢，所以需要将国外的镜像源修改为国内镜像源。</p>
+<h1 id="一、配置只当前目录生效"><a href="#一、配置只当前目录生效" class="headerlink" title="一、配置只当前目录生效"></a>一、配置只当前目录生效</h1><p><strong>在当前项目生效的配置</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#进入当前目录</span><br>composer config repo.packagist composer https://mirrors.aliyun.com/composer/<br></code></pre></td></tr></table></figure>
+
+<p><strong>取消当前项目配置</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#进入当前目录</span><br>composer config --<span class="hljs-built_in">unset</span> repos.packagist<br></code></pre></td></tr></table></figure>
+
+<h1 id="二、全局生效"><a href="#二、全局生效" class="headerlink" title="二、全局生效"></a>二、全局生效</h1><p><strong>配置在全局生效</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">composer config -g repo.packagist composer https://mirrors.aliyun.com/composer/<br></code></pre></td></tr></table></figure>
+
+<p><strong>取消全局配置</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">composer config -g --<span class="hljs-built_in">unset</span> repos.packagist<br></code></pre></td></tr></table></figure>
+
+<p>参考博客：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/huliuwa/p/12028878.html">https://www.cnblogs.com/huliuwa/p/12028878.html</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux-PHP-Composer/">Linux PHP Composer</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/03/05/Https%E8%AF%B7%E6%B1%82%E6%8A%A5%E9%94%99blocked-mixed-content%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/">
+                        <span class="hidden-mobile">Https请求报错blocked:mixed-content问题的解决</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
