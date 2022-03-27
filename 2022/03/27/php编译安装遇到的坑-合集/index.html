@@ -1,0 +1,502 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>php编译安装遇到的坑(合集) - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="php编译安装遇到的坑(合集)">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-03-27 23:10" pubdate>
+        2022年3月27日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.3k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">php编译安装遇到的坑(合集)</h1>
+            
+            <div class="markdown-body">
+              <h1 id="php编译安装遇到的坑-合集"><a href="#php编译安装遇到的坑-合集" class="headerlink" title="php编译安装遇到的坑(合集)"></a>php编译安装遇到的坑(合集)</h1><p>在centos7.6编译php7.4出现configure: WARNING: unrecognized options: –with-gd的问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">configure: WARNING: unrecognized options: –-with-gd<br></code></pre></td></tr></table></figure>
+
+<p>解决方法：</p>
+<p><strong>使用–enable-gd替代–with-gd</strong></p>
+<p>原因：</p>
+<p>–with-gd becomes –enable-gd (whether to enable the extension at all) and –with-external-gd (to opt into using an external libgd, rather than the bundled one).</p>
+<p>在php在7.4版本时，已经使用–enable-gd替代–with-gd了</p>
+<p>之后重新编译即可</p>
+<hr>
+<p>在centos7.6编译php7.4出现No package ‘sqlite3’ found的问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">checking <span class="hljs-keyword">for</span> sqlite3 &gt; 3.7.4... no<br>configure: error: Package requirements (sqlite3 &gt; 3.7.4) were not met:<br><br>No package <span class="hljs-string">&#x27;sqlite3&#x27;</span> found<br></code></pre></td></tr></table></figure>
+
+<p>错误原因：</p>
+<p>服务器没有安装”sqlite3”这个包</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum list | grep sqlite<br>sqlite.x86_64                            3.7.17-8.el7                  @anaconda<br>anope-sqlite.x86_64                      2.0.10-1.el7                  epel     <br>apr-util-sqlite.x86_64                   1.5.2-6.el7                   base     <br>dspam-sqlite3.x86_64                     3.10.2-12.el7                 epel     <br>freeradius-sqlite.x86_64                 3.0.13-15.el7                 base     <br>gnokii-smsd-sqlite.x86_64                0.6.31-17.el7                 epel     <br>libdbi-dbd-sqlite.x86_64                 0.8.3-16.el7                  base     <br>libgda-sqlite.x86_64                     1:5.2.2-7.el7                 epel     <br>libodb-sqlite.x86_64                     2.3.0-1.el7                   epel     <br>libodb-sqlite-devel.x86_64               2.3.0-1.el7                   epel     <br>libsqlite3x.x86_64                       20071018-20.el7               epel     <br>libsqlite3x-devel.x86_64                 20071018-20.el7               epel     <br>mono-data-sqlite.x86_64                  6.8.0-2.el7                   epel     <br>opendbx-sqlite.x86_64                    1.4.6-6.el7                   epel     <br>opendbx-sqlite2.x86_64                   1.4.6-6.el7                   epel     <br>owncloud-sqlite.noarch                   9.1.5-1.el7                   epel     <br>pdns-backend-sqlite.x86_64               4.1.14-1.el7                  epel     <br>poco-sqlite.x86_64                       1.6.1-3.el7                   epel     <br>preludedb-sqlite3.x86_64                 5.2.0-1.el7                   epel     <br>proftpd-sqlite.x86_64                    1.3.5e-11.el7                 epel     <br>python-sqlite3dbm.noarch                 0.1.4-6.el7                   epel     <br>root-sql-sqlite.x86_64                   6.24.06-2.el7                 epel     <br>rubygem-sqlite3.x86_64                   1.3.5-4.el7                   epel     <br>rubygem-sqlite3-doc.noarch               1.3.5-4.el7                   epel     <br>soci-sqlite3.x86_64                      4.0.0-4.el7                   epel     <br>soci-sqlite3-devel.x86_64                4.0.0-4.el7                   epel     <br>sqlite.i686                              3.7.17-8.el7_7.1              base     <br>sqlite.x86_64                            3.7.17-8.el7_7.1              base     <br>sqlite-devel.i686                        3.7.17-8.el7_7.1              base     <br>sqlite-devel.x86_64                      3.7.17-8.el7_7.1              base     <br>sqlite-doc.noarch                        3.7.17-8.el7_7.1              base     <br>sqlite-tcl.x86_64                        3.7.17-8.el7_7.1              base     <br>sqlite2.x86_64                           2.8.17-17.el7                 epel     <br>sqlite2-devel.x86_64                     2.8.17-17.el7                 epel     <br>sqlite2-tcl.x86_64                       2.8.17-17.el7                 epel     <br>sqlite3-dbf.x86_64                       2011.01.24-3.el7              epel     <br>strongswan-sqlite.x86_64                 5.7.2-1.el7                   epel     <br>uwsgi-plugin-sqlite3.x86_64              2.0.18-8.el7                  epel     <br>vsqlite++.x86_64                         0.3.13-3.el7                  epel     <br>vsqlite++-devel.x86_64                   0.3.13-3.el7                  epel     <br>vsqlite++-doc.noarch                     0.3.13-3.el7                  epel     <br>zabbix40-dbfiles-sqlite3.noarch          4.0.37-1.el7                  epel     <br>zabbix40-proxy-sqlite3.x86_64            4.0.37-1.el7                  epel     <br>zabbix50-dbfiles-sqlite3.noarch          5.0.19-1.el7                  epel     <br>zabbix50-proxy-sqlite3.x86_64            5.0.19-1.el7                  epel<br></code></pre></td></tr></table></figure>
+
+<p>解决方法：</p>
+<p>安装sqlite-devel</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y sqlite-devel<br></code></pre></td></tr></table></figure>
+
+
+<hr>
+<p>在centos7.6编译php7.4出现“No package ‘icu-uc’ found”，“No package ‘icu-io’ found”，“No package ‘icu-i18n’ found”的问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">configure: error: Package requirements (icu-uc &gt;= 50.1 icu-io icu-i18n) were not met:<br><br>No package <span class="hljs-string">&#x27;icu-uc&#x27;</span> found<br>No package <span class="hljs-string">&#x27;icu-io&#x27;</span> found<br>No package <span class="hljs-string">&#x27;icu-i18n&#x27;</span> found<br></code></pre></td></tr></table></figure>
+
+
+<p>错误原因：</p>
+<p>服务器没有安装”libicu-devel”这个包</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum list | grep libicu<br>libicu.x86_64                            50.1.2-17.el7                 @anaconda<br>libicu.i686                              50.2-4.el7_7                  base     <br>libicu.x86_64                            50.2-4.el7_7                  base     <br>libicu-devel.i686                        50.2-4.el7_7                  base     <br>libicu-devel.x86_64                      50.2-4.el7_7                  base     <br>libicu-doc.noarch                        50.2-4.el7_7                  base<br></code></pre></td></tr></table></figure>
+
+<p>解决方法:</p>
+<p>安装libicu-devel</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y libicu-devel<br></code></pre></td></tr></table></figure>
+
+
+<hr>
+<p>在centos7.6编译php7.4出现“configure: error: C++ preprocessor “/lib/cpp” fails sanity check”的问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">configure: error: <span class="hljs-keyword">in</span> `/usr/<span class="hljs-built_in">local</span>/src/php-7.4.27<span class="hljs-string">&#x27;:</span><br><span class="hljs-string">configure: error: C++ preprocessor &quot;/lib/cpp&quot; fails sanity check</span><br><span class="hljs-string">See `config.log&#x27;</span> <span class="hljs-keyword">for</span> more details<br></code></pre></td></tr></table></figure>
+
+
+<p>错误原因：</p>
+<p>缺少g++库</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum list | grep gcc-c++<br>avr-gcc-c++.x86_64                       4.9.2-1.el7                   epel     <br>gcc-c++.x86_64                           4.8.5-44.el7                  base     <br>gcc-c++-aarch64-linux-gnu.x86_64         4.8.5-16.el7.1                epel     <br>gcc-c++-alpha-linux-gnu.x86_64           4.8.5-16.el7.1                epel     <br>gcc-c++-arm-linux-gnu.x86_64             4.8.5-16.el7.1                epel     <br>gcc-c++-avr32-linux-gnu.x86_64           4.8.5-16.el7.1                epel     <br>gcc-c++-bfin-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-c6x-linux-gnu.x86_64             4.8.5-16.el7.1                epel     <br>gcc-c++-cris-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-frv-linux-gnu.x86_64             4.8.5-16.el7.1                epel     <br>gcc-c++-h8300-linux-gnu.x86_64           4.8.5-16.el7.1                epel     <br>gcc-c++-hppa-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-hppa64-linux-gnu.x86_64          4.8.5-16.el7.1                epel     <br>gcc-c++-ia64-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-m32r-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-m68k-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-microblaze-linux-gnu.x86_64      4.8.5-16.el7.1                epel     <br>gcc-c++-mips64-linux-gnu.x86_64          4.8.5-16.el7.1                epel     <br>gcc-c++-mn10300-linux-gnu.x86_64         4.8.5-16.el7.1                epel     <br>gcc-c++-powerpc64-linux-gnu.x86_64       4.8.5-16.el7.1                epel     <br>gcc-c++-ppc64-linux-gnu.x86_64           4.8.5-16.el7.1                epel     <br>gcc-c++-s390x-linux-gnu.x86_64           4.8.5-16.el7.1                epel     <br>gcc-c++-sh-linux-gnu.x86_64              4.8.5-16.el7.1                epel     <br>gcc-c++-sh64-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-sparc64-linux-gnu.x86_64         4.8.5-16.el7.1                epel     <br>gcc-c++-tile-linux-gnu.x86_64            4.8.5-16.el7.1                epel     <br>gcc-c++-x86_64-linux-gnu.x86_64          4.8.5-16.el7.1                epel     <br>gcc-c++-xtensa-linux-gnu.x86_64          4.8.5-16.el7.1                epel<br></code></pre></td></tr></table></figure>
+
+
+<p>解决方法:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y gcc-c++<br></code></pre></td></tr></table></figure>
+
+
+<hr>
+<p>在centos7.6编译php7.4出现“configure: error: Cannot find ldap.h”的问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">configure: error: Cannot find ldap.h<br></code></pre></td></tr></table></figure>
+
+<p>解决办法：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install openldap openldap-devel  -y<br></code></pre></td></tr></table></figure>
+
+
+<hr>
+<p>在centos7.6编译php7.4出现“No package ‘oniguruma’ found”的问题</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">configure: error: Package requirements (oniguruma) were not met:<br><br>No package <span class="hljs-string">&#x27;oniguruma&#x27;</span> found<br></code></pre></td></tr></table></figure>
+
+<p>错误原因：</p>
+<p>如果启用了–with-mbstring，则需要安装 oniguruma, 因为7.4的正则表达式使用了oniguruma</p>
+<p>解决方法：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y oniguruma oniguruma-devel<br></code></pre></td></tr></table></figure>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/php/">php</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux 快速删除海量文件</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/03/22/CentOS7%E5%AE%89%E8%A3%85PHP-Composer/">
+                        <span class="hidden-mobile">CentOS7安装PHP Composer</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

@@ -181,6 +181,101 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">Linux 快速删除海量文件</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">
+          
+          
+            
+          
+          Linux 快速删除海量文件Linux快速删除海量小文件
+事前提要：
+有人在群里提出：删除海量小文件，例如日志文件，用什么命令会快些。
+这里提供几个思路
+
+使用 rm -f * 命令删除该文件夹内的所有文件（不能在公司服务器使用）
+使用 ls -l | awk ‘{print “rm -f”,$9}’ | sh 命令删除该文件夹内所有的文件
+使用 ls | xargs rm -r 命令删除该文件夹
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-27 23:17" pubdate>
+              2022-03-27
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/03/27/php%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E9%81%87%E5%88%B0%E7%9A%84%E5%9D%91-%E5%90%88%E9%9B%86/">php编译安装遇到的坑(合集)</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/27/php%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E9%81%87%E5%88%B0%E7%9A%84%E5%9D%91-%E5%90%88%E9%9B%86/">
+          
+          
+            
+          
+          php编译安装遇到的坑(合集)在centos7.6编译php7.4出现configure: WARNING: unrecognized options: –with-gd的问题
+1configure: WARNING: unrecognized options: –-with-gd
+
+解决方法：
+使用–enable-gd替代–with-gd
+原因：
+–with-gd becomes –enable
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-27 23:10" pubdate>
+              2022-03-27
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/php/">php</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/blog/2022/03/22/CentOS7%E5%AE%89%E8%A3%85PHP-Composer/">CentOS7安装PHP Composer</a>
       </h1>
 
@@ -540,95 +635,6 @@ https://www.cnblogs.com/Smbands/p/14430775.html
             <i class="iconfont icon-tags"></i>
             
               <a href="/blog/tags/Linux-Nexus/">Linux Nexus</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/26/CentOS7-%E5%AE%89%E8%A3%85MySQL-Client/">CentOS7 安装MySQL Client</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/26/CentOS7-%E5%AE%89%E8%A3%85MySQL-Client/">
-          
-          
-            
-          
-          CentOS7 安装MySQL Client123456#添加rpm源# rpm -ivh https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm#通过yum搜索# yum search mysql-community#安装x64位的 mysql客户端# yum install mysql-community-clie
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-26 12:13" pubdate>
-              2022-02-26
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-MySQL/">Linux MySQL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix_titie.jpg" srcset="/blog/img/loading.gif" alt="使用zabbix5.0的Template DB MySQL模板来监控数据库">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/">使用zabbix5.0的Template DB MySQL模板来监控数据库</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/">
-          
-          
-            
-          
-          使用zabbix5.0的Template DB MySQL模板来监控数据库一、安装zabbix-agent安装过程略
-二、添加zabbix-agent模板123456789101112131415161718# find / -name userparameter_mysql.conf/usr/local/src/zabbix-5.0.0/conf/zabbix_agentd/userparame
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-26 12:04" pubdate>
-              2022-02-26
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-zabbix/">Linux zabbix</a>
             
           </div>
         
