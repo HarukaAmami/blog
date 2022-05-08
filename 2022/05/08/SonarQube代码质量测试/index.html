@@ -1,0 +1,967 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>SonarQube代码质量测试 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="SonarQube代码质量测试">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-05-08 11:42" pubdate>
+        2022年5月8日 中午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      31
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SonarQube代码质量测试</h1>
+            
+            <div class="markdown-body">
+              <h1 id="一、SonarQube-简介"><a href="#一、SonarQube-简介" class="headerlink" title="一、SonarQube 简介"></a>一、SonarQube 简介</h1><p>SonarQube 是一个用于代码质量管理的开放平台，通过插件机制，SonarQube 可以集成不同的测试工具，代码分析工具，以及持续集成工具，例如 Hudson/Jenkins 等。</p>
+<p>官方网站：<a target="_blank" rel="noopener" href="http://www.sonarqube.org/">http://www.sonarqube.org/</a></p>
+<p>sonarqube的七个维度检测代码质量：</p>
+<ol>
+<li>复杂度分布：代码复杂度过高将难以理解</li>
+<li>重复代码：程序中包含大量复制、粘贴的代码而导致代码臃肿，sonar 可以展示源码中重复严重的地方</li>
+<li>单元测试统计：统计并展示单元测试覆盖率，开发或测试可以清楚测试代码的覆盖情况</li>
+<li>代码规则检查：检查代码是否符合规范</li>
+<li>注释率：若代码注释过少，特别是人员变动后，其他人接手比较难接手；若过多，又不利于阅读潜在的 Bug：检测潜在的 bug</li>
+<li>结构与设计：找出循环，展示包与包、类与类之间的依赖、检查程序之间耦合度</li>
+</ol>
+<p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/devopts/devpots-130.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="二、SonarQube-环境依赖"><a href="#二、SonarQube-环境依赖" class="headerlink" title="二、SonarQube 环境依赖"></a>二、SonarQube 环境依赖</h1><h2 id="2-1-硬件要求"><a href="#2-1-硬件要求" class="headerlink" title="2.1 硬件要求"></a>2.1 硬件要求</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>6.7.7 LTS</th>
+<th>7.9.6 LTS</th>
+<th>8.9.7 LTS</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>内存大小</td>
+<td>2GB</td>
+<td>2GB</td>
+<td>2GB</td>
+</tr>
+<tr>
+<td>硬盘大小</td>
+<td>根据源码大小决定</td>
+<td>根据源码大小决定</td>
+<td>根据源码大小决定</td>
+</tr>
+<tr>
+<td>硬盘读写性能</td>
+<td>需要出色读写性能</td>
+<td>需要出色读写性能</td>
+<td>需要出色读写性能</td>
+</tr>
+<tr>
+<td>是否支持32位</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+</tbody></table>
+<h2 id="2-2-平台要求"><a href="#2-2-平台要求" class="headerlink" title="2.2 平台要求"></a>2.2 平台要求</h2><h3 id="2-2-1-Java"><a href="#2-2-1-Java" class="headerlink" title="2.2.1 Java"></a>2.2.1 Java</h3><h4 id="6-7-7-LTS"><a href="#6-7-7-LTS" class="headerlink" title="6.7.7 LTS"></a><strong>6.7.7 LTS</strong></h4><table>
+<thead>
+<tr>
+<th></th>
+<th>Server</th>
+<th>Scan</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Oracle JRE 7</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+<tr>
+<td>Oracle JRE 8</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Oracle JRE 9</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+<tr>
+<td>Open JDK 7</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+<tr>
+<td>Open JDK 8</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Open JDK 9</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+<tr>
+<td>IBM JRE</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+<tr>
+<td>GCJ</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+<tr>
+<td>Orcale JRockit</td>
+<td>✘</td>
+<td>✘</td>
+</tr>
+</tbody></table>
+<h4 id="7-9-6-LTS"><a href="#7-9-6-LTS" class="headerlink" title="7.9.6 LTS"></a><strong>7.9.6 LTS</strong></h4><table>
+<thead>
+<tr>
+<th></th>
+<th>Server</th>
+<th>Scan</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Oracle JRE 11</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Oracle JRE 8</td>
+<td>✘</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Open JDK 11</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Open JDK 8</td>
+<td>✘</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h4 id="8-9-7-LTS"><a href="#8-9-7-LTS" class="headerlink" title="8.9.7 LTS"></a><strong>8.9.7 LTS</strong></h4><table>
+<thead>
+<tr>
+<th></th>
+<th>Server</th>
+<th>Scan</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Oracle JRE 11</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Oracle JRE 8</td>
+<td>✘</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Open JDK 11</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Open JDK 8</td>
+<td>✘</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-2-数据库"><a href="#2-2-2-数据库" class="headerlink" title="2.2.2 数据库"></a>2.2.2 数据库</h3><h4 id="6-7-7-LTS-1"><a href="#6-7-7-LTS-1" class="headerlink" title="6.7.7 LTS"></a><strong>6.7.7 LTS</strong></h4><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>版本</th>
+<th>是否支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Postgre SQL</td>
+<td>8.x</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>9.x</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Microsoft SQL Server</td>
+<td>2012 (MSSQL SERVER 11.0)</td>
+<td>✘</td>
+</tr>
+<tr>
+<td></td>
+<td>2014 (MSSQL Server 12.0)with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>2016 (MSSQL Server 13.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Oracle</td>
+<td>10G</td>
+<td>✘</td>
+</tr>
+<tr>
+<td></td>
+<td>11G with Oracle 11.2.x drivers</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>12C with Oracle 12.2.x drivers</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>XE Editions are supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>5.6</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>5.7</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h4 id="7-9-6-LTS-1"><a href="#7-9-6-LTS-1" class="headerlink" title="7.9.6 LTS"></a><strong>7.9.6 LTS</strong></h4><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>版本</th>
+<th>是否支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Postgre SQL</td>
+<td>10</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>9.3-9.6</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Microsoft SQL Server</td>
+<td>2017 (MSSQL Server 14.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>2016 (MSSQL Server 13.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>2014 (MSSQL Server 12.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Oracle</td>
+<td>19C</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>18C</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>12C</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>11G</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>XE Editions</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h4 id="8-9-7-LTS-1"><a href="#8-9-7-LTS-1" class="headerlink" title="8.9.7 LTS"></a><strong>8.9.7 LTS</strong></h4><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>版本</th>
+<th>是否支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Postgre SQL</td>
+<td>13</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>12</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>11</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>10</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>9.6</td>
+<td></td>
+</tr>
+<tr>
+<td>Microsoft SQL Server</td>
+<td>2019 (MSSQL Server 15.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>2017 (MSSQL Server 14.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>2016 (MSSQL Server 13.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>2014 (MSSQL Server 12.0) with bundled Microsoft JDBC driver. Express Edition is supported</td>
+<td></td>
+</tr>
+<tr>
+<td>Oracle</td>
+<td>19C</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>18C</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>12C</td>
+<td>✔</td>
+</tr>
+<tr>
+<td></td>
+<td>XE Editions</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-3-浏览器"><a href="#2-2-3-浏览器" class="headerlink" title="2.2.3 浏览器"></a>2.2.3 浏览器</h3><h4 id="6-7-7-LTS-2"><a href="#6-7-7-LTS-2" class="headerlink" title="6.7.7 LTS"></a><strong>6.7.7 LTS</strong></h4><table>
+<thead>
+<tr>
+<th>浏览器</th>
+<th>版本</th>
+<th>是否支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Microsoft Internet Explorer</td>
+<td>IE 9</td>
+<td>✘</td>
+</tr>
+<tr>
+<td></td>
+<td>IE10</td>
+<td>✘</td>
+</tr>
+<tr>
+<td></td>
+<td>IE11</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Microsoft Edge</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Mozilla Firefox</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Google Chrome</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Opera</td>
+<td></td>
+<td>Not tested</td>
+</tr>
+<tr>
+<td>Safari</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h4 id="7-9-6-LTS-2"><a href="#7-9-6-LTS-2" class="headerlink" title="7.9.6 LTS"></a><strong>7.9.6 LTS</strong></h4><table>
+<thead>
+<tr>
+<th>浏览器</th>
+<th>版本</th>
+<th>是否支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Microsoft Internet Explorer</td>
+<td>IE 11</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Microsoft Edge</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Mozilla Firefox</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Google Chrome</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Opera</td>
+<td></td>
+<td>Not tested</td>
+</tr>
+<tr>
+<td>Safari</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h4 id="8-9-7-LTS-2"><a href="#8-9-7-LTS-2" class="headerlink" title="8.9.7 LTS"></a><strong>8.9.7 LTS</strong></h4><table>
+<thead>
+<tr>
+<th>浏览器</th>
+<th>版本</th>
+<th>是否支持</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Microsoft Internet Explorer</td>
+<td>IE 11</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Microsoft Edge</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Mozilla Firefox</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Google Chrome</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Opera</td>
+<td></td>
+<td>Not tested</td>
+</tr>
+<tr>
+<td>Safari</td>
+<td>Latest</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h2 id="2-3-Linux-系统运行要求"><a href="#2-3-Linux-系统运行要求" class="headerlink" title="2.3 Linux 系统运行要求"></a>2.3 Linux 系统运行要求</h2><h3 id="2-3-1-6-7-7-LTS-版本-Linux-系统运行要求"><a href="#2-3-1-6-7-7-LTS-版本-Linux-系统运行要求" class="headerlink" title="2.3.1 6.7.7 LTS 版本 Linux 系统运行要求"></a>2.3.1 6.7.7 LTS 版本 Linux 系统运行要求</h3><ul>
+<li><strong>sonarqube 不得在 root 帐户下运行</strong></li>
+<li><strong>vm.max_map_count</strong>大于或等于<strong>262144</strong></li>
+<li><strong>fs.file-max</strong>大于或等于<strong>65536</strong></li>
+<li>运行 SonarQube 的用户可以打开至少<strong>65536 个</strong>文件描述符</li>
+<li>运行 SonarQube 的用户至少可以打开 2048 个线程，</li>
+<li><strong>seccomp 已编译</strong> 到内核中</li>
+</ul>
+<h3 id="2-3-2-7-9-6-LTS-版本-Linux-系统运行要求"><a href="#2-3-2-7-9-6-LTS-版本-Linux-系统运行要求" class="headerlink" title="2.3.2 7.9.6 LTS 版本 Linux 系统运行要求"></a>2.3.2 7.9.6 LTS 版本 Linux 系统运行要求</h3><ul>
+<li><strong>vm.max_map_count</strong>大于或等于 262144</li>
+<li><strong>fs.file-max</strong>大于或等于 65536</li>
+<li>运行 SonarQube 的用户可以打开至少 65536 个文件描述符</li>
+<li>运行 SonarQube 的用户至少可以打开 4096 个线程</li>
+</ul>
+<h3 id="2-3-3-8-9-7-LTS-版本-Linux-系统运行要求"><a href="#2-3-3-8-9-7-LTS-版本-Linux-系统运行要求" class="headerlink" title="2.3.3 8.9.7 LTS 版本 Linux 系统运行要求"></a>2.3.3 8.9.7 LTS 版本 Linux 系统运行要求</h3><ul>
+<li><strong>vm.max_map_count</strong>大于或等于 524288</li>
+<li><strong>fs.file-max</strong>大于或等于 131072</li>
+<li>运行 SonarQube 的用户可以打开至少 131072 个文件描述符</li>
+<li>运行 SonarQube 的用户至少可以打开 8192 个线程</li>
+</ul>
+<h2 id="2-4-调整-Linux-系统参数"><a href="#2-4-调整-Linux-系统参数" class="headerlink" title="2.4 调整 Linux 系统参数"></a>2.4 调整 Linux 系统参数</h2><p><strong>一般来说使用CentOS7系统，<code>seccomp</code>已经编译到内核中。但在 Red Hat Linux 6 等发行版中，此功能已停用。</strong></p>
+<h3 id="2-4-1调整内核参数"><a href="#2-4-1调整内核参数" class="headerlink" title="2.4.1调整内核参数"></a>2.4.1调整内核参数</h3><p><strong>以8.9.7 LTS 版本为例</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#临时性调整</span><br>sysctl -w vm.max_map_count=524288<br>sysctl -w fs.file-max=131072<br><br><span class="hljs-comment">#永久性调整</span><br>vim /etc/sysctl.conf<br>vm.max_map_count=524288<br>fs.file-max=131072<br><span class="hljs-comment">#使sysctl.conf文件生效</span><br>sysctl -p<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-2-调整-sonarqube-用户参数"><a href="#2-4-2-调整-sonarqube-用户参数" class="headerlink" title="2.4.2 调整 sonarqube 用户参数"></a>2.4.2 调整 sonarqube 用户参数</h3><p><strong>以8.9.7 LTS 版本为例</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#暂时性调整</span><br><span class="hljs-built_in">ulimit</span> -n 131072<br><span class="hljs-built_in">ulimit</span> -u 8192<br><br><span class="hljs-comment">#永久性调整，修改完成后退出用户重新登录生效</span><br>vim /etc/security/limits.conf<br>sonarqube   -   nofile   131072<br>sonarqube   -   nproc    8192<br></code></pre></td></tr></table></figure>
+
+<h1 id="三、安装部署数据库"><a href="#三、安装部署数据库" class="headerlink" title="三、安装部署数据库"></a>三、安装部署数据库</h1><p><strong>以部署 PostgreSQL 12 为例</strong></p>
+<h2 id="3-1-安装-PostgreSQL"><a href="#3-1-安装-PostgreSQL" class="headerlink" title="3.1 安装 PostgreSQL"></a>3.1 安装 PostgreSQL</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#安装PostgreSQL仓库的repo文件</span><br>yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm<br><br><span class="hljs-comment">#安装PostgreSQL</span><br>yum install -y postgresql12-server<br><br><span class="hljs-comment">#初始化并启动postgresql</span><br><span class="hljs-comment">#注意：这一步可以在修改数据完数据存放位置后再执行</span><br>/usr/pgsql-12/bin/postgresql-12-setup initdb<br>systemctl <span class="hljs-built_in">enable</span> postgresql-12<br>systemctl start postgresql-12<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-启动远程访问"><a href="#3-2-启动远程访问" class="headerlink" title="3.2 启动远程访问"></a>3.2 启动远程访问</h2><p>修改postgresql.conf文件，取消listen_addresses是注释，将’localhost‘改为‘*’</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#注意：这里postgresql.conf文件的路径时数据存储位置的路径</span><br>vim /mnt/datadisk0/data/postgresql12/data/postgresql.conf<br>......<br>listen_addresses = <span class="hljs-string">&#x27;*&#x27;</span>          <span class="hljs-comment"># what IP address(es) to listen on;</span><br>......<br></code></pre></td></tr></table></figure>
+
+<p>编辑pg_hba.conf文件，添加远程联连接的地址</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#注意1：这里pg_hba.conf文件的路径时数据存储位置的路径</span><br><span class="hljs-comment">#注意2：找到有IPv4的那个注释添加地址，最后的连接方法为md5</span><br>vim /mnt/datadisk0/data/postgresql12/data/pg_hba.conf<br>......<br><span class="hljs-comment"># IPv4 local connections:</span><br>host    all             all             127.0.0.1/32            ident<br>host    all             all             0.0.0.0/0            md5<br>......<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-3-创建-SonarQube-使用的用户和数据库"><a href="#3-3-创建-SonarQube-使用的用户和数据库" class="headerlink" title="3.3 创建 SonarQube 使用的用户和数据库"></a>3.3 创建 SonarQube 使用的用户和数据库</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs sh">su - postgres<br><span class="hljs-comment">#登录数据库</span><br>psql -U postgres<br>psql (12.10)<br>Type <span class="hljs-string">&quot;help&quot;</span> <span class="hljs-keyword">for</span> <span class="hljs-built_in">help</span>.<br><br><span class="hljs-comment">#创建数据库并进行授权普通用户访问：</span><br>postgres=<span class="hljs-comment"># CREATE DATABASE sonar; #创建数据库</span><br>CREATE DATABASE<br><br>postgres=<span class="hljs-comment"># CREATE USER sonar WITH ENCRYPTED PASSWORD &#x27;123456&#x27;; #创建用户</span><br>CREATE ROLE<br><br>postgres=<span class="hljs-comment"># GRANT ALL PRIVILEGES ON DATABASE sonar TO sonar; #授权用户</span><br>GRANT<br><br>postgres=<span class="hljs-comment"># ALTER DATABASE sonar OWNER TO sonar; #执行变更</span><br>ALTER DATABASE<br><br><span class="hljs-comment">#退出</span><br>postgres=<span class="hljs-comment"># \q</span><br><br><span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="四、安装部署-Java-11"><a href="#四、安装部署-Java-11" class="headerlink" title="四、安装部署 Java 11"></a>四、安装部署 Java 11</h1><h2 id="4-1-安装部署-Open-JDK-11"><a href="#4-1-安装部署-Open-JDK-11" class="headerlink" title="4.1 安装部署 Open JDK 11"></a>4.1 安装部署 Open JDK 11</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y java-11-openjdk.x86_64<br><br>java -version<br>openjdk version <span class="hljs-string">&quot;11.0.14.1&quot;</span> 2022-02-08 LTS<br>OpenJDK Runtime Environment 18.9 (build 11.0.14.1+1-LTS)<br>OpenJDK 64-Bit Server VM 18.9 (build 11.0.14.1+1-LTS, mixed mode, sharing)<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-2-部署安装-Oracle-JRE-11"><a href="#4-2-部署安装-Oracle-JRE-11" class="headerlink" title="4.2 部署安装 Oracle JRE 11"></a>4.2 部署安装 Oracle JRE 11</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src<br><br><span class="hljs-comment">#下载Oracle JRE 11</span><br>略<br><span class="hljs-comment">#安装Oracle JRE 11</span><br>tar xf jdk-11.0.15.1_linux-x64_bin.tar.gz  -C /usr/<span class="hljs-built_in">local</span>/<br>ln -sv /usr/<span class="hljs-built_in">local</span>/jdk-11.0.15.1 /usr/lib/jdk<br><span class="hljs-comment">#添加环境变量</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;export JAVA_HOME=/usr/local/jdk&#x27;</span> &gt;&gt; /etc/profile.d/java.sh<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar&#x27;</span> &gt;&gt; /etc/profile.d/java.sh <br><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;export PATH=$PATH:$JAVA_HOME/bin&#x27;</span> &gt;&gt; /etc/profile.d/java.sh<br><span class="hljs-comment">#使变量生效</span><br>. /etc/profile.d/java.sh<br><br>java -version<br>java version <span class="hljs-string">&quot;11.0.15.1&quot;</span> 2022-04-22 LTS<br>Java(TM) SE Runtime Environment 18.9 (build 11.0.15.1+2-LTS-10)<br>Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.15.1+2-LTS-10, mixed mode)<br></code></pre></td></tr></table></figure>
+
+<h1 id="五、安装部署-SonarQube"><a href="#五、安装部署-SonarQube" class="headerlink" title="五、安装部署 SonarQube"></a>五、安装部署 SonarQube</h1><p><strong>以 SonarQube 8.9.7 LTS 版本为例</strong></p>
+<h2 id="5-1-二进制部署-SonarQube"><a href="#5-1-二进制部署-SonarQube" class="headerlink" title="5.1 二进制部署 SonarQube"></a>5.1 二进制部署 SonarQube</h2><h3 id="5-1-1-安装-SonarQube"><a href="#5-1-1-安装-SonarQube" class="headerlink" title="5.1.1 安装 SonarQube"></a>5.1.1 安装 SonarQube</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs sh">useradd -r -m -c <span class="hljs-string">&quot;scan code&quot;</span> -s /bin/bash sonarqube<br><span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/src<br><br><span class="hljs-comment">#下载SonarQube 8.9.7</span><br>wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-8.9.7.52159.zip<br><br><span class="hljs-comment">#安装SonarQube</span><br>unzip -q sonarqube-8.9.7.52159.zip  -d /usr/<span class="hljs-built_in">local</span>/<br>ln -s /usr/<span class="hljs-built_in">local</span>/sonarqube-8.9.7.52159 /usr/<span class="hljs-built_in">local</span>/sonarqube<br>chown -R sonarqube.sonarqube /usr/<span class="hljs-built_in">local</span>/sonarqube-8.9.7.52159 /usr/<span class="hljs-built_in">local</span>/sonarqube<br><br><span class="hljs-comment">#</span><br><br><br><span class="hljs-comment">#启动sonarqube</span><br>./bin/linux-x86-64/sonar.sh --<span class="hljs-built_in">help</span><br>Usage: ./bin/linux-x86-64/sonar.sh &#123; console | start | stop | force-stop | restart | status | dump &#125;<br>./bin/linux-x86-64/sonar.sh start<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-1-2-修改-SonarQube-配置"><a href="#5-1-2-修改-SonarQube-配置" class="headerlink" title="5.1.2 修改 SonarQube 配置"></a>5.1.2 修改 SonarQube 配置</h3><p><strong>进入配置文件所在的目录</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">[root@centos7 <span class="hljs-built_in">local</span>]<span class="hljs-comment"># su - sonarqube</span><br>[sonarqube@centos7 ~]$ <span class="hljs-built_in">cd</span> /usr/<span class="hljs-built_in">local</span>/sonarqube/conf<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-1-2-1-设置对数据库的访问"><a href="#5-1-2-1-设置对数据库的访问" class="headerlink" title="5.1.2.1 设置对数据库的访问"></a>5.1.2.1 设置对数据库的访问</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh">[sonarqube@centos7 conf]$ vim sonar.properties<br><span class="hljs-comment">#找到这几行，取消注释并修改</span><br>sonar.jdbc.username=sonar<br>sonar.jdbc.password=123456<br>sonar.jdbc.url=jdbc:postgresql://localhost/sonar<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-1-2-2-配置-Elasticsearch-存储路径"><a href="#5-1-2-2-配置-Elasticsearch-存储路径" class="headerlink" title="5.1.2.2 配置 Elasticsearch 存储路径"></a>5.1.2.2 配置 Elasticsearch 存储路径</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh">[root@centos7 ~]<span class="hljs-comment"># mkdir -p /mnt/datadisk0/data/elastic/&#123;data,tmp&#125;</span><br>[root@centos7 ~]<span class="hljs-comment"># chown -R sonarqube.sonarqube /mnt/datadisk0/data/elastic</span><br>[sonarqube@centos7 conf]$ vim sonar.properties<br><span class="hljs-comment">#找到这几行，取消注释并修改</span><br>sonar.path.data=/mnt/datadisk0/data/elastic/data<br>sonar.path.temp=/mnt/datadisk0/data/elastic/temp<br></code></pre></td></tr></table></figure>
+
+<h4 id="5-1-2-3-配置启动的-web-服务器"><a href="#5-1-2-3-配置启动的-web-服务器" class="headerlink" title="5.1.2.3 配置启动的 web 服务器"></a>5.1.2.3 配置启动的 web 服务器</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">[sonarqube@centos7 conf]$ vim sonar.properties<br>sonar.web.host=0.0.0.<br>sonar.web.port=9000<br>sonar.web.context=/sonarqube<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/SonarQube/">SonarQube</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">
+                        <span class="hidden-mobile">CentOS7使用yum安装PostgreSQL</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

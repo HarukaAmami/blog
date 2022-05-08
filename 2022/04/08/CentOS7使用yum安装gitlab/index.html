@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>CentOS7使用yum安装gitlab - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="CentOS7使用yum安装gitlab">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-04-08 21:29" pubdate>
+        2022年4月8日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      546 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      10
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">CentOS7使用yum安装gitlab</h1>
+            
+            <div class="markdown-body">
+              <h1 id="CentOS7使用yum安装gitlab"><a href="#CentOS7使用yum安装gitlab" class="headerlink" title="CentOS7使用yum安装gitlab"></a>CentOS7使用yum安装gitlab</h1><h1 id="一、配置yum源"><a href="#一、配置yum源" class="headerlink" title="一、配置yum源"></a>一、配置yum源</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh">vim /etc/yum.repos.d/gitlab.repo<br>[gitlab-ce]<br>name=Gitlab CE Repository<br>baseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el<span class="hljs-variable">$releasever</span>/<br>gpgcheck=0<br>enabled=1<br><br>yum clean all<br></code></pre></td></tr></table></figure>
+
+<h1 id="二、安装前准备"><a href="#二、安装前准备" class="headerlink" title="二、安装前准备"></a>二、安装前准备</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#关闭防火墙</span><br>systemctl stop firewalld<br><span class="hljs-comment">#关闭selinux</span><br>vim /etc/sysconfig/selinux<br>.....<br>SELINUX=disabled<br>......<br></code></pre></td></tr></table></figure>
+
+<h1 id="三、安装gitlab-ce最新版本"><a href="#三、安装gitlab-ce最新版本" class="headerlink" title="三、安装gitlab-ce最新版本"></a>三、安装gitlab-ce最新版本</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y gitlab-ce <br></code></pre></td></tr></table></figure>
+
+<h1 id="四、安装gitlab-ce特定版本"><a href="#四、安装gitlab-ce特定版本" class="headerlink" title="四、安装gitlab-ce特定版本"></a>四、安装gitlab-ce特定版本</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">yum install -y gitlab-ce-11.11.8<br></code></pre></td></tr></table></figure>
+
+<h1 id="五、修改配置文件"><a href="#五、修改配置文件" class="headerlink" title="五、修改配置文件"></a>五、修改配置文件</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs sh">vim /etc/gitlab/gitlab.rb<br>vim /etc/gitlab/gitlab.rb<br>32 external_url <span class="hljs-string">&#x27;http://192.168.10.7:8888&#x27;</span><br>......<br>80 gitlab_rails[<span class="hljs-string">&#x27;smtp_enable&#x27;</span>] = <span class="hljs-literal">true</span><br>81 gitlab_rails[<span class="hljs-string">&#x27;smtp_address&#x27;</span>] = <span class="hljs-string">&quot;smtp.qq.com&quot;</span><br>82 gitlab_rails[<span class="hljs-string">&#x27;smtp_port&#x27;</span>] = 465<br>83 gitlab_rails[<span class="hljs-string">&#x27;smtp_user_name&#x27;</span>] = <span class="hljs-string">&quot;903040189@qq.com&quot;</span><br>84 gitlab_rails[<span class="hljs-string">&#x27;smtp_password&#x27;</span>] = <span class="hljs-string">&quot;ofqyxurekhtybdfc&quot;</span><br>85 gitlab_rails[<span class="hljs-string">&#x27;smtp_domain&#x27;</span>] = <span class="hljs-string">&quot;smtp.qq.com&quot;</span><br>86 gitlab_rails[<span class="hljs-string">&#x27;smtp_authentication&#x27;</span>] = <span class="hljs-string">&quot;login&quot;</span><br>87 gitlab_rails[<span class="hljs-string">&#x27;smtp_enable_starttls_auto&#x27;</span>] = <span class="hljs-literal">true</span><br>88 gitlab_rails[<span class="hljs-string">&#x27;smtp_tls&#x27;</span>] = <span class="hljs-literal">false</span><br>89 gitlab_rails[<span class="hljs-string">&#x27;smtp_pool&#x27;</span>] = <span class="hljs-literal">false</span><br>......<br>98 <span class="hljs-comment">### Email Settings</span><br>99 <br>100 gitlab_rails[<span class="hljs-string">&#x27;gitlab_email_enabled&#x27;</span>] = <span class="hljs-literal">true</span><br>101 <br>102 <span class="hljs-comment">##! If your SMTP server does not like the default &#x27;From: gitlab@gitlab.example.com&#x27;</span><br>103 <span class="hljs-comment">##! can change the &#x27;From&#x27; with this setting.</span><br>104 gitlab_rails[<span class="hljs-string">&#x27;gitlab_email_from&#x27;</span>] = <span class="hljs-string">&#x27;root@gitlab.com&#x27;</span><br>105 gitlab_rails[<span class="hljs-string">&#x27;gitlab_email_display_name&#x27;</span>] = <span class="hljs-string">&#x27;root&#x27;</span><br>106 gitlab_rails[<span class="hljs-string">&#x27;gitlab_email_reply_to&#x27;</span>] = <span class="hljs-string">&#x27;noreply@example.com&#x27;</span><br>107 gitlab_rails[<span class="hljs-string">&#x27;gitlab_email_subject_suffix&#x27;</span>] = <span class="hljs-string">&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="六、启动gitlab"><a href="#六、启动gitlab" class="headerlink" title="六、启动gitlab"></a>六、启动gitlab</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs sh">gitlab-ctl reconfigure <br><span class="hljs-comment">#等待一段时间......</span><br><br><span class="hljs-comment">#查看gitlab的状态</span><br>gitlab-ctl status<br>run: alertmanager: (pid 6667) 88s; run: <span class="hljs-built_in">log</span>: (pid 6331) 176s<br>run: gitaly: (pid 6537) 120s; run: <span class="hljs-built_in">log</span>: (pid 5731) 290s<br>run: gitlab-exporter: (pid 6728) 70s; run: <span class="hljs-built_in">log</span>: (pid 6100) 194s<br>run: gitlab-workhorse: (pid 6513) 121s; run: <span class="hljs-built_in">log</span>: (pid 6023) 211s<br>run: grafana: (pid 6684) 87s; run: <span class="hljs-built_in">log</span>: (pid 6478) 132s<br>run: logrotate: (pid 5577) 306s; run: <span class="hljs-built_in">log</span>: (pid 5589) 303s<br>run: nginx: (pid 6037) 207s; run: <span class="hljs-built_in">log</span>: (pid 6057) 205s<br>run: node-exporter: (pid 6531) 120s; run: <span class="hljs-built_in">log</span>: (pid 6087) 200s<br>run: postgres-exporter: (pid 6677) 87s; run: <span class="hljs-built_in">log</span>: (pid 6372) 170s<br>run: postgresql: (pid 5781) 282s; run: <span class="hljs-built_in">log</span>: (pid 5792) 281s<br>run: prometheus: (pid 6649) 89s; run: <span class="hljs-built_in">log</span>: (pid 6202) 182s<br>run: puma: (pid 5953) 226s; run: <span class="hljs-built_in">log</span>: (pid 5960) 225s<br>run: redis: (pid 5607) 300s; run: <span class="hljs-built_in">log</span>: (pid 5616) 296s<br>run: redis-exporter: (pid 6642) 89s; run: <span class="hljs-built_in">log</span>: (pid 6121) 188s<br>run: sidekiq: (pid 5971) 220s; run: <span class="hljs-built_in">log</span>: (pid 5989) 217s<br><br><span class="hljs-comment">#查看端口</span><br>ss -tnl<br>State       Recv-Q Send-Q                          Local Address:Port                                          Peer Address:Port<br>LISTEN      0      1024                                 127.0.0.1:9100                                                    *:*<br>LISTEN      0      1024                                 127.0.0.1:9229                                                    *:*<br>LISTEN      0      128                                  127.0.0.1:9168                                                    *:* <br>LISTEN      0      1024                                 127.0.0.1:8080                                                    *:*   <br>LISTEN      0      128                                  127.0.0.1:8082                                                    *:*   <br>LISTEN      0      128                                  127.0.0.1:9236                                                    *:*   <br>LISTEN      0      128                                          *:22                                                      *:*   <br>LISTEN      0      1024                                 127.0.0.1:3000                                                    *:*   <br>LISTEN      0      511                                          *:8888                                                    *:*   <br>LISTEN      0      511                                          *:8060                                                    *:*   <br>LISTEN      0      1024                                 127.0.0.1:9121                                                    *:*   <br>LISTEN      0      1024                                 127.0.0.1:9090                                                    *:*   <br>LISTEN      0      1024                                 127.0.0.1:9187                                                    *:*   <br>LISTEN      0      1024                                 127.0.0.1:9093                                                    *:*   <br>LISTEN      0      128                                        ::1:9168                                                   :::*   <br>LISTEN      0      128                                         :::22                                                     :::*   <br>LISTEN      0      1024                                        :::9094                                                   :::*<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CentOS7使用yum安装PostgreSQL</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">
+                        <span class="hidden-mobile">CentOS7使用rpm方式安装gitlab</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

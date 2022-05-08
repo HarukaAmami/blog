@@ -181,6 +181,227 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/blog/2022/05/08/SonarQube%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E6%B5%8B%E8%AF%95/">SonarQube代码质量测试</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/05/08/SonarQube%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E6%B5%8B%E8%AF%95/">
+          
+          
+            
+          
+          一、SonarQube 简介SonarQube 是一个用于代码质量管理的开放平台，通过插件机制，SonarQube 可以集成不同的测试工具，代码分析工具，以及持续集成工具，例如 Hudson/Jenkins 等。
+官方网站：http://www.sonarqube.org/
+sonarqube的七个维度检测代码质量：
+
+复杂度分布：代码复杂度过高将难以理解
+重复代码：程序中包含大量复制、粘贴的代码
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-05-08 11:42" pubdate>
+              2022-05-08
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/SonarQube/">SonarQube</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">CentOS7使用yum安装PostgreSQL</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">
+          
+          
+            
+          
+          一、安装PostgreSQL这里以安装 PostgreSQL 12来做例子
+进入PostgreSQL的红帽版本的下载网站：
+https://www.postgresql.org/download/linux/redhat/
+选择对应的版本，安装即可。
+
+1234567891011#安装PostgreSQL仓库的repo文件yum install -y https://download.postgr
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-05-07 22:26" pubdate>
+              2022-05-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/PostgreSQL-Linux/">PostgreSQL Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/04/08/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85gitlab/">CentOS7使用yum安装gitlab</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/04/08/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85gitlab/">
+          
+          
+            
+          
+          CentOS7使用yum安装gitlab一、配置yum源12345678vim /etc/yum.repos.d/gitlab.repo[gitlab-ce]name=Gitlab CE Repositorybaseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/gpgcheck=0enabled=1yum 
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-08 21:29" pubdate>
+              2022-04-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">CentOS7使用rpm方式安装gitlab</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">
+          
+          
+            
+          
+          CentOS7使用rpm方式安装gitlab此教程以安装gitlab14.2.1版本为基础
+一、安装前准备1234567#关闭防火墙systemctl stop firewalld#关闭selinuxvim /etc/sysconfig/selinux.....SELINUX=disabled......
+
+
+
+二、安装依赖1yum install -y curl policycoreutils-
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-07 21:01" pubdate>
+              2022-04-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/gitlab/">gitlab</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/04/05/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">阿里云专有网络VPC</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/04/05/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">
+          
+          
+            
+          
+          阿里云专有网络VPC学习目标：
+了解专有网络VPC的产生背景以及优势
+了解专有网络VPC及相关组件的概念和使用方法
+掌握专有网络VPC的使用场景和最佳实践
+VPC、SLB、NAT、EIP、VPN、共享带宽、共享流量包
+一、专有网络VPC1.1 专用网络VPC介绍
+1.2 专有网络VPC特点
+灵活：自主网络规划管理，灵活掌握网络部署
+易扩展：使用NAT网关可管理公网出入口，结合高速通道实现混合云架构
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-05 21:47" pubdate>
+              2022-04-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/%E9%98%BF%E9%87%8C%E4%BA%91-%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">阿里云 专有网络VPC</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">Linux 快速删除海量文件</a>
       </h1>
 
@@ -419,234 +640,11 @@
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/03/05/zabbix5-0%E5%AE%9E%E7%8E%B0MySQL%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9B%91%E6%8E%A7/">zabbix5.0实现MySQL自定义监控</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/03/05/zabbix5-0%E5%AE%9E%E7%8E%B0MySQL%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9B%91%E6%8E%A7/">
-          
-          
-            
-          
-          Zabbix5.0实现MySQL自定义监控一、安装zabbix-agent安装过程略
-二、MySQL数据库添加监控用户12# mysql -uroot -p# grant REPLICATION CLIENT,SHOW VIEW ON *.* TO&#x27;zbx_monitor&#x27;@&#x27;localhost&#x27; identified by &#x27;123456&#x2
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-03-05 16:06" pubdate>
-              2022-03-05
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Zabbix5-0/">Linux Zabbix5.0</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/03/03/%E4%BC%81%E4%B8%9A%E7%BA%A7%E4%BA%92%E8%81%94%E7%BD%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84/">企业级互联网分布式系统应用架构</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/03/03/%E4%BC%81%E4%B8%9A%E7%BA%A7%E4%BA%92%E8%81%94%E7%BD%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84/">
-          
-          
-            
-          
-          互联网应用架构概览
-互联网应用架构主要解决以下几个痛点：
-1 跨运营商网络的一致性体验
-2 支持突发的高流量访问并快速响应，大数据存储（以便以后分析）
-3 保证系统的高可用性，减少故障及运维导致的不可用时间
-提高网络访问速度
-提高应用并发度
-高可用架构
-
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-03-03 22:22" pubdate>
-              2022-03-03
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/27/SSL%E4%B8%BB%E6%B5%81%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/">SSL主流数字证书</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/27/SSL%E4%B8%BB%E6%B5%81%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/">
-          
-          
-            
-          
-          一、主流数字证书有哪些一般来说，主流的Web服务软件，通常都基于两种基础密码库：OpenSSL和Java。
-以Tomcat、Weblogic、JBoss等，使用Java提供的密码库。通过Java的Keytool工具，生成Java Keystore（JKS）格式的证书文件。
-以Apache、Nginx等，使用OpenSSL提供的密码库，生成PEM、KEY、CRT等格式的证书文件。
-此外，IBM的产品
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-27 22:05" pubdate>
-              2022-02-27
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/SSL-%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/">SSL 数字证书</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/27/%E4%B8%BB%E6%B5%81%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E4%B9%8BJKS/">主流数字证书之JKS</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/27/%E4%B8%BB%E6%B5%81%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E4%B9%8BJKS/">
-          
-          
-            
-          
-          JKS简介JKS（Java Key Store）是使用Java提供的密码库，通过Java的Keytool工具生成的Java Keystore(JKS)格式的文件证书。JKS文件由公钥和密钥构成，其中的公钥就是我们所说的证书，即cer为后缀的文件，而私钥就是密钥，即以key为后缀的文件。
-jks与pfx的区别：
-jks(java key store)：java用的存储密钥的容器。可以同时容纳n个公钥
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-27 21:48" pubdate>
-              2022-02-27
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Java-%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6/">Java 数字证书</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/27/Nexus%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/">Nexus私有仓库</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/27/Nexus%E7%A7%81%E6%9C%89%E4%BB%93%E5%BA%93/">
-          
-          
-            
-          
-          Nexus配置HTTPSNexus开始HTTPS方式大概分为两种，一种为Nexus服务本身开启SSL代理，两外一种使用Nginx进行反向代理实现HTTPS
-nexus配置jks证书实现https参考博客：
-https://blog.51cto.com/yangzhiming/2384050
-https://www.cnblogs.com/Smbands/p/14430775.html
-通过ngin
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-27 15:47" pubdate>
-              2022-02-27
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-Nexus/">Linux Nexus</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/7/">7</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/8/">8</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   
