@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.1k 字
+      2.9k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      31
+      47
        分钟
     </span>
   
@@ -763,6 +763,29 @@
 
 <h4 id="5-1-2-3-配置启动的-web-服务器"><a href="#5-1-2-3-配置启动的-web-服务器" class="headerlink" title="5.1.2.3 配置启动的 web 服务器"></a>5.1.2.3 配置启动的 web 服务器</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">[sonarqube@centos7 conf]$ vim sonar.properties<br>sonar.web.host=0.0.0.<br>sonar.web.port=9000<br>sonar.web.context=/sonarqube<br></code></pre></td></tr></table></figure>
 
+<h4 id="5-1-2-4-配置日志级别"><a href="#5-1-2-4-配置日志级别" class="headerlink" title="5.1.2.4 配置日志级别"></a>5.1.2.4 配置日志级别</h4><p>sonaqube级别有五种</p>
+<ul>
+<li>ERROR</li>
+<li>WARN</li>
+<li>INFO</li>
+<li>DEBUG</li>
+<li>TRACE</li>
+</ul>
+<p>sonarqube有五种日志</p>
+<ul>
+<li>global：统一设置一下四种设备的日志级别</li>
+<li>app：app日志（main日志）</li>
+<li>web：web server日志</li>
+<li>ce：compute engine日志</li>
+<li>es：elasticsearch日志</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#设置global日志</span><br><span class="hljs-comment">#不推荐：因为app日志必须设定为 INFO 级别的日志，不然会报错</span><br>[sonarqube@centos7 conf]$ vim sonar.properties<br>sonar.log.level=INFO<br><br><span class="hljs-comment">#分别设置日志</span><br>[sonarqube@centos7 conf]$ vim sonar.properties<br></code></pre></td></tr></table></figure>
+
+<p><strong>app日志设置为其他级别的报错日志</strong></p>
+<p>从以下的报错日志可以看出因为 app 日志设置了 INFO 以为的级别，导致“127.0.0.1:9001”连接失败了</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs sh">2022.05.09 07:49:15 DEBUG app[][o.a.h.i.n.c.MainClientExec] [exchange: 1] start execution<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.c.p.RequestAddCookies] CookieSpec selected: default<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.c.p.RequestAuthCache] Re-using cached <span class="hljs-string">&#x27;basic&#x27;</span> auth scheme <span class="hljs-keyword">for</span> http://127.0.0.1:9001<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.c.p.RequestAuthCache] No credentials <span class="hljs-keyword">for</span> preemptive authentication<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.i.n.c.InternalHttpAsyncClient] [exchange: 1] Request connection <span class="hljs-keyword">for</span> &#123;&#125;-&gt;http://127.0.0.1:9001<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.i.n.c.PoolingNHttpClientConnectionManager] Connection request: [route: &#123;&#125;-&gt;http://127.0.0.1:9001][total kept alive: 0; route allocated: 0 of 10; total allocated: 0 of 30]<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.i.n.c.PoolingNHttpClientConnectionManager] Connection request failed<br>java.net.ConnectException: Connection refused<br>        at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)<br>        at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:779)<br>        at org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor.processEvent(DefaultConnectingIOReactor.java:174)<br>        at org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor.processEvents(DefaultConnectingIOReactor.java:148)<br>        at org.apache.http.impl.nio.reactor.AbstractMultiworkerIOReactor.execute(AbstractMultiworkerIOReactor.java:351)<br>        at org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager.execute(PoolingNHttpClientConnectionManager.java:221)<br>        at org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase<span class="hljs-variable">$1</span>.run(CloseableHttpAsyncClientBase.java:64)<br>        at java.base/java.lang.Thread.run(Thread.java:834)<br>2022.05.09 07:49:15 DEBUG app[][o.a.h.i.n.c.InternalHttpAsyncClient] [exchange: 1] connection request failed<br>2022.05.09 07:49:15 DEBUG app[][o.e.c.RestClient] request [GET http://127.0.0.1:9001/] failed<br>java.net.ConnectException: Connection refused<br>        at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)<br>        at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:779)<br>        at org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor.processEvent(DefaultConnectingIOReactor.java:174)<br>        at org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor.processEvents(DefaultConnectingIOReactor.java:148)<br>        at org.apache.http.impl.nio.reactor.AbstractMultiworkerIOReactor.execute(AbstractMultiworkerIOReactor.java:351)<br>        at org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager.execute(PoolingNHttpClientConnectionManager.java:221)<br>        at org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase<span class="hljs-variable">$1</span>.run(CloseableHttpAsyncClientBase.java:64)<br>        at java.base/java.lang.Thread.run(Thread.java:834)<br>2022.05.09 07:49:15 DEBUG app[][o.e.c.RestClient] added [[host=http://127.0.0.1:9001]] to blacklist<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.i.n.c.MainClientExec] [exchange: 2] start execution<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.c.p.RequestAddCookies] CookieSpec selected: default<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.c.p.RequestAuthCache] Re-using cached <span class="hljs-string">&#x27;basic&#x27;</span> auth scheme <span class="hljs-keyword">for</span> http://127.0.0.1:9001<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.c.p.RequestAuthCache] No credentials <span class="hljs-keyword">for</span> preemptive authentication<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.i.n.c.InternalHttpAsyncClient] [exchange: 2] Request connection <span class="hljs-keyword">for</span> &#123;&#125;-&gt;http://127.0.0.1:9001<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.i.n.c.PoolingNHttpClientConnectionManager] Connection request: [route: &#123;&#125;-&gt;http://127.0.0.1:9001][total kept alive: 0; route allocated: 0 of 10; total allocated: 0 of 30]<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.i.n.c.PoolingNHttpClientConnectionManager] Connection request failed<br>java.net.ConnectException: Connection refused<br>        at java.base/sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)<br>        at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:779)<br>        at org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor.processEvent(DefaultConnectingIOReactor.java:174)<br>        at org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor.processEvents(DefaultConnectingIOReactor.java:148)<br>        at org.apache.http.impl.nio.reactor.AbstractMultiworkerIOReactor.execute(AbstractMultiworkerIOReactor.java:351)<br>        at org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager.execute(PoolingNHttpClientConnectionManager.java:221)<br>        at org.apache.http.impl.nio.client.CloseableHttpAsyncClientBase<span class="hljs-variable">$1</span>.run(CloseableHttpAsyncClientBase.java:64)<br>        at java.base/java.lang.Thread.run(Thread.java:834)<br>2022.05.09 07:49:16 DEBUG app[][o.a.h.i.n.c.InternalHttpAsyncClient] [exchange: 2] connection request failed<br></code></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/hzcm1984/article/details/123332017">https://blog.csdn.net/hzcm1984/article/details/123332017</a></p>
 
             </div>
             <hr>
