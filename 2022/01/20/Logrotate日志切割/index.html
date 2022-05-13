@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.6k 字
+      3k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      35
+      41
        分钟
     </span>
   
@@ -412,6 +412,21 @@
 <p>参考博客：</p>
 <p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/36235042/how-to-force-or-workaround-logrotate-to-move-old-logs-to-olddir-on-different-p">https://stackoverflow.com/questions/36235042/how-to-force-or-workaround-logrotate-to-move-old-logs-to-olddir-on-different-p</a></p>
 <h1 id="四、查看logrotate配置文件生效时间"><a href="#四、查看logrotate配置文件生效时间" class="headerlink" title="四、查看logrotate配置文件生效时间"></a>四、查看logrotate配置文件生效时间</h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cat /etc/anacrontab</span><br><span class="hljs-comment"># /etc/anacrontab: configuration file for anacron</span><br><br><span class="hljs-comment"># See anacron(8) and anacrontab(5) for details.</span><br><br>SHELL=/bin/sh<br>PATH=/sbin:/bin:/usr/sbin:/usr/bin<br>MAILTO=root<br><span class="hljs-comment"># the maximal random delay added to the base delay of the jobs</span><br>RANDOM_DELAY=45 <span class="hljs-comment">#执行计划任务的延迟时间</span><br><span class="hljs-comment"># the jobs will be started during the following hours only</span><br>START_HOURS_RANGE=3-22 <span class="hljs-comment">#执行日志切割的时间是3点到22点</span><br><br><span class="hljs-comment">#period in days   delay in minutes   job-identifier   command</span><br>1	5	cron.daily		nice run-parts /etc/cron.daily<br>7	25	cron.weekly		nice run-parts /etc/cron.weekly<br>@monthly 45	cron.monthly		nice run-parts /etc/cron.monthly<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="五、logrotate-日志切割的权限问题"><a href="#五、logrotate-日志切割的权限问题" class="headerlink" title="五、logrotate 日志切割的权限问题"></a>五、logrotate 日志切割的权限问题</h1><p>新写的日志切割文件内容</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh">/home/www/qingchuangying_nohup.out/qingchuangying_nohup.log &#123;<br>    daily<br>    rotate 30<br>    compress<br>    copytruncate<br>    nocreate<br>    delaycompress<br>    notifempty<br>    dateext<br>    olddir /home/www/qingchuangying_nohup.out/<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对该文件进行检查排错，出现了权限的错误</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># logrotate -d /etc/logrotate.d/qingchuangying </span><br>reading config file /etc/logrotate.d/qingchuangying<br>olddir is now /home/www/qingchuangying_nohup.out/<br>Allocating <span class="hljs-built_in">hash</span> table <span class="hljs-keyword">for</span> state file, size 15360 B<br><br>Handling 1 logs<br><br>rotating pattern: /home/www/qingchuangying_nohup.out/qingchuangying_nohup.log  after 1 days (30 rotations)<br>olddir is /home/www/qingchuangying_nohup.out/, empty <span class="hljs-built_in">log</span> files are not rotated, old logs are removed<br>considering <span class="hljs-built_in">log</span> /home/www/qingchuangying_nohup.out/qingchuangying_nohup.log<br>error: skipping <span class="hljs-string">&quot;/home/www/qingchuangying_nohup.out/qingchuangying_nohup.log&quot;</span> because parent directory has insecure permissions (It<span class="hljs-string">&#x27;s world writable or writable by group which is not &quot;root&quot;) Set &quot;su&quot; directive in config file to tell logrotate which user/group should be used for rotation.</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>解决办法</strong></p>
+<p>检查结果已经做出了提示：要在文件中添加“su 用户/组”，用户和组可以是“root”或者“文件的所有者/所属组”</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh">/home/www/qingchuangying_nohup.out/qingchuangying_nohup.log &#123;<br>    su www www<br>    daily<br>    rotate 30<br>    compress<br>    copytruncate<br>    nocreate<br>    delaycompress<br>    notifempty<br>    dateext<br>    olddir /home/www/qingchuangying_nohup.out/<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>再次对配置文件进行检查，权限问题没有了。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># logrotate -d /etc/logrotate.d/qingchuangying </span><br>reading config file /etc/logrotate.d/qingchuangying<br>olddir is now /home/www/qingchuangying_nohup.out/<br>Allocating <span class="hljs-built_in">hash</span> table <span class="hljs-keyword">for</span> state file, size 15360 B<br><br>Handling 1 logs<br><br>rotating pattern: /home/www/qingchuangying_nohup.out/qingchuangying_nohup.log  after 1 days (30 rotations)<br>olddir is /home/www/qingchuangying_nohup.out/, empty <span class="hljs-built_in">log</span> files are not rotated, old logs are removed<br>switching euid to 1002 and egid to 1002<br>considering <span class="hljs-built_in">log</span> /home/www/qingchuangying_nohup.out/qingchuangying_nohup.log<br>  <span class="hljs-built_in">log</span> does not need rotating (<span class="hljs-built_in">log</span> has been rotated at 2022-5-12 3:0, that is not day ago yet)<br>switching euid to 0 and egid to 0<br></code></pre></td></tr></table></figure>
 
 
             </div>
