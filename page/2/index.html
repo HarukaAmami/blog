@@ -181,6 +181,191 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">Linux 快速删除海量文件</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">
+          
+          
+            
+          
+          Linux 快速删除海量文件Linux快速删除海量小文件
+事前提要：
+有人在群里提出：删除海量小文件，例如日志文件，用什么命令会快些。
+这里提供几个思路
+
+使用 rm -f * 命令删除该文件夹内的所有文件（不能在公司服务器使用）
+使用 ls -l | awk ‘{print “rm -f”,$9}’ | sh 命令删除该文件夹内所有的文件
+使用 ls | xargs rm -r 命令删除该文件夹
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-27 23:17" pubdate>
+              2022-03-27
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/03/27/php%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E9%81%87%E5%88%B0%E7%9A%84%E5%9D%91-%E5%90%88%E9%9B%86/">php编译安装遇到的坑(合集)</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/27/php%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E9%81%87%E5%88%B0%E7%9A%84%E5%9D%91-%E5%90%88%E9%9B%86/">
+          
+          
+            
+          
+          php编译安装遇到的坑(合集)在centos7.6编译php7.4出现configure: WARNING: unrecognized options: –with-gd的问题
+1configure: WARNING: unrecognized options: –-with-gd
+
+解决方法：
+使用–enable-gd替代–with-gd
+原因：
+–with-gd becomes –enable
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-27 23:10" pubdate>
+              2022-03-27
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/php/">php</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/03/22/CentOS7%E5%AE%89%E8%A3%85PHP-Composer/">CentOS7安装PHP Composer</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/22/CentOS7%E5%AE%89%E8%A3%85PHP-Composer/">
+          
+          
+            
+          
+          CentOS7 安装PHP Composer安装最新版本的composercomposer.phar官网：https://getcomposer.org/
+一、安装php安装过程略
+二、下载composer.phar文件前提需要设定全局的环境变量（/etc/profile或/etc/profile.d/xxx.sh）（略）
+1curl -sS https://getcomposer.org/ins
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-22 23:01" pubdate>
+              2022-03-22
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-PHP-Composer/">Linux PHP Composer</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/03/05/Https%E8%AF%B7%E6%B1%82%E6%8A%A5%E9%94%99blocked-mixed-content%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/">Https请求报错blocked:mixed-content问题的解决</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/05/Https%E8%AF%B7%E6%B1%82%E6%8A%A5%E9%94%99blocked-mixed-content%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/">
+          
+          
+            
+          
+          一、问题描述使用修改nginx配置，将项目中http请求改成https后，发现有的接口出现了“**blocked:mixed-content**”的问题
+问题截图
+
+
+二、问题分析原本使用http请求时没有出现这个错误的，但是后来改为使用https做请求就出现了这个问题。那问题就出现在由http转跳到https里了。
+然后寻找资料后发现了“**blocked:mixed-content**”的含义
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-05 22:17" pubdate>
+              2022-03-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Nginx-Https/">Linux Nginx Https</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/blog/2022/03/05/zabbix5-0%E5%AE%9E%E7%8E%B0%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6/">zabbix5.0实现钉钉告警</a>
       </h1>
 
@@ -427,11 +612,11 @@ jks(java key store)：java用的存储密钥的容器。可以同时容纳n个�
           
             
           
-          Nexus配置HTTPSNexus开始HTTPS方式大概分为两种，一种为Nexus服务本身开启SSL代理，两外一种使用Nginx进行反向代理实现HTTPS
-nexus配置jks证书实现https参考博客：
-https://blog.51cto.com/yangzhiming/2384050
-https://www.cnblogs.com/Smbands/p/14430775.html
-通过ngin
+          Nexus 基本概念Nexus 是架设在局域网的一种特殊的远程仓库，目的是代理远程仓库及部署第三方构件。
+Nexus 同时也是是一个强大的 Maven 仓库管理器，它极大地简化了自己内部仓库的维护和外部仓库的访问。有了Nexus私服之后，当 Maven 需要下载构件时，直接请求私服，私服上存在则下载到本地仓库；否则，私服请求外部的远程仓库，将构件下载到私服，再提供给本地仓库下载。
+
+
+Nexus 
         </a>
       </p>
 
@@ -450,189 +635,6 @@ https://www.cnblogs.com/Smbands/p/14430775.html
             <i class="iconfont icon-tags"></i>
             
               <a href="/blog/tags/Linux-Nexus/">Linux Nexus</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/26/CentOS7-%E5%AE%89%E8%A3%85MySQL-Client/">CentOS7 安装MySQL Client</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/26/CentOS7-%E5%AE%89%E8%A3%85MySQL-Client/">
-          
-          
-            
-          
-          CentOS7 安装MySQL Client123456#添加rpm源# rpm -ivh https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm#通过yum搜索# yum search mysql-community#安装x64位的 mysql客户端# yum install mysql-community-clie
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-26 12:13" pubdate>
-              2022-02-26
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-MySQL/">Linux MySQL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix_titie.jpg" srcset="/blog/img/loading.gif" alt="使用zabbix5.0的Template DB MySQL模板来监控数据库">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/">使用zabbix5.0的Template DB MySQL模板来监控数据库</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/">
-          
-          
-            
-          
-          使用zabbix5.0的Template DB MySQL模板来监控数据库一、安装zabbix-agent安装过程略
-二、添加zabbix-agent模板123456789101112131415161718# find / -name userparameter_mysql.conf/usr/local/src/zabbix-5.0.0/conf/zabbix_agentd/userparame
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-26 12:04" pubdate>
-              2022-02-26
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-zabbix/">Linux zabbix</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/03/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="CentOS7使用yum安装Elasticsearch7.X">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/03/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Elasticsearch/">CentOS7使用yum安装Elasticsearch7.X</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/03/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Elasticsearch/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-03 16:49" pubdate>
-              2022-02-03
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-elasticsearch/">Linux elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/02/Elasticsearch%E8%AE%BE%E7%BD%AE%E5%9F%BA%E6%9C%AC%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elasticsearch设置基本安全认证配置">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/02/Elasticsearch%E8%AE%BE%E7%BD%AE%E5%9F%BA%E6%9C%AC%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE/">Elasticsearch设置基本安全认证配置</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/02/Elasticsearch%E8%AE%BE%E7%BD%AE%E5%9F%BA%E6%9C%AC%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-02 11:00" pubdate>
-              2022-02-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-elasticsearch/">Linux elasticsearch</a>
             
           </div>
         
