@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="rlin">
   <meta name="keywords" content="">
-  <title>标签 - Linux zabbix - rlin的运维笔记</title>
+  <title>标签 - linux zabbix - rlin的运维笔记</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
 
@@ -146,7 +146,7 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="标签 - Linux zabbix">
+            <span class="h2" id="subtitle" title="标签 - linux zabbix">
               
             </span>
 
@@ -175,23 +175,17 @@
                 
 
 <div class="list-group">
-  <p class="h4">共计 2 篇文章</p>
+  <p class="h4">共计 1 篇文章</p>
   <hr>
   
   
     
       
-      <p class="h5">2022</p>
+      <p class="h5">2021</p>
     
-    <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">使用zabbix5.0的Template DB MySQL模板来监控数据库</span>
-      <time style="float: right;">02-26</time>
-    </a>
-  
-    
-    <a href="/blog/2022/02/02/CentOS7%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85zabbix5.0/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">CentOS7源码编译安装zabbix5.0</span>
-      <time style="float: right;">02-02</time>
+    <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%9B%91%E6%8E%A7%E6%9C%8D%E5%8A%A1Zabbix/" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">企业级监控服务Zabbix</span>
+      <time style="float: right;">09-02</time>
     </a>
   
 </div>
@@ -314,6 +308,36 @@
   <script>
     (function () {
       var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>
+log/local-search.xml";
       var inputArea = document.querySelector("#local-search-input");
       inputArea.onclick = function () {
         searchFunc(path, 'local-search-input', 'local-search-result');

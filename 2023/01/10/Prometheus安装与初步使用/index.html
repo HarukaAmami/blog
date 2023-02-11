@@ -1,0 +1,904 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Prometheus安装与初步使用 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Prometheus安装与初步使用">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-01-10 10:57" pubdate>
+        2023年1月10日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      111
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Prometheus安装与初步使用</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Prometheus-安装与初步使用"><a href="#Prometheus-安装与初步使用" class="headerlink" title="Prometheus 安装与初步使用"></a>Prometheus 安装与初步使用</h1><p>系统：CentOS 7.9</p>
+<p>配置：4cpu、2g内存</p>
+<p>安装软件：prometheus server、node_exporter</p>
+<h1 id="一、安装前准备"><a href="#一、安装前准备" class="headerlink" title="一、安装前准备"></a>一、安装前准备</h1><h2 id="1-1-设置时区"><a href="#1-1-设置时区" class="headerlink" title="1.1 设置时区"></a>1.1 设置时区</h2><ol>
+<li><p>查看时区</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#查看时区是否正确</span><br><span class="hljs-comment"># timedatectl status</span><br>     Local time: Fri 2022-12-30 21:15:08 CST<br>  Universal time: Fri 2022-12-30 13:15:08 UTC<br>        RTC time: Fri 2022-12-30 13:15:10<br>       Time zone: Asia/Shanghai (CST, +0800)<br>     NTP enabled: n/a<br>NTP synchronized: no<br> RTC <span class="hljs-keyword">in</span> <span class="hljs-built_in">local</span> TZ: no<br>      DST active: n/a<br><span class="hljs-comment">#或</span><br><span class="hljs-comment"># ll /etc/localtime </span><br>lrwxrwxrwx. 1 root root 35 Nov  3 15:46 /etc/localtime -&gt; ../usr/share/zoneinfo/Asia/Shanghai<br></code></pre></td></tr></table></figure></li>
+<li><p>设置时区（时区出现错误）</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># timedatectl set-timezone Asia/Shanghai</span><br><span class="hljs-comment">#或</span><br><span class="hljs-comment">#rm -f /etc/localtime \</span><br><span class="hljs-comment">#ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br></code></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="1-2-时间同步"><a href="#1-2-时间同步" class="headerlink" title="1.2 时间同步"></a>1.2 时间同步</h2><ol>
+<li><p>安装ntpdate</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># yum install -y ntpdate</span><br></code></pre></td></tr></table></figure></li>
+<li><p>添加定时任务</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># crontab -e</span><br>5 * * * * /usr/sbin/ntpdate -u ntp1.aliyun.com &gt;/dev/null &amp; <span class="hljs-comment">#设置每5分钟同步一次时间</span><br><br><span class="hljs-comment">#查看定时任务</span><br><span class="hljs-comment"># crontab -l</span><br>5 * * * * /usr/sbin/ntpdate -u ntp1.aliyun.com &gt;/dev/null &amp; <br></code></pre></td></tr></table></figure>
+
+<p>ntp常用服务器</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs stylus">中国国家授时中心：<span class="hljs-number">210.72</span>.<span class="hljs-number">145.44</span><br>NTP服务器(上海) ：ntp<span class="hljs-selector-class">.api</span><span class="hljs-selector-class">.bz</span><br>美国： <span class="hljs-selector-tag">time</span><span class="hljs-selector-class">.nist</span><span class="hljs-selector-class">.gov</span><br>复旦： ntp<span class="hljs-selector-class">.fudan</span><span class="hljs-selector-class">.edu</span><span class="hljs-selector-class">.cn</span><br>微软公司授时主机(美国) ：<span class="hljs-selector-tag">time</span><span class="hljs-selector-class">.windows</span><span class="hljs-selector-class">.com</span><br>北京邮电大学 : s1a<span class="hljs-selector-class">.time</span><span class="hljs-selector-class">.edu</span><span class="hljs-selector-class">.cn</span><br>清华大学 : s1b<span class="hljs-selector-class">.time</span><span class="hljs-selector-class">.edu</span><span class="hljs-selector-class">.cn</span><br>北京大学 : s1c<span class="hljs-selector-class">.time</span><span class="hljs-selector-class">.edu</span><span class="hljs-selector-class">.cn</span><br>台警大授时中心(台湾)：asia<span class="hljs-selector-class">.pool</span><span class="hljs-selector-class">.ntp</span><span class="hljs-selector-class">.org</span><br>阿里云：ntp1<span class="hljs-selector-class">.aliyun</span>.com，ntp2<span class="hljs-selector-class">.aliyun</span>.com，time1<span class="hljs-selector-class">.aliyun</span>.com，time2<span class="hljs-selector-class">.aliyun</span>.com<br></code></pre></td></tr></table></figure></li>
+</ol>
+<h1 id="二、安装Prometheus-Server"><a href="#二、安装Prometheus-Server" class="headerlink" title="二、安装Prometheus Server"></a>二、安装Prometheus Server</h1><h2 id="2-1-二进制安装Prometheus-Server"><a href="#2-1-二进制安装Prometheus-Server" class="headerlink" title="2.1 二进制安装Prometheus Server"></a>2.1 二进制安装Prometheus Server</h2><p>prometheus的监听端口为：9090</p>
+<h3 id="2-1-1-下载并解压Prometheus-Server"><a href="#2-1-1-下载并解压Prometheus-Server" class="headerlink" title="2.1.1 下载并解压Prometheus Server"></a>2.1.1 下载并解压Prometheus Server</h3><p>Prometheus官方下载地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://prometheus.io/download/<br></code></pre></td></tr></table></figure>
+
+<p>Prometheus GitHub地址</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/prometheus/prometheus<br></code></pre></td></tr></table></figure>
+
+<p>从官方或者github下载prometheus页面，选择对应系统的版本进行下载。</p>
+<blockquote>
+<p>注意：官方的下载页面只显示最新版的prometheus，而github可以找到最新和以前的版本的prometheus。</p>
+</blockquote>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-1.png" srcset="/blog/img/loading.gif"></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#创建存放prometheus的文件夹</span><br><span class="hljs-comment"># mkdir -p /apps</span><br><span class="hljs-comment">#进入文件夹</span><br><span class="hljs-comment"># cd /apps</span><br><span class="hljs-comment">#下载prometheus最新的LTS版本</span><br><span class="hljs-comment"># wget https://github.com/prometheus/prometheus/releases/download/v2.37.5/prometheus-2.37.5.linux-amd64.tar.gz</span><br><span class="hljs-comment">#解压prometheus</span><br><span class="hljs-comment"># tar xvf prometheus-2.37.5.linux-amd64.tar.gz</span><br><span class="hljs-comment">#给prometheus做软连接</span><br><span class="hljs-comment"># ln -sv /apps/prometheus-2.37.5.linux-amd64 /apps/prometheus</span><br>‘/apps/prometheus’ -&gt; ‘/apps/prometheus-2.37.5.linux-amd64’<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-2-前台启动Prometheus-Server"><a href="#2-1-2-前台启动Prometheus-Server" class="headerlink" title="2.1.2 前台启动Prometheus Server"></a>2.1.2 前台启动Prometheus Server</h3><ol>
+<li><strong>启动prometheus</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /apps/prometheus</span><br><span class="hljs-comment"># ls</span><br>console_libraries  consoles  LICENSE  NOTICE  prometheus  prometheus.yml  promtool<br><span class="hljs-comment"># ./prometheus</span><br>ts=2022-12-30T14:09:34.183Z <span class="hljs-built_in">caller</span>=main.go:491 level=info msg=<span class="hljs-string">&quot;No time or size retention was set so using the default time retention&quot;</span> duration=15d<br>ts=2022-12-30T14:09:34.183Z <span class="hljs-built_in">caller</span>=main.go:535 level=info msg=<span class="hljs-string">&quot;Starting Prometheus Server&quot;</span> mode=server version=<span class="hljs-string">&quot;(version=2.37.5, branch=HEAD, revision=8d25a0867918173e501b417e7acd85861df8fb0e)&quot;</span><br>......<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-2.png" srcset="/blog/img/loading.gif"></p>
+<ol start="2">
+<li><strong>查看prometheus端口和进程</strong></li>
+</ol>
+<p>在终端打开新的窗口，查看prometheus的端口和进程。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*                  <br><span class="hljs-comment"># ps -ef | grep prometheus</span><br>root       1663   1305  0 22:09 pts/0    00:00:00 ./prometheus<br>root       1687   1377  0 22:12 pts/1    00:00:00 grep --color=auto prometheus<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-3-后台启动Prometheus-Server"><a href="#2-1-3-后台启动Prometheus-Server" class="headerlink" title="2.1.3 后台启动Prometheus Server"></a>2.1.3 后台启动Prometheus Server</h3><h4 id="2-1-3-1-方法一"><a href="#2-1-3-1-方法一" class="headerlink" title="2.1.3.1 方法一"></a>2.1.3.1 方法一</h4><ol>
+<li><strong>配置prometheus server的systemd文件</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># vim /usr/lib/systemd/system/prometheus.service</span><br>[Unit]<br>Description=Monitoring system and time series database<br>Documentation=https://prometheus.io/docs/introduction/overview/<br>After=network.target<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/prometheus/ <span class="hljs-comment">#路径根据需求修改</span><br>ExecStart=/apps/prometheus/prometheus --config.file=/apps/prometheus/prometheus.yml --web.enable-lifecycle<br>ExecReload=/bin/<span class="hljs-built_in">kill</span> -HUP <span class="hljs-variable">$MAINPID</span><br>User=prometheus<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<p>公司生产配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/prometheus.service</span><br>[Unit]<br>Description=Monitoring system and time series database<br>Documentation=https://prometheus.io/docs/introduction/overview/<br>After=network.target<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/prometheus/ #路径根据需求修改<br>ExecStart=/apps/prometheus/prometheus --config.file=/apps/prometheus/prometheus.yml --web.enable-lifecycle --storage.tsdb.retention.time=1y --storage.tsdb.retention.size=1024MB<br>ExecReload=/bin/kill -HUP $MAINPID<br>User=prometheus<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>添加prometheus用户</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># useradd -M -r -s /usr/sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>给prometheus二进制文件修改所属主和所属组</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># chown -R prometheus.prometheus /apps/prometheus-2.37.5.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>启动prometheus</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># systemctl daemon-reload</span><br><span class="hljs-comment"># systemctl enable --now prometheus #该命令有启动prometheus和设置prometheus开机的作用</span><br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><strong>查看prometheus的端口、进程和状态</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*<br><span class="hljs-comment"># ps aux | grep prometheus</span><br>prometh+   1763  0.0  6.3 916192 63040 ?        Ssl  18:25   0:00 /apps/prometheus/prometheus --config.file=/apps/prometheus/prometheus.yml<br>root       1820  0.0  0.0 112812   968 pts/0    R+   18:30   0:00 grep --color=auto prometheus<br><span class="hljs-comment"># systemctl status prometheus</span><br>● prometheus.service - Monitoring system and time series database<br>   Loaded: loaded (/usr/lib/systemd/system/prometheus.service; enabled; vendor preset: disabled)<br>   Active: active (running) since Tue 2023-01-03 18:25:53 CST; 5min ago<br>     Docs: https://prometheus.io/docs/introduction/overview/<br> Main PID: 1763 (prometheus)<br>   CGroup: /system.slice/prometheus.service<br>           └─1763 /apps/prometheus/prometheus --config.file=/apps/prometheus/prometheus.yml<br><br>Jan 03 18:25:54 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:25:54.074Z <span class="hljs-built_in">caller</span>=main.go:993 level=info fs_type=...MAGIC<br>Jan 03 18:25:54 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:25:54.074Z <span class="hljs-built_in">caller</span>=main.go:996 level=info msg=<span class="hljs-string">&quot;TSD...rted&quot;</span><br>Jan 03 18:25:54 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:25:54.074Z <span class="hljs-built_in">caller</span>=main.go:1177 level=info msg=<span class="hljs-string">&quot;Lo...s.yml</span><br><span class="hljs-string">Jan 03 18:26:14 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:14.077Z caller=main.go:1214 level=info msg=&quot;</span>Complet…µs<br>Jan 03 18:26:14 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:14.077Z <span class="hljs-built_in">caller</span>=main.go:957 level=info msg=<span class="hljs-string">&quot;Ser...sts.&quot;</span><br>Jan 03 18:26:14 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:14.077Z <span class="hljs-built_in">caller</span>=manager.go:941 level=info compo...r...<span class="hljs-string">&quot;</span><br><span class="hljs-string">Jan 03 18:26:30 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:30.621Z caller=compact.go:510 level=info compo...221ms</span><br><span class="hljs-string">Jan 03 18:26:30 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:30.622Z caller=head.go:842 level=info componen…90.23µs</span><br><span class="hljs-string">Jan 03 18:26:30 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:30.622Z caller=checkpoint.go:97 level=info com...00000</span><br><span class="hljs-string">Jan 03 18:26:30 CentOS7.9 prometheus[1763]: ts=2023-01-03T10:26:30.631Z caller=head.go:1018 level=info compone...829ms</span><br><span class="hljs-string">Hint: Some lines were ellipsized, use -l to show in full.</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="2-1-3-2-方法二："><a href="#2-1-3-2-方法二：" class="headerlink" title="2.1.3.2 方法二："></a>2.1.3.2 方法二：</h4><ol>
+<li>安装screen</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> yum install -y screen</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>输入screen命令，进入到别的终端</li>
+</ol>
+<figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">screen</span><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>进入prometheus按安装目录，启动prometheus</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /apps/prometheus<br>./prometheus<br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>退出该终端</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">按ctrl+a+d<br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>查看screen进程</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">screen -ls<br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>返回开启了prometheus的终端里（先查看终端进程）</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">screen -r sessionid<br></code></pre></td></tr></table></figure>
+
+<p>使用<code>screen</code>不足的地方：</p>
+<ol>
+<li>不够正规化。</li>
+<li>screen -l 提供的后台列表不够任性话，很多时候记不住到底哪个是哪个</li>
+<li>很容易误关闭，在操作的时候原本验ctrl+a+d变成了按ctrl +d，就会直接退出去了</li>
+</ol>
+<h4 id="2-1-3-3-方法三："><a href="#2-1-3-3-方法三：" class="headerlink" title="2.1.3.3 方法三："></a>2.1.3.3 方法三：</h4><p>使用daemonize。</p>
+<ol>
+<li>安装daemonize</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">wget https://github.com/bmc/daemonize/archive/refs/tags/release-1.7.8.tar.gz<br>tar xf elease-1.7.8.tar.gz<br>cd /root/daemonize-release-1.7.8<br>sh configure<br>make &amp;&amp; make install<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>编写prometheus启动脚本</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">vim /apps/prometheus/prometheus_up.sh<br>/apps/prometheus/prometheus --web.listen-address=&quot;0.0.0.0:9090&quot; --web.read-timeout=5m --web.max-connections=10 --storage.tsdb.retention=15d --storage.tsdb.path=&quot;/apps/prometheus/data/&quot; --query.max-concurrency=20 --query.timeout=2m<br></code></pre></td></tr></table></figure>
+
+<p>解释：</p>
+<p><code>--web.read-timeout=5m</code>：请求连接的最大等待时间</p>
+<p><code>--web.max-connections=10</code>：最大连接数</p>
+<p><code>--storage.tsdb.retention=15d</code>：设置prometheus采集的数据保留期限。（在企业中建议设置为15天）</p>
+<p><code>--storage.tsdb.path=&quot;/apps/prometheus/data/&quot;</code>：存储数据的路径</p>
+<p><code> --query.max-concurrency=20</code>：prometheus设置并发执行的最大查询数</p>
+<p><code>--query.timeout=2m</code>：prometheus设置查询超时时间</p>
+<h3 id="2-1-3-打开浏览器查看prometheus-Server界面"><a href="#2-1-3-打开浏览器查看prometheus-Server界面" class="headerlink" title="2.1.3 打开浏览器查看prometheus Server界面"></a>2.1.3 打开浏览器查看prometheus Server界面</h3><p>浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">ip地址:9090<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-3.png" srcset="/blog/img/loading.gif"></p>
+<p>注意：因为prometheus没有账号密码验证，如果觉得有需要可以通过nginx（或httpd）进行添加。</p>
+<h2 id="2-2-docker安装Prometheus"><a href="#2-2-docker安装Prometheus" class="headerlink" title="2.2 docker安装Prometheus"></a>2.2 docker安装Prometheus</h2><h3 id="2-2-1-安装docker"><a href="#2-2-1-安装docker" class="headerlink" title="2.2.1 安装docker"></a>2.2.1 安装docker</h3><p>安装过程略</p>
+<h3 id="2-2-2-安装prometheus"><a href="#2-2-2-安装prometheus" class="headerlink" title="2.2.2 安装prometheus"></a>2.2.2 安装prometheus</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># docker run -p 9090:9090 prom/prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="三、安装node-exporter"><a href="#三、安装node-exporter" class="headerlink" title="三、安装node_exporter"></a>三、安装node_exporter</h1><p>node_exporter：监听端口为：9100</p>
+<p>prometheus官方下载地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://prometheus.io/download/<br></code></pre></td></tr></table></figure>
+
+<p>github地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/prometheus/mysqld_exporter<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-1-下载并解压-node-exporter"><a href="#3-1-下载并解压-node-exporter" class="headerlink" title="3.1 下载并解压 node_exporter"></a>3.1 下载并解压 node_exporter</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#进入安装目录</span><br><span class="hljs-comment"># cd /apps</span><br><span class="hljs-comment">#下载node_exporter</span><br><span class="hljs-comment"># wget https://github.com/prometheus/node_exporter/releases/download/v1.5.0/node_exporter-1.5.0.linux-amd64.tar.gz</span><br><span class="hljs-comment">#解压node_exporter</span><br><span class="hljs-comment"># tar xf node_exporter-1.5.0.linux-amd64.tar.gz</span><br><span class="hljs-comment">#做软连接</span><br><span class="hljs-comment">#ln -s node_exporter-1.5.0.linux-amd64 /apps/prometheus-node_exporter</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-启动-node-exporter"><a href="#3-2-启动-node-exporter" class="headerlink" title="3.2 启动 node_exporter"></a>3.2 启动 node_exporter</h2><h3 id="3-2-1-前台启动-node-exporter"><a href="#3-2-1-前台启动-node-exporter" class="headerlink" title="3.2.1 前台启动 node_exporter"></a>3.2.1 前台启动 node_exporter</h3><ol>
+<li><strong>前台启动node_exporter</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /apps/prometheus-node_exporter</span><br><span class="hljs-comment"># ./node_exporter</span><br>ts=2022-12-31T13:53:58.857Z <span class="hljs-built_in">caller</span>=node_exporter.go:180 level=info msg=<span class="hljs-string">&quot;Starting node_exporter&quot;</span> version=<span class="hljs-string">&quot;(version=1.5.0, branch=HEAD, revision=1b48970ffcf5630534fb00bb0687d73c66d1c959)&quot;</span><br>......<br>ts=2022-12-31T13:53:58.859Z <span class="hljs-built_in">caller</span>=tls_config.go:232 level=info msg=<span class="hljs-string">&quot;Listening on&quot;</span> address=[::]:9100<br>ts=2022-12-31T13:53:58.859Z <span class="hljs-built_in">caller</span>=tls_config.go:235 level=info msg=<span class="hljs-string">&quot;TLS is disabled.&quot;</span> http2=<span class="hljs-literal">false</span> address=[::]:9100 <span class="hljs-comment">#启动端口为9100</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>查看node_exporter端口和进程</strong></li>
+</ol>
+<p>在终端打开新的窗口，查看node_exporter的端口（9100）和进程。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:9100                                     [::]:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*<br><br><span class="hljs-comment"># ps -ef | grep node_exporter</span><br>root       2951   2914  0 21:53 pts/1    00:00:00 ./node_exporter<br>root       2989   2965  0 21:56 pts/2    00:00:00 grep --color=auto node_exporter<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-2-后台启动node-exporter"><a href="#3-2-2-后台启动node-exporter" class="headerlink" title="3.2.2 后台启动node_exporter"></a>3.2.2 后台启动node_exporter</h3><ol>
+<li><strong>配置node_exporter的systemd文件</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># vim /usr/lib/systemd/system/prometheus-node_exporter.service</span><br>[Unit]<br>Description=Prometheus exporter <span class="hljs-keyword">for</span> machine metrics<br>Documentation=https://github.com/prometheus/node_exporter<br>After=network.target<br><br>[Service]<br>ExecStart=/apps/prometheus-node_exporter/node_exporter<br>ExecReload=/bin/<span class="hljs-built_in">kill</span> -HUP <span class="hljs-variable">$MAINPID</span><br>User=prometheus<br>Restart=always<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><strong>添加prometheus用户</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># useradd -M -r -s /usr/sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><strong>给node_exporter二进制文件修改所属主和所属组</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># chown -R prometheus.prometheus /apps/node_exporter-1.5.0.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><strong>启动node_exporter</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># systemctl daemon-reload</span><br><span class="hljs-comment"># systemctl enable --now prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li><strong>查看node_exporter的端口，进程和状态</strong></li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*                  <br>LISTEN     0      128                          [::]:9100                                     [::]:*<br><span class="hljs-comment"># ps aux | grep node_exporter</span><br>prometh+   2125  0.0  1.3 724656 13092 ?        Ssl  19:00   0:00 /apps/prometheus-node_exporter/node_exporter<br>root       2194  0.0  0.0 112812   976 pts/0    R+   19:07   0:00 grep --color=auto node_exporter<br><span class="hljs-comment"># systemctl status prometheus-node_exporter.service </span><br>● prometheus-node_exporter.service - Prometheus exporter <span class="hljs-keyword">for</span> machine metrics<br>   Loaded: loaded (/usr/lib/systemd/system/prometheus-node_exporter.service; enabled; vendor preset: disabled)<br>   Active: active (running) since Tue 2023-01-03 19:00:04 CST; 8min ago<br>     Docs: https://github.com/prometheus/node_exporter<br> Main PID: 2125 (node_exporter)<br>   CGroup: /system.slice/prometheus-node_exporter.service<br>           └─2125 /apps/prometheus-node_exporter/node_exporter<br><br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i..._zone<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...=time<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...timex<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...ueues<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...uname<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...mstat<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...r=xfs<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.919Z <span class="hljs-built_in">caller</span>=node_exporter.go:117 level=i...r=zfs<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.920Z <span class="hljs-built_in">caller</span>=tls_config.go:232 level=info...:9100<br>Jan 03 19:00:04 CentOS7.9 node_exporter[2125]: ts=2023-01-03T11:00:04.920Z <span class="hljs-built_in">caller</span>=tls_config.go:235 level=info...:9100<br>Hint: Some lines were ellipsized, use -l to show <span class="hljs-keyword">in</span> full.<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-4-测试node-expoter"><a href="#3-4-测试node-expoter" class="headerlink" title="3.4 测试node_expoter"></a>3.4 测试node_expoter</h2><ol>
+<li><p><strong>通过浏览器查看node_exporter是否启动</strong></p>
+<ul>
+<li>浏览器访问：</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">ip:9100<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-6.png" srcset="/blog/img/loading.gif"></p>
+</li>
+<li><p><strong>通过终端node_exporter是否能采集数据</strong></p>
+</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># curl localhost:9100/metrics</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-5.png" srcset="/blog/img/loading.gif"></p>
+<p>可以看出node_exporter返回的是 key/value 数据</p>
+<ol start="3">
+<li><p><strong>通过浏览器查看node_exporter是否采集到数据</strong></p>
+<ul>
+<li>浏览器访问：</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">ip:9100/metrics<br></code></pre></td></tr></table></figure></li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-7.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="3-5-对node-exporter显示结果的解释"><a href="#3-5-对node-exporter显示结果的解释" class="headerlink" title="3.5 对node_exporter显示结果的解释"></a>3.5 对node_exporter显示结果的解释</h2><p>每一个监控指标之前都会有一段类似于如下形式的信息：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-comment"># HELP node_cpu_seconds_total Seconds the CPUs spent in each mode.</span><br><span class="hljs-comment"># TYPE node_cpu_seconds_total counter</span><br><span class="hljs-attribute">node_cpu_seconds_total</span>&#123;cpu=<span class="hljs-string">&quot;0&quot;</span>,mode=<span class="hljs-string">&quot;idle&quot;</span>&#125; <span class="hljs-number">25613</span>.<span class="hljs-number">109</span><br><span class="hljs-comment"># HELP node_load1 1m load average.</span><br><span class="hljs-comment"># TYPE node_load1 gauge</span><br><span class="hljs-attribute">node_load1</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>其中HELP用于解释当前指标的含义，TYPE则说明当前指标的数据类型。在上面的例子中<code>node_cpu_seconds_total</code>的注释表明当前指标是<code>cpu0</code>上<code>idle</code>进程占用CPU的总时间，CPU占用时间是一个只增不减的度量指标，从类型中也可以看出<code>node_cpu_seconds_total</code>的数据类型是计数器(counter)，与该指标的实际含义一致。又例如<code>node_load1</code>该指标反映了当前主机在最近一分钟以内的负载情况，系统的负载情况会随系统资源的使用而变化，因此<code>node_load1</code>反映的是当前状态，数据可能增加也可能减少，从注释中可以看出当前指标类型为仪表盘(gauge)，与指标反映的实际含义一致。</p>
+<p>除了这些以外，在当前页面中根据物理主机系统的不同，你还可能看到如下监控指标：</p>
+<ul>
+<li>node_boot_time：系统启动时间</li>
+<li>node_cpu：系统CPU使用量</li>
+<li>node*disk**：磁盘IO</li>
+<li>node*filesystem**：文件系统用量</li>
+<li>node_load1：系统负载</li>
+<li>node*memeory**：内存使用量</li>
+<li>node*network**：网络带宽</li>
+<li>node_time：当前系统时间</li>
+<li>go_*：node exporter中go相关指标</li>
+<li>process_*：node exporter自身进程相关运行指标</li>
+</ul>
+<h2 id="3-6-shell脚本安装node-exporter"><a href="#3-6-shell脚本安装node-exporter" class="headerlink" title="3.6 shell脚本安装node_exporter"></a>3.6 shell脚本安装node_exporter</h2><p>略</p>
+<h2 id="3-7-补充2：批量部署node-exporter"><a href="#3-7-补充2：批量部署node-exporter" class="headerlink" title="3.7 补充2：批量部署node_exporter"></a>3.7 补充2：批量部署node_exporter</h2><h2 id="3-6-1-ansible批量部署"><a href="#3-6-1-ansible批量部署" class="headerlink" title="3.6.1 ansible批量部署"></a>3.6.1 ansible批量部署</h2><p>略</p>
+<h2 id="3-6-2-shell脚本批量部署"><a href="#3-6-2-shell脚本批量部署" class="headerlink" title="3.6.2 shell脚本批量部署"></a>3.6.2 shell脚本批量部署</h2><p>略</p>
+<h1 id="四、Prometheus从node-exporter收集数据"><a href="#四、Prometheus从node-exporter收集数据" class="headerlink" title="四、Prometheus从node_exporter收集数据"></a>四、Prometheus从node_exporter收集数据</h1><p>prometheus从node_exporter获取数据的路程图：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-21.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="4-1修改prometheus配置文件"><a href="#4-1修改prometheus配置文件" class="headerlink" title="4.1修改prometheus配置文件"></a>4.1修改prometheus配置文件</h2><p>为了能够让Prometheus Server能够从当前node exporter获取到监控数据，这里需要修改Prometheus配置文件。编辑prometheus.yml并在scrape_configs配置下添加以下内容:</p>
+<p><strong>这里提供两种的添加node_exporter方式</strong></p>
+<ol>
+<li>有指定<code>job_name</code>的方式</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">vim</span> <span class="hljs-string">/apps/prometheus/prometheus.yml</span><br><span class="hljs-string">......</span><br><span class="hljs-attr">scrape_configs:</span><br>  <span class="hljs-comment"># The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&quot;prometheus&quot;</span><br><br>    <span class="hljs-comment"># metrics_path defaults to &#x27;/metrics&#x27;</span><br>    <span class="hljs-comment"># scheme defaults to &#x27;http&#x27;.</span><br><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">&quot;localhost:9090&quot;</span>]<br><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&quot;node&quot;</span><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">&quot;localhost:9100&quot;</span>] <span class="hljs-comment">#node_exporter端口为9100，且安装在同一台服务器，所以这里使用“localhost:9100”</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>不指定<code>job_name</code>的方式</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">......</span><br><span class="hljs-attr">scrape_configs:</span><br>  <span class="hljs-comment"># The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&quot;prometheus&quot;</span><br><br>    <span class="hljs-comment"># metrics_path defaults to &#x27;/metrics&#x27;</span><br>    <span class="hljs-comment"># scheme defaults to &#x27;http&#x27;.</span><br><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">&quot;localhost:9090&quot;</span>,<span class="hljs-string">&quot;localhost:9100&quot;</span>] <span class="hljs-comment">#node_exporter端口为9100，且安装在同一台服务器，所以这里使用“localhost:9100”</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="4-2-重启prometheus"><a href="#4-2-重启prometheus" class="headerlink" title="4.2 重启prometheus"></a>4.2 重启prometheus</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="4-3-查看prometheus-server结果"><a href="#4-3-查看prometheus-server结果" class="headerlink" title="4.3 查看prometheus server结果"></a>4.3 查看prometheus server结果</h2><p>浏览器访问</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">ip:9090<br></code></pre></td></tr></table></figure>
+
+<p>在搜索框里输入“up”，点击“Execute”</p>
+<p>点击<strong>Table</strong>查看key/value结果</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-8.png" srcset="/blog/img/loading.gif"></p>
+<p>点击<strong>Graph</strong>查看图像结果</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-9.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="五、Prometheus配置"><a href="#五、Prometheus配置" class="headerlink" title="五、Prometheus配置"></a>五、Prometheus配置</h1><p>如果查看“node_exporter”的监控项？</p>
+<p>我们可以进入prometheus的“node_exporter”的github页面进行查看</p>
+<p>“node_exporter”的github网址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/prometheus/node_exporter<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="六、Prometheus存储"><a href="#六、Prometheus存储" class="headerlink" title="六、Prometheus存储"></a>六、Prometheus存储</h1><h2 id="6-1-本地存储"><a href="#6-1-本地存储" class="headerlink" title="6.1 本地存储"></a>6.1 本地存储</h2><p>Prometheus的本地时间序列数据库将时间序列数据以自定义格式存储在磁盘上。</p>
+<h3 id="6-1-1-磁盘布局"><a href="#6-1-1-磁盘布局" class="headerlink" title="6.1.1 磁盘布局"></a>6.1.1 磁盘布局</h3><p>摄入的采样每两个小时被分成一个block。每个block由一个包含一个或多个chunk文件的目录组成，其中，这些chunk文件包含该时间窗口的所有时间序列采样，以及一个元数据文件和索引文件（对块文件中的时间序列指标名称和标签进行索引）。当通过API删除时间序列时，删除的记录存储在单独的tombstone文件中（而不是立即从chunk文件中删除数据）。</p>
+<p>当前输入采样的block保存在内存中，尚未完全持久化。当Prometheus服务器在崩溃后重新启动时，可以通过write-ahead-log（WAL）来防止崩溃。write-ahead-log文件以128MB的段存储在<code>wal</code>目录中。这些文件包含尚未压缩的原始数据，因此比常规块文件大得多。Prometheus将保留至少3个write-ahead-log文件，然而高流量的服务器可能会看到超过3个WAL文件，因为它需要保留至少两个小时的原始数据。</p>
+<p><strong>Prometheus服务器的数据目录的目录结构如下：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus/data</span><br><span class="hljs-meta">#</span><span class="bash"> tree</span><br>.<br>├── 01GP35FACBN55E2P86S22BSGH2<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP35FAKJJ1BWX539QK33H527<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP35FB31385463Y2MP7VGEX1<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP35FB7T6RQPZ4JMH89C33T3<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP35FC07T1W5MWG4XQ09F5B5<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP35FCT2QZABBDYDG02E8TNF<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP50YGV0FQEH0XHVMGSJ6NTH<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP5Y6H9WCR3T3F40AAGV9WA8<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP7J38TB5171Q392V5RRFT1X<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP7J38YTYXJEA9N0EDT6DBQ8<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── 01GP7J397VK5M9W7FYM0MNSMXQ<br>│   ├── chunks<br>│   │   └── 000001<br>│   ├── index<br>│   ├── meta.json<br>│   └── tombstones<br>├── chunks_head<br>│   ├── 000031<br>│   └── 000032<br>├── lock<br>├── queries.active<br>├── snapshots<br>│   ├── 20230106T090322Z-12d1383aad1567ff<br>│   │   ├── 01GNM76EYHRVZRGE608RC7NXDB<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GNVVFEW4RQTSM4T60FPFJFSW<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GNXCPK5TNYFHD1Y5MF0JCB9E<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GNY70DSGAP57VJFE9YWBHB9H<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GP04T32Q3KB2FTQAFRPZEN6E<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GP2QEE76BM3G7MFR08WCCJYM<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GP2Y26DGVJ5EGMQ7F55M8CTK<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GP2Y26MAXF3ANFSM3BN9P0YS<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   ├── 01GP34Y3PF415237P40JJG1GRM<br>│   │   │   ├── chunks<br>│   │   │   │   └── 000001<br>│   │   │   ├── index<br>│   │   │   ├── meta.json<br>│   │   │   └── tombstones<br>│   │   └── 01GP3543BV7QE20587Y1BVC35S<br>│   │       ├── chunks<br>│   │       │   └── 000001<br>│   │       ├── index<br>│   │       ├── meta.json<br>│   │       └── tombstones<br>│   └── 20230106T090400Z-284c0661e9d138c1<br>│       ├── 01GNM76EYHRVZRGE608RC7NXDB<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GNVVFEW4RQTSM4T60FPFJFSW<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GNXCPK5TNYFHD1Y5MF0JCB9E<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GNY70DSGAP57VJFE9YWBHB9H<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GP04T32Q3KB2FTQAFRPZEN6E<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GP2QEE76BM3G7MFR08WCCJYM<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GP2Y26DGVJ5EGMQ7F55M8CTK<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GP2Y26MAXF3ANFSM3BN9P0YS<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       ├── 01GP34Y3PF415237P40JJG1GRM<br>│       │   ├── chunks<br>│       │   │   └── 000001<br>│       │   ├── index<br>│       │   ├── meta.json<br>│       │   └── tombstones<br>│       └── 01GP35586CWX2AFS5VBJRHNGY7<br>│           ├── chunks<br>│           │   └── 000001<br>│           ├── index<br>│           ├── meta.json<br>│           └── tombstones<br>└── wal<br>    ├── 00000043<br>    ├── 00000044<br>    ├── 00000045<br>    └── checkpoint.00000042<br>        └── 00000000<br></code></pre></td></tr></table></figure>
+
+<p>注意，本地存储的一个限制是它不是集群化的或多副本的。因此，在面对磁盘或节点宕机时，它不是任意可伸缩或持久化的，应该像对待任何其他类型的单节点数据库一样对待它。对于磁盘可用性，建议使用RAID、备份<a target="_blank" rel="noopener" href="https://www.coderdocument.com/docs/prometheus/v2.14/prometheus/querying/http_api.html#kuaizhao">快照</a>、容量规划等，以提高持久性。通过适当的存储持久性并计划在本地存储中存储多年的数据是可能的。</p>
+<p>另外，可以通过<a target="_blank" rel="noopener" href="https://www.coderdocument.com/docs/prometheus/v2.14/operating/integrations.html#yuanchengduandianhecunchu">远程读/写API</a>使用外部存储。需要对这些系统进行仔细的评估，因为它们在耐久性、性能和效率方面差异很大。</p>
+<p>有关文件格式的详细信息，请参阅<a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/master/tsdb/docs/format/README.md">TSDB格式</a>。</p>
+<h3 id="6-1-2-压缩"><a href="#6-1-2-压缩" class="headerlink" title="6.1.2 压缩"></a>6.1.2 压缩</h3><p>最初的两个小时的块最终在后台压缩成更长时间的块。</p>
+<p>压实将产生更大的块，达到保留时间的10%，或21天，以较小的为准。</p>
+<h2 id="6-2-Prometheus关于存储的选项"><a href="#6-2-Prometheus关于存储的选项" class="headerlink" title="6.2 Prometheus关于存储的选项"></a>6.2 Prometheus关于存储的选项</h2><p>Prometheus有几个选项允许配置本地存储。最重要的是：</p>
+<ul>
+<li><code>--storage.tsdb.path</code>: 这决定了Prometheus把数据库写在哪里。默认为 <code>data/</code>。（也就是/prometheus安装目录/data/）</li>
+<li><code>--storage.tsdb.retention.time</code>: 这将决定何时删除旧数据。默认为<code>15d</code>。如果此选项被设置为非默认值，请覆盖<code>storage.tsdb.retention</code> 。</li>
+<li><code>--storage.tsdb.retention.size</code>: [实验性]这决定了存储块可以使用的最大字节数（注意，这并不包括WAL的大小，它可能很大）。最老的数据将首先被删除。默认为<code>0</code>或禁用。这个选项是实验性的，可以在未来的版本中更改。支持的单位有：<code>KB</code>, <code>MB</code>, <code>GB</code>, <code>PB</code>。例如：<code>512 MB</code></li>
+<li><code>--storage.tsdb.retention</code>: 此选项已废弃，使用<code>storage.tsdb.retention.time</code>替代。</li>
+<li><code>--storage.tsdb.wal-compression</code>: 此选项启用write-ahead日志（WAL）压缩。根据你的数据，可能期望WAL的大小将减少一半，而CPU负载几乎没有增加。请注意，如果你启用了这个选项，并随后将Prometheus降级到2.11.0以下的版本，你将需要删除WAL，因为它将无法读取。</li>
+</ul>
+<p>Prometheus平均每个采样只使用1-2个字节。因此，要计划一台Prometheus服务器的容量，你可以使用一个粗略的公式：</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs markdown">needed<span class="hljs-emphasis">_disk_</span>space（需要的的存储空间） = retention<span class="hljs-emphasis">_time_</span>seconds（保存旧数据的时间） <span class="hljs-emphasis">* ingested_samples_per_second（每秒采集的数据数量） *</span> bytes<span class="hljs-emphasis">_per_</span>sample（每个数据的字节数大小）<br></code></pre></td></tr></table></figure>
+
+<p>降低采集数据的频率，可以减少采集数据的时间序列的数量（更少的目标或每个目标更少的时间序列），或者可以增加采集数据的时间隔。由于在一个时间序列中可以进行压缩采样，所以减少时间序列的数量可能更有效。</p>
+<h2 id="6-3-远程存储集成"><a href="#6-3-远程存储集成" class="headerlink" title="6.3 远程存储集成"></a>6.3 远程存储集成</h2><p>Prometheus的本地存储在可扩展性和持久性方面受到单个节点的限制。与尝试解决Prometheus本身的集群存储不同，Prometheus有一组允许与远程存储系统集成的接口。</p>
+<p>Prometheus集成远程存储系统有两种方式：</p>
+<ul>
+<li>Prometheus可以将采样数据以标准化的格式写入远程URL。</li>
+<li>Prometheus可以从一个标准格式的远程URL读取（回）采样数据。</li>
+</ul>
+<p>读写协议都使用HTTP上的snapply压缩协议缓冲区编码。这些协议还没有稳定的API，将来可能会在HTTP/2上使用gRPC，那时Prometheus和远程存储之间的所有跳转都可以安全地假定支持HTTP/2。</p>
+<p>有关在Prometheus中配置远程存储集成的详细信息，请参阅Prometheus配置文档的<a target="_blank" rel="noopener" href="https://www.coderdocument.com/docs/prometheus/v2.14/prometheus/configuration/configuration.html#remote_write">远程写入</a>和<a target="_blank" rel="noopener" href="https://www.coderdocument.com/docs/prometheus/v2.14/prometheus/%60%60">远程读取</a>部分。</p>
+<p>有关请求和响应消息的详细信息，请参阅<a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus/blob/master/prompb/remote.proto">远程存储协议缓冲区定义</a>。</p>
+<p>注意，在读取路径上，Prometheus只从远程端获取一组标签选择器和时间范围的原始时间序列数据。所有对原始数据的PromQL计算仍然发生在Prometheus本身中。这意味着远程读查询有一定的伸缩性限制，因为所有必需的数据都需要先加载到查询的Prometheus服务器，然后在那里进行处理。然而，支持PromQL的完全分布式计算目前是不可行的。</p>
+<p>要了解与远程存储系统的现有集成的更多信息，请参阅<a target="_blank" rel="noopener" href="https://www.coderdocument.com/docs/prometheus/v2.14/operating/integrations.html#yuanchengduandianhecunchu-1">集成文档</a>。</p>
+<h1 id="七、使用PromQL查询监控数据"><a href="#七、使用PromQL查询监控数据" class="headerlink" title="七、使用PromQL查询监控数据"></a>七、使用PromQL查询监控数据</h1><p>Prometheus UI是Prometheus内置的一个可视化管理界面，通过Prometheus UI用户能够轻松的了解Prometheus当前的配置，监控任务运行状态等。 通过<code>Graph</code>面板，用户还能直接使用<code>PromQL</code>实时查询监控数据</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-10.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-1-使用关键字查询数据"><a href="#7-1-使用关键字查询数据" class="headerlink" title="7.1 使用关键字查询数据"></a>7.1 使用关键字查询数据</h2><p>切换到<code>Graph</code>面板，用户可以使用PromQL表达式查询特定监控指标的监控数据。如下所示，查询主机负载变化情况，可以使用关键字<code>node_load1</code>可以查询出Prometheus采集到的主机负载的样本数据，这些样本数据按照时间先后顺序展示，形成了主机负载随时间变化的趋势图表：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-11.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-2-使用函数查询数据"><a href="#7-2-使用函数查询数据" class="headerlink" title="7.2 使用函数查询数据"></a>7.2 使用函数查询数据</h2><p>PromQL是Prometheus自定义的一套强大的数据查询语言，除了使用监控指标作为查询关键字以为，还内置了大量的函数，帮助用户进一步对时序数据进行处理。例如使用<code>rate()</code>函数，可以计算在单位时间内样本数据的变化情况即增长率，因此通过该函数我们可以近似的通过CPU使用时间计算CPU的利用率：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus"><span class="hljs-function"><span class="hljs-title">rate</span><span class="hljs-params">(node_cpu_seconds_total[<span class="hljs-number">2</span>m])</span></span><br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-12.png" srcset="/blog/img/loading.gif" alt="系统进程的CPU使用率"></p>
+<p>这时如果要忽略是哪一个CPU的，只需要使用without表达式，将标签CPU去除后聚合数据即可：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lisp">avg without(<span class="hljs-name">cpu</span>) (<span class="hljs-name">rate</span>(<span class="hljs-name">node_cpu_seconds_total</span>[<span class="hljs-number">2</span>m]))<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-13.png" srcset="/blog/img/loading.gif" alt="系统各mode的CPU使用率"></p>
+<p>那如果需要计算系统CPU的总体使用率，通过排除系统闲置的CPU使用率即可获得:</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">1 </span>- avg without(cpu) (rate(node_cpu_seconds_total&#123;mode=<span class="hljs-string">&quot;idle&quot;</span>&#125;[<span class="hljs-number">2</span>m]))<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-14.png" srcset="/blog/img/loading.gif" alt="系统CPU使用率"></p>
+<p>通过PromQL我们可以非常方便的对数据进行查询，过滤，以及聚合，计算等操作。通过这些丰富的表达书语句，监控指标不再是一个单独存在的个体，而是一个个能够表达出正式业务含义的语言。</p>
+<h1 id="八、监控数据可视化"><a href="#八、监控数据可视化" class="headerlink" title="八、监控数据可视化"></a>八、监控数据可视化</h1><p>Prometheus UI提供了快速验证PromQL以及临时可视化支持的能力，而在大多数场景下引入监控系统通常还需要构建可以长期使用的监控数据可视化面板（Dashboard）。这时用户可以考虑使用第三方的可视化工具如Grafana，Grafana是一个开源的可视化平台，并且提供了对Prometheus的完整支持。</p>
+<p>grafana获取监控数据流程图：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-20.png" srcset="/blog/img/loading.gif"></p>
+<p>Grafana官方下载网站：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://grafana.com/grafana/download?pg=get&amp;plcmt=selfmanaged-box1-cta1<br></code></pre></td></tr></table></figure>
+
+<h2 id="8-1-安装grafana"><a href="#8-1-安装grafana" class="headerlink" title="8.1 安装grafana"></a>8.1 安装grafana</h2><p>进入grafana下载网站，选择“Version”，“Edition”，系统，然后按着教程进行下载安装。</p>
+<p>grafana可以安装在任意的服务器上，因为grafana是通过网络获取prometheus的监控数据的，只要grafana能和prometheus server通信即可。</p>
+<p><strong>本次安装演示使用CentOS7.9系统</strong></p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-15.png" srcset="/blog/img/loading.gif"></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># wget https://dl.grafana.com/enterprise/release/grafana-enterprise-9.1.4-1.x86_64.rpm</span><br><span class="hljs-comment"># yum install grafana-enterprise-9.1.4-1.x86_64.rpm</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="8-2-启动grafana"><a href="#8-2-启动grafana" class="headerlink" title="8.2 启动grafana"></a>8.2 启动grafana</h2><p>启动grafana并设置开机启动。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># systemctl start grafana-server.service </span><br><span class="hljs-comment"># systemctl enable grafana-server.service</span><br></code></pre></td></tr></table></figure>
+
+<p>查看grafana的端口，进程和状态</p>
+<p>注意：grafana的监听端口默认为：3000，如果需要修改可以在<code>/etc/grafana/grafana.ini</code>配置文件里修改监听端口。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port<br>LISTEN     0      128                             *:22                                          *:*<br>LISTEN     0      128                          [::]:3000                                     [::]:*<br>LISTEN     0      128                          [::]:22                                       [::]:*<br><span class="hljs-comment"># ps aux | grep grafana</span><br>grafana    1388  2.4  4.3 1572444 81608 ?       Ssl  11:34   0:07 /usr/sbin/grafana-server --config=/etc/grafana/grafana.ini --pidfile=/var/run/grafana/grafana-server.pid --packaging=rpm cfg:default.paths.logs=/var/<span class="hljs-built_in">log</span>/grafana cfg:default.paths.data=/var/lib/grafana cfg:default.paths.plugins=/var/lib/grafana/plugins cfg:default.paths.provisioning=/etcgrafana/provisioning<br>root       1453  0.0  0.0 112812   972 pts/0    R+   11:39   0:00 grep --color=auto grafana<br><span class="hljs-comment"># systemctl status grafana-server.service </span><br>● grafana-server.service - Grafana instance<br>   Loaded: loaded (/usr/lib/systemd/system/grafana-server.service; enabled; vendor preset: disabled)<br>   Active: active (running) since Wed 2023-01-04 11:35:06 CST; 5min ago<br>     Docs: http://docs.grafana.org<br> Main PID: 1388 (grafana-server)<br>   CGroup: /system.slice/grafana-server.service<br>           └─1388 /usr/sbin/grafana-server --config=/etc/grafana/grafana.ini --pidfile=/var/run/grafana/grafana-ser...<br><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:29] Unknown lvalue <span class="hljs-string">&#x27;Prot...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:31] Unknown lvalue <span class="hljs-string">&#x27;Prot...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:32] Unknown lvalue <span class="hljs-string">&#x27;Prot...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:33] Unknown lvalue <span class="hljs-string">&#x27;Prot...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:34] Unknown lvalue <span class="hljs-string">&#x27;Prot...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:35] Unknown lvalue <span class="hljs-string">&#x27;Prot...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:37] Unknown lvalue <span class="hljs-string">&#x27;Remo...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:39] Unknown lvalue <span class="hljs-string">&#x27;Rest...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:40] Unknown lvalue <span class="hljs-string">&#x27;Rest...vice&#x27;</span><br>Jan 04 11:35:13 CentOS7.9 systemd[1]: [/usr/lib/systemd/system/grafana-server.service:41] Unknown lvalue <span class="hljs-string">&#x27;Rest...vice&#x27;</span><br>Hint: Some lines were ellipsized, use -l to show <span class="hljs-keyword">in</span> full.<br></code></pre></td></tr></table></figure>
+
+<h2 id="8-3-访问grafana网页"><a href="#8-3-访问grafana网页" class="headerlink" title="8.3 访问grafana网页"></a>8.3 访问grafana网页</h2><ol>
+<li><strong>浏览器访问：</strong></li>
+</ol>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">（安装服务器的）ip:3000<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-16.png" srcset="/blog/img/loading.gif"></p>
+<ol start="2">
+<li><strong>登录grafana</strong></li>
+</ol>
+<p>grafana第一次登录的默认密码为：</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs nsis">账号：<span class="hljs-literal">admin</span><br>密码：<span class="hljs-literal">admin</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-17.png" srcset="/blog/img/loading.gif" alt="第一次登录grafana"></p>
+<p>在第一次登录后，会提示让我们修改密码（如果不想修改可以点击左下角的“skip”跳过修改密码的阶段）。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-18.png" srcset="/blog/img/loading.gif" alt="修改密码"></p>
+<ol start="3">
+<li>登录后的页面</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-19.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="2-8-4-grafana获取prometheus数据源"><a href="#2-8-4-grafana获取prometheus数据源" class="headerlink" title="2.8.4 grafana获取prometheus数据源"></a>2.8.4 grafana获取prometheus数据源</h3><p><strong>注意：所有操作均在grafana网页</strong></p>
+<ol>
+<li>点击左下角的“齿轮（Configure）“，点击”Data source“</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-22.png" srcset="/blog/img/loading.gif"></p>
+<ol start="2">
+<li>点击“Add data source”</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-23.png" srcset="/blog/img/loading.gif"></p>
+<ol start="3">
+<li>点击“Prometheus”</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-24.png" srcset="/blog/img/loading.gif"></p>
+<ol start="4">
+<li>在“Setting”根据需求修改配置</li>
+</ol>
+<p>这里只修改“URL”</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-25.png" srcset="/blog/img/loading.gif"></p>
+<ol start="5">
+<li>修改完成后点击“Save &amp; test”检测grafana是否能和prometheus联通</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-26.png" srcset="/blog/img/loading.gif"></p>
+<ol start="6">
+<li>出现了“Data source is working”字样就证明联通了</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-27.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="8-5-grafana导入prometheus模板"><a href="#8-5-grafana导入prometheus模板" class="headerlink" title="8.5 grafana导入prometheus模板"></a>8.5 grafana导入prometheus模板</h2><p>grafana官方模板地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://grafana.com/grafana/dashboards/<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>浏览器访问grafana官方模板地址</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-28.png" srcset="/blog/img/loading.gif"></p>
+<ol start="2">
+<li>网页网下拉，在左边的“Data Source”里选择“Prometheus”。在搜索框里输入“node”，查找prometheus关于node-exporter的模板。</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-29.png" srcset="/blog/img/loading.gif"></p>
+<ol start="3">
+<li>选择一个下载比较多的模板，点击进入查看该模板的详细信息</li>
+</ol>
+<p><strong>注意：有些模板可能因为prometheus或node_exporter版本的问题，导致grafana有些数据采集不了，所以需要进入该模板的详细页面查看安装要求</strong></p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-30.png" srcset="/blog/img/loading.gif"></p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-31.png" srcset="/blog/img/loading.gif"></p>
+<ol start="4">
+<li>导入选中的模板</li>
+</ol>
+<ul>
+<li>点击左上方的“四个小正方形（Dashbards）”，点击“Import”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-32.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li><p>导入模板</p>
+<ul>
+<li>导入模板有三种方式<ul>
+<li>输入模板编号</li>
+<li>下载模板的json文件，并点击“Upload JSON file”按钮上传模板</li>
+<li>下载模板的json文件，将json文件的内容复制到“Import via panel json”的框里</li>
+</ul>
+</li>
+</ul>
+<p><strong>本次导入使用“模板编号”导入</strong>，输入编号后点击右边的“Load”</p>
+<p>（也推荐使用11074，13842,1860）</p>
+</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-33.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>根据需求修改“Name”、“Folder”、“uid”，在prometheus里选择之前定义过的prometheus数据源，最后点击“Import”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-34.png" srcset="/blog/img/loading.gif"></p>
+<ol start="5">
+<li>查看导入的模板</li>
+</ol>
+<p>在导入模板后，页面会自动跳转。</p>
+<p>或者可以点击左上角的home按钮，然后在下面看到已安装的模板，点击相应的模板即可进入。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-35.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="8-6-grafana插件安装"><a href="#8-6-grafana插件安装" class="headerlink" title="8.6 grafana插件安装"></a>8.6 grafana插件安装</h2><p>grafana官方插件网站：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://grafana.com/grafana/plugins/<br></code></pre></td></tr></table></figure>
+
+<p>我们可以进入grafana官方的插件网站查找需要的插件。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-36.png" srcset="/blog/img/loading.gif"></p>
+<p><strong>演示安装插件</strong></p>
+<ul>
+<li>在线安装饼状图插件</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># grafana-cli plugins install grafana-piechart-panel</span><br>✔ Downloaded grafana-piechart-panel v1.6.4 zip successfully<br><br>Please restart Grafana after installing plugins. Refer to Grafana documentation <span class="hljs-keyword">for</span> instructions <span class="hljs-keyword">if</span> necessary.<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>离线安装zabbix插件</li>
+</ul>
+<p><code>/var/lib/grafana/plugins/</code>是grafana插件保存的目录</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># wget https://github.com/alexanderzobnin/grafana-zabbix/releases/download/v4.2.10/alexanderzobnin-zabbix-app-4.2.10.zip</span><br><span class="hljs-comment"># unzip alexanderzobnin-zabbix-app-4.2.10.zip</span><br><span class="hljs-comment"># mv alexanderzobnin-zabbix-app /var/lib/grafana/plugins/</span><br><span class="hljs-comment"># systemctl restart grafana-server.service</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>查看安装的插件</li>
+</ul>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># grafana-cli plugins ls</span><br>installed plugins:<br>alexanderzobnin-zabbix-app @ 4.2.10<br>grafana-piechart-panel @ 1.6.4<br>Please restart Grafana after installing plugins. Refer to Grafana documentation <span class="hljs-keyword">for</span> instructions <span class="hljs-keyword">if</span> necessary.<br></code></pre></td></tr></table></figure>
+
+<h1 id="九、任务和实例"><a href="#九、任务和实例" class="headerlink" title="九、任务和实例"></a>九、任务和实例</h1><p>当我们需要采集不同的监控指标(例如：主机、MySQL、Nginx)时，我们只需要运行相应的监控采集程序，并且让Prometheus Server知道这些Exporter实例的访问地址。在Prometheus中，每一个暴露监控样本数据的HTTP服务称为一个实例。例如在当前主机上运行的node_exporter可以被称为一个实例(Instance)。</p>
+<p>而一组用于相同采集目的的实例，或者同一个采集进程的多个副本则通过一个一个任务(Job)进行管理。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">*</span> <span class="hljs-attr">job:</span> <span class="hljs-string">node</span><br>    <span class="hljs-string">*</span> <span class="hljs-attr">instance 2:</span> <span class="hljs-number">1.2</span><span class="hljs-number">.3</span><span class="hljs-number">.5</span><span class="hljs-string">:9100</span><br>    <span class="hljs-string">*</span> <span class="hljs-attr">instance 4:</span> <span class="hljs-number">5.6</span><span class="hljs-number">.7</span><span class="hljs-number">.8</span><span class="hljs-string">:9100</span><br></code></pre></td></tr></table></figure>
+
+<p>当前在每一个Job中主要使用了静态配置(static_configs)的方式定义监控目标。除了静态配置每一个Job的采集Instance地址以外，Prometheus还支持与DNS、Consul、E2C、Kubernetes等进行集成实现自动发现Instance实例，并从这些Instance上获取监控数据。</p>
+<p>除了通过使用“up”表达式查询当前所有Instance的状态以外，还可以通过Prometheus UI中的Targets页面查看当前所有的监控采集任务，以及各个任务下所有实例的状态:</p>
+<ol>
+<li>prometheus网页点击“Status”，点击“Targets”（也可以通过访问<code>prometheus serverIP:9090/targets</code>进入“Targets”页面）</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-37.png" srcset="/blog/img/loading.gif"></p>
+<ol start="2">
+<li>查看“Targets”实例</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-38.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="十、Prometheus组件"><a href="#十、Prometheus组件" class="headerlink" title="十、Prometheus组件"></a>十、Prometheus组件</h1><p>我们通过部署Node Exporter我们成功的获取到了当前主机的资源使用情况。接下来我们将从Prometheus的架构角度详细介绍Prometheus生态中的各个组件。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\5793257-7d1d16e2653a525f.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="2-10-1-Prometheus-Server"><a href="#2-10-1-Prometheus-Server" class="headerlink" title="2.10.1 Prometheus Server"></a>2.10.1 Prometheus Server</h3><p>Prometheus Server是Prometheus组件中的核心部分，负责实现对监控数据的获取，存储以及查询。 Prometheus Server可以通过静态配置管理监控目标，也可以配合使用Service Discovery的方式动态管理监控目标，并从这些监控目标中获取数据。其次Prometheus Server需要对采集到的监控数据进行存储，Prometheus Server本身就是一个时序数据库，将采集到的监控数据按照时间序列的方式存储在本地磁盘当中。最后Prometheus Server对外提供了自定义的PromQL语言，实现对数据的查询以及分析。</p>
+<p>Prometheus Server内置的Express Browser UI，通过这个UI可以直接通过PromQL实现数据的查询以及可视化。</p>
+<p>Prometheus Server的联邦集群能力可以使其从其他的Prometheus Server实例中获取数据，因此在大规模监控的情况下，可以通过联邦集群以及功能分区的方式对Prometheus Server进行扩展。</p>
+<h3 id="2-10-2-Exporters"><a href="#2-10-2-Exporters" class="headerlink" title="2.10.2 Exporters"></a>2.10.2 Exporters</h3><p>Exporter将监控数据采集的端点通过HTTP服务的形式暴露给Prometheus Server，Prometheus Server通过访问该Exporter提供的Endpoint端点，即可获取到需要采集的监控数据。</p>
+<p>一般来说可以将Exporter分为2类：</p>
+<ul>
+<li>直接采集：这一类Exporter直接内置了对Prometheus监控的支持，比如cAdvisor，Kubernetes，Etcd，Gokit等，都直接内置了用于向Prometheus暴露监控数据的端点。</li>
+<li>间接采集：间接采集，原有监控目标并不直接支持Prometheus，因此我们需要通过Prometheus提供的Client Library编写该监控目标的监控采集程序。例如： Mysql Exporter，JMX Exporter，Consul Exporter等。</li>
+</ul>
+<h3 id="2-10-3-AlertManager"><a href="#2-10-3-AlertManager" class="headerlink" title="2.10.3 AlertManager"></a>2.10.3 AlertManager</h3><p>在Prometheus Server中支持基于PromQL创建告警规则，如果满足PromQL定义的规则，则会产生一条告警，而告警的后续处理流程则由AlertManager进行管理。在AlertManager中我们可以与邮件，Slack等等内置的通知方式进行集成，也可以通过Webhook自定义告警处理方式。AlertManager即Prometheus体系中的告警处理中心。</p>
+<h3 id="2-10-4-PushGateway"><a href="#2-10-4-PushGateway" class="headerlink" title="2.10.4 PushGateway"></a>2.10.4 PushGateway</h3><p>由于Prometheus数据采集基于Pull模型进行设计，因此在网络环境的配置上必须要让Prometheus Server能够直接与Exporter进行通信。 当这种网络需求无法直接满足时，就可以利用PushGateway来进行中转。可以通过PushGateway将内部网络的监控数据主动Push到Gateway当中。而Prometheus Server则可以采用同样Pull的方式从PushGateway中获取到监控数据。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/prometheus/">prometheus</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Prometheus%E5%91%8A%E8%AD%A6%E5%A4%84%E7%90%86/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Prometheus告警处理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Promehteus%E7%AE%80%E4%BB%8B/">
+                        <span class="hidden-mobile">Promehteus简介</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

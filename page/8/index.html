@@ -178,30 +178,27 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD%E5%AE%9E%E6%88%98/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/devopts/devpots-another150.jpg" srcset="/blog/img/loading.gif" alt="Devops之基于Jenkins的CI与CD实战">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD%E5%AE%9E%E6%88%98/">Devops之基于Jenkins的CI与CD实战</a>
+        <a href="/blog/2021/09/02/%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E6%9C%8D%E5%8A%A1/">网络文件共享服务</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD%E5%AE%9E%E6%88%98/">
+        <a href="/blog/2021/09/02/%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E6%9C%8D%E5%8A%A1/">
           
           
             
           
-          一、 对Jenkins实现代码的部署和回滚
-1.1 实现对测试环境和生产环境代码部署​    基于参数控制，基于传递分支，如果master就是生产环境，develop就是测试环
-​        对于虚拟机或者物理机：
-​            1.master=10.0.0.106，10.0.0.107
-​            2.develop=10.0.0.105
-​           
+          网络文件共享服务一、存储类型
+存储类型分为三种
+
+直连式存储：Direct-Attached Storage，简称DAS
+网络附加存储：Network-Attached Storage，简称NAS
+存储区域网络：Storage Area Network，简称SAN
+
+1.1 DAS存储
+DAS存储是最常见的一种存储方式，尤其是在中小企业应用中。PC中的硬盘或只有一个外部SCSI接口的JBOD都属于
         </a>
       </p>
 
@@ -209,8 +206,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-05-24 06:02" pubdate>
-              2021-05-24
+            <time datetime="2021-09-02 14:32" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -219,7 +216,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-Jenkins/">Linux Jenkins</a>
+              <a href="/blog/tags/linux-%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1/">linux 网络文件服务</a>
             
           </div>
         
@@ -230,26 +227,27 @@
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/devopts/devpots-another150.jpg" srcset="/blog/img/loading.gif" alt="Devops之基于Jenkins的CI与CD">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD/">Devops之基于Jenkins的CI与CD</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%B0%83%E5%BA%A6%E5%99%A8LVS/">企业级调度器LVS</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/05/24/Devops%E4%B9%8B%E5%9F%BA%E4%BA%8EJenkins%E7%9A%84CI%E4%B8%8ECD/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%B0%83%E5%BA%A6%E5%99%A8LVS/">
           
           
             
           
-          Devops之基于Jenkins的CI与CD一、DevOps简介https://www.bagevent.com/event/6243820?bag_track=bagevent #Gdevops2020https://www.bagevent.com/event/DevOpsDays-SH #DevOpsDays 2019
-DevOps 是 Development 和 Operations 的组
+          企业级调度器LVS一、集群和分布式系统性能扩展方式：
+
+Scale UP：垂直扩展，向上扩展,增强，性能更强的计算机运行同样的服务
+Scale Out：水平扩展，向外扩展,增加设备，并行地运行多个服务调度分配问题，Cluster
+
+垂直扩展不再提及：
+随着计算机性能的增长，其价格会成倍增长
+单台计算机的性能是有上限的，不可能无限制地垂直扩展
+多核CPU意味着即使是单台计算机也可以并行的。那么，为什
         </a>
       </p>
 
@@ -257,8 +255,8 @@ DevOps 是 Development 和 Operations 的组
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-05-24 06:02" pubdate>
-              2021-05-24
+            <time datetime="2021-09-02 14:31" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -267,7 +265,7 @@ DevOps 是 Development 和 Operations 的组
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-Jenkins/">Linux Jenkins</a>
+              <a href="/blog/tags/linux-lvs/">linux lvs</a>
             
           </div>
         
@@ -278,25 +276,22 @@ DevOps 是 Development 和 Operations 的组
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/03/12/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%A0%A1%E5%9E%92%E6%9C%BAJumpServer/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/JumpServer/JumpServer-title.png" srcset="/blog/img/loading.gif" alt="企业级堡垒机JumpServer">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/03/12/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%A0%A1%E5%9E%92%E6%9C%BAJumpServer/">企业级堡垒机JumpServer</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AB%EF%BC%89docker%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9B%BE%E5%BD%A2%E5%B7%A5%E5%85%B7Portainer/">企业级容器技术docker（八）docker可视化图形工具Portainer</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/03/12/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%A0%A1%E5%9E%92%E6%9C%BAJumpServer/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AB%EF%BC%89docker%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9B%BE%E5%BD%A2%E5%B7%A5%E5%85%B7Portainer/">
           
           
             
           
-          企业级堡垒机 JumpServer一、堡垒机和 JumpServer1.1 跳板机和堡垒机12345跳板机属于内控堡垒机范畴，是一种用于单点登陆的主机应用系统。跳板机就是一台服务器，维护人员在维护过程中，首先要统一登录到这台服务器上，然后从这台服务器再登录到目标设备进行维护。但跳板机没有实现对运维人员操作行为的控制和审计，此外，跳板机存在严重的安全风险，一旦跳板机系统被攻入，则将后端资源风险完全暴
+          企业级容器技术docker八、 可视化图形工具Portainer8.1 Portainer介绍
+Portainer是一个可视化的容器镜像的图形管理工具，利用Portainer可以轻松构建，管理和维护Docker环境。 而且完全免费，基于容器化的安装方式，方便高效部署。
+官方站点: https://www.portainer.io/
+8.2 安装 Portainer官方安装说明: https://w
         </a>
       </p>
 
@@ -304,8 +299,8 @@ DevOps 是 Development 和 Operations 的组
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-12 22:34" pubdate>
-              2021-03-12
+            <time datetime="2021-09-02 14:31" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -314,7 +309,7 @@ DevOps 是 Development 和 Operations 的组
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-JumpServer/">Linux JumpServer</a>
+              <a href="/blog/tags/linux-docker/">linux docker</a>
             
           </div>
         
@@ -325,35 +320,19 @@ DevOps 是 Development 和 Operations 的组
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/03/11/%E8%BF%90%E7%BB%B4%E8%87%AA%E8%BF%90%E5%8C%96%E4%B9%8BANSIBLE/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ansible/ansible-title.jpg" srcset="/blog/img/loading.gif" alt="运维自运化之ANSIBLE">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/03/11/%E8%BF%90%E7%BB%B4%E8%87%AA%E8%BF%90%E5%8C%96%E4%B9%8BANSIBLE/">运维自运化之ANSIBLE</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">企业级容器技术docker（二）docker镜像制作和管理</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/03/11/%E8%BF%90%E7%BB%B4%E8%87%AA%E8%BF%90%E5%8C%96%E4%B9%8BANSIBLE/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">
           
           
             
           
-          运维自运化之ANSIBLE一、自动化运维应用场景1.1 云计算运维工程师核心职能
-
-
-
-相关工具
-
-代码管理（SCM）：GitHub、GitLab、BitBucket、SubVersion
-构建工具：maven、Ant、Gradle
-自动部署：Capistrano、CodeDeploy
-持续集成（CI）：Jenkins、Travis
-配置管理：Ansible、SaltStack、Chef、Pupp
+          企业级容器技术docker二、Docker 镜像制作和管理2.1 Docker 镜像说明2.1.1 Docker 镜像中有没有内核从镜像大小上面来说，一个比较小的镜像只有1MB多点或几MB，而内核文件需要几十MB， 因此镜像里面是没有内核的，镜像在被启动为容器后将直接使用宿主机的内核，而镜像本身则只提供相应的rootfs，即系统正常运行所必须的用户空间的文件系统，比如: /dev/，/proc，/
         </a>
       </p>
 
@@ -361,8 +340,8 @@ DevOps 是 Development 和 Operations 的组
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-11 18:09" pubdate>
-              2021-03-11
+            <time datetime="2021-09-02 14:30" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -371,7 +350,7 @@ DevOps 是 Development 和 Operations 的组
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-ANSIBLE/">Linux ANSIBLE</a>
+              <a href="/blog/tags/linux-docker/">linux docker</a>
             
           </div>
         
@@ -382,26 +361,21 @@ DevOps 是 Development 和 Operations 的组
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/03/02/%E4%BC%81%E4%B8%9A%E7%BA%A7VPN%E6%9C%8D%E5%8A%A1OpenVPN/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/OpenVPN/openvpn-title.png" srcset="/blog/img/loading.gif" alt="企业级VPN服务OpenVPN">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/03/02/%E4%BC%81%E4%B8%9A%E7%BA%A7VPN%E6%9C%8D%E5%8A%A1OpenVPN/">企业级VPN服务OpenVPN</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">企业级容器技术docker（六）docker单机编排</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/03/02/%E4%BC%81%E4%B8%9A%E7%BA%A7VPN%E6%9C%8D%E5%8A%A1OpenVPN/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">
           
           
             
           
-          企业级VPN服务 OpenVPN一、OpenVPN简介1.1VPN 介绍专用网：专用网就是在两个网络（例如，北京和广州）之间架设一条专用线路，但是它并不需要真正地去铺设光缆之类的物理线路。虽然没有亲自去铺设，但是需要向电信运营商申请租用专线，在这条专用的线路上只传输自己的信息,所以安全稳定,同时也费用高昂
-VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络，用
+          企业级容器技术docker六、 单机编排之Docker Compose6.1 Docker Compse介绍
+当在宿主机启动较多的容器时候，如果都是手动操作会觉得比较麻烦而且容易出错，此时推荐使用docker 单机编排工具 docker-compose
+docker-compose 是 docker 容器的一种单机编排服务，docker-compose 是一个管理多个容器的工具，比如: 可以解决容
         </a>
       </p>
 
@@ -409,8 +383,8 @@ VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-03-02 14:42" pubdate>
-              2021-03-02
+            <time datetime="2021-09-02 14:29" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -419,7 +393,7 @@ VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-OpenVPN/">Linux OpenVPN</a>
+              <a href="/blog/tags/linux-docker/">linux docker</a>
             
           </div>
         
@@ -430,29 +404,21 @@ VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%B8%89%EF%BC%89Nginx%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E5%92%8C%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-title.jpg" srcset="/blog/img/loading.gif" alt="高性能WEB服务Nginx（三）Nginx核心配置和高级配置">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%B8%89%EF%BC%89Nginx%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E5%92%8C%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE/">高性能WEB服务Nginx（三）Nginx核心配置和高级配置</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">企业级容器技术docker（七）docker资源限制</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%B8%89%EF%BC%89Nginx%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE%E5%92%8C%E9%AB%98%E7%BA%A7%E9%85%8D%E7%BD%AE/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">
           
           
             
           
-          Nginx核心配置一、Nginx文件配置说明1.1 Nginx官方帮助文档1http://nginx.org/en/docs/
-
-1.2 tengine 帮助文档1https://tengine.taobao.org/documentation_cn.html
-
-1.3 Nginx的配置文件组成部分12345主配置文件：nginx.conf子配置文件: include conf.d/*.conff
+          企业级容器技术docker七、 docker 的资源限制7.1 docker 资源限制7.1.1 容器资源限制介绍官方文档: https://docs.docker.com/config/containers/resource_constraints/
+默认情况下，容器没有资源的使用限制，可以使用主机内核调度程序允许的尽可能多的资源
+Docker 提供了控制容器使用资源的方法,可以限制容器使用多少
         </a>
       </p>
 
@@ -460,8 +426,8 @@ VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-02-27 21:44" pubdate>
-              2021-02-27
+            <time datetime="2021-09-02 14:29" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -470,7 +436,7 @@ VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
+              <a href="/blog/tags/linux-docker/">linux docker</a>
             
           </div>
         
@@ -481,28 +447,22 @@ VPN：Virtual Private Network，虚拟私有网络，又称为虚拟专用网络
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%BA%8C%EF%BC%89Nginx%E6%9E%B6%E6%9E%84%E5%92%8C%E5%AE%89%E8%A3%85/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-title.jpg" srcset="/blog/img/loading.gif" alt="高性能WEB服务Nginx（二）Nginx架构和安装">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%BA%8C%EF%BC%89Nginx%E6%9E%B6%E6%9E%84%E5%92%8C%E5%AE%89%E8%A3%85/">高性能WEB服务Nginx（二）Nginx架构和安装</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%89%EF%BC%89docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">企业级容器技术docker（三）docker数据管理</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%BA%8C%EF%BC%89Nginx%E6%9E%B6%E6%9E%84%E5%92%8C%E5%AE%89%E8%A3%85/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%89%EF%BC%89docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86/">
           
           
             
           
-          Nginx 架构和安装一、Nginx 架构和安装1.1 Nginx 概述1.1.1 Nginx 介绍Nginx：engine X ，2002年开发，分为社区版和商业版(nginx plus )
-2019年3月11日 F5 Networks 6.7亿美元的价格收购
-Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮件代理服务器、以及TCP/UDP代理服务器
-解决C10K问题（10K C
+          企业级容器技术docker三、 Docker 数据管理
+Docker镜像由多个只读层叠加而成，启动容器时，Docker会加载只读镜像层并在镜像栈顶部添加一个读写层
+如果运行中的容器修改了现有的一个已经存在的文件，那该文件将会从读写层下面的只读层复制到读写层，该文件的只读版本仍然存在，只是已经被读写层中该文件的副本所隐藏，此即“写时复制(COWcopy on write)”机制
+如果将正在运行中的容
         </a>
       </p>
 
@@ -510,8 +470,8 @@ Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮�
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-02-27 21:44" pubdate>
-              2021-02-27
+            <time datetime="2021-09-02 14:28" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -520,7 +480,7 @@ Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
+              <a href="/blog/tags/linux-docker/">linux docker</a>
             
           </div>
         
@@ -531,28 +491,25 @@ Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮�
   <div class="row mx-auto index-card">
     
     
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8B%E7%BB%8DNginx/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/nginx/nginx-title.jpg" srcset="/blog/img/loading.gif" alt="高性能WEB服务Nginx（一）介绍Nginx">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
+    <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8B%E7%BB%8DNginx/">高性能WEB服务Nginx（一）介绍Nginx</a>
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%9B%9B%EF%BC%89docker%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/">企业级容器技术docker（四）docker网络管理</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/02/27/%E9%AB%98%E6%80%A7%E8%83%BDWEB%E6%9C%8D%E5%8A%A1Nginx%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8B%E7%BB%8DNginx/">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%9B%9B%EF%BC%89docker%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86/">
           
           
             
           
-          高性能WEB服务NGINX一、Web 基础介绍正常情况下的单词web服务访问流程：
+          企业级容器技术docker四、 网络管理
+docker容器创建后，必不可少的要和其它主机或容器进行网络通信
+官方文档:
+1https://docs.docker.com/network/
 
-1.1 互联网发展历程回顾1993年3月2日，中国科学院高能物理研究所租用AT&amp;T公司的国际卫星信道建立的接入美国SLAC国家实验室的64K专线正式开通，成为我国连入Internet的第一根专线。
-参考链接: http://www.ihep.cas.cn/kxcb/kpcg/jsywl/201407/t2
+4.1 Docker的默认的网络通信4.1.1 Docker安装后默认的网络设置Docker服务安装完成之后，默认在每个宿主机会生成一个名称为docker0的网卡其IP地址都是172.17.0.1/16
+范例:
         </a>
       </p>
 
@@ -560,8 +517,8 @@ Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮�
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-02-27 21:44" pubdate>
-              2021-02-27
+            <time datetime="2021-09-02 14:27" pubdate>
+              2021-09-02
             </time>
           </div>
         
@@ -570,7 +527,99 @@ Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-Nginx/">Linux Nginx</a>
+              <a href="/blog/tags/linux-docker/">linux docker</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%94%EF%BC%89docker%E4%BB%93%E5%BA%93%E7%AE%A1%E7%90%86/">企业级容器技术docker（五）docker仓库管理</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%94%EF%BC%89docker%E4%BB%93%E5%BA%93%E7%AE%A1%E7%90%86/">
+          
+          
+            
+          
+          企业级容器技术docker五、 Docker 仓库管理Docker仓库，类似于yum仓库，是用来保存镜像的仓库。为了方便的管理和使用docker镜像,可以将镜像集中保存至Docker仓库中，将制作好的镜像push到仓库集中保存，在需要镜像时，从仓库中pull镜像即可。
+Docker 仓库分为公有云仓库和私有云仓库
+公有云仓库: 由互联网公司对外公开的仓库
+
+官方
+阿里云等第三方仓库
+
+私有云仓库:
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-09-02 14:27" pubdate>
+              2021-09-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/linux-docker/">linux docker</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%80%EF%BC%89docker%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%9F%BA%E7%A1%80/">企业级容器技术docker（一）docker介绍和基础</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%80%EF%BC%89docker%E4%BB%8B%E7%BB%8D%E5%92%8C%E5%9F%BA%E7%A1%80/">
+          
+          
+            
+          
+          企业级容器技术docker一、Docker 介绍和基础操作
+Container 即容器，平时生活中指的是可以装下其它物品的工具， 以方便人类归纳放置物品 、存储和异地运输 ，比如人类使用的衣柜 、行李箱、 背包等可以成为容器，Container 除了容器以外，另一个意思是集装箱, 很多码头工人将很多装有不同物品但却整齐划一的箱子装载到停靠在岸边大船，然后方便的运来运去。
+
+为什么这些集装箱可以很方
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2021-09-02 14:26" pubdate>
+              2021-09-02
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/linux-docker/">linux docker</a>
             
           </div>
         
@@ -582,7 +631,7 @@ Nginx是免费的、开源的、高性能的HTTP和反向代理服务器、邮�
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/blog/page/7/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/6/">6</a><a class="page-number" href="/blog/page/7/">7</a><span class="page-number current">8</span>
+      <a class="extend prev" rel="prev" href="/blog/page/7/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/6/">6</a><a class="page-number" href="/blog/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/blog/page/9/">9</a><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/9/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

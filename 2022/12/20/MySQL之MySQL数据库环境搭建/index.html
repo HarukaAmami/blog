@@ -1,0 +1,703 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>MySQL之MySQL数据库环境搭建 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MySQL之MySQL数据库环境搭建">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-12-20 11:16" pubdate>
+        2022年12月20日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      49
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL之MySQL数据库环境搭建</h1>
+            
+            <div class="markdown-body">
+              <h1 id="一、MySQL版本简述"><a href="#一、MySQL版本简述" class="headerlink" title="一、MySQL版本简述"></a>一、MySQL版本简述</h1><ul>
+<li>MySQL Community Server 社区版本，开源免费，自由下载，但不提供官方技术支持，适用于大多数普通用户。</li>
+<li>MySQL Enterprise Edition 企业版本，需付费，不能在线下载，可以试用30天。提供了更多的功能和更完备的技术支持，更适合于对数据库的功能和可靠性要求较高的企业客户。</li>
+<li>MySQL Cluster 集群版，开源免费。用于架设集群服务器，可将几个MySQL Server封装成一个Server。需要在社区版或企业版的基础上使用。</li>
+<li>MySQL Cluster CGE 高级集群版，需付费。</li>
+</ul>
+<p>此外，官方还提供了 MySQL Workbench （GUITOOL）一款专为MySQL设计的 图形界面管理工具 。MySQLWorkbench又分为两个版本，分别是 社区版 （MySQL Workbench OSS）、 商用版 （MySQLWorkbenchSE）。</p>
+<p><strong>官网地址</strong></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.mysql.com<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="二、包管理器安装"><a href="#二、包管理器安装" class="headerlink" title="二、包管理器安装"></a>二、包管理器安装</h1><p>包管理器安装一般是安装最新版本</p>
+<h2 id="2-1-yum安装"><a href="#2-1-yum安装" class="headerlink" title="2.1 yum安装"></a>2.1 yum安装</h2><h3 id="2-1-1-进入官网的下载网页获取repo的rpm包网址"><a href="#2-1-1-进入官网的下载网页获取repo的rpm包网址" class="headerlink" title="2.1.1 进入官网的下载网页获取repo的rpm包网址"></a>2.1.1 进入官网的下载网页获取repo的rpm包网址</h3><ol>
+<li>浏览器输入MySQL官方地址并打开</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-1.png" srcset="/blog/img/loading.gif"></p>
+<ol start="2">
+<li>点击“downloads”</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-2.png" srcset="/blog/img/loading.gif"></p>
+<ol start="3">
+<li>进入downloads页面后，把网页拉到中间，点击“MySQL Community (GPL) Downloads”</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-3.png" srcset="/blog/img/loading.gif"></p>
+<ol start="4">
+<li>点击“MySQL Yum Rpository”</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-4.png" srcset="/blog/img/loading.gif"></p>
+<ol start="5">
+<li>选择对应系统版本下载对应的安装包（这里以CentOS7为例）</li>
+</ol>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-5.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="2-1-2-卸载mariadb，安装-gpg-key和repo文件"><a href="#2-1-2-卸载mariadb，安装-gpg-key和repo文件" class="headerlink" title="2.1.2 卸载mariadb，安装 gpg key和repo文件"></a>2.1.2 卸载mariadb，安装 gpg key和repo文件</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment">#因为CentOS7内置了mariadb，所以在安装前把mariadb卸载</span><br>rpm -e --nodeps `rpm -qa | grep mariadb`<br><span class="hljs-comment">#安装repo的的rpm包</span><br>rpm -ih --force --nodeps https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm <span class="hljs-comment">#只有MySQL5.7和MySQL8的仓库</span><br>rpm -ih --force --nodeps https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm <span class="hljs-comment">#有MySQL5.5到MySQL8的仓库</span><br><span class="hljs-comment">#导入gpg key</span><br><span class="hljs-comment">#该gpg key可以通过查看MySQL的repo文件得知MySQL的安装包地址，然后通过该地址找到形影的gpg key。</span><br>rpm --import http://repo.mysql.com/RPM-GPG-KEY-mysql-2022<br>rpm --import http://repo.mysql.com/RPM-GPG-KEY-mysql<br><br><span class="hljs-comment">#建议：将MySQL的repo文件的地址修改为国内源地址</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-1-yum安装MySQL8-0-X版本"><a href="#2-1-1-yum安装MySQL8-0-X版本" class="headerlink" title="2.1.1 yum安装MySQL8.0.X版本"></a>2.1.1 yum安装MySQL8.0.X版本</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh"><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-2-yum安装MySQL5-7-X版本"><a href="#2-1-2-yum安装MySQL5-7-X版本" class="headerlink" title="2.1.2 yum安装MySQL5.7.X版本"></a>2.1.2 yum安装MySQL5.7.X版本</h3><h3 id="2-1-3-yum安装MySQL5-6-X版本"><a href="#2-1-3-yum安装MySQL5-6-X版本" class="headerlink" title="2.1.3 yum安装MySQL5.6.X版本"></a>2.1.3 yum安装MySQL5.6.X版本</h3><h3 id="2-1-4-yum安装MySQL5-5-X版本"><a href="#2-1-4-yum安装MySQL5-5-X版本" class="headerlink" title="2.1.4 yum安装MySQL5.5.X版本"></a>2.1.4 yum安装MySQL5.5.X版本</h3><h2 id="2-2-apt安装"><a href="#2-2-apt安装" class="headerlink" title="2.2 apt安装"></a>2.2 apt安装</h2><h3 id="2-2-1-apt安装MySQL8-0-X版本"><a href="#2-2-1-apt安装MySQL8-0-X版本" class="headerlink" title="2.2.1 apt安装MySQL8.0.X版本"></a>2.2.1 apt安装MySQL8.0.X版本</h3><h3 id="2-2-2-apt安装MySQL5-7-X版本"><a href="#2-2-2-apt安装MySQL5-7-X版本" class="headerlink" title="2.2.2 apt安装MySQL5.7.X版本"></a>2.2.2 apt安装MySQL5.7.X版本</h3><h1 id="三、安装指定版本"><a href="#三、安装指定版本" class="headerlink" title="三、安装指定版本"></a>三、安装指定版本</h1><h2 id="3-1-rpm安装"><a href="#3-1-rpm安装" class="headerlink" title="3.1 rpm安装"></a>3.1 rpm安装</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql-community-client.x86_64<br>mysql-community-libs-compat<br>mysql-community-libs.x86_64<br>mysql-community-client-plugins<br>mysql-community-common<br>mysql-community-server<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-deb安装"><a href="#3-2-deb安装" class="headerlink" title="3.2 deb安装"></a>3.2 deb安装</h2><h2 id="3-3-源码安装"><a href="#3-3-源码安装" class="headerlink" title="3.3 源码安装"></a>3.3 源码安装</h2><h2 id="3-4-二进制安装"><a href="#3-4-二进制安装" class="headerlink" title="3.4 二进制安装"></a>3.4 二进制安装</h2><h1 id="四、登录MySQL"><a href="#四、登录MySQL" class="headerlink" title="四、登录MySQL"></a>四、登录MySQL</h1><h2 id="4-1-启动MySQL"><a href="#4-1-启动MySQL" class="headerlink" title="4.1 启动MySQL"></a>4.1 启动MySQL</h2><h2 id="4-2-设置MySQL-root用户密码"><a href="#4-2-设置MySQL-root用户密码" class="headerlink" title="4.2 设置MySQL root用户密码"></a>4.2 设置MySQL root用户密码</h2><h2 id="4-3-使用MySQL客户端登录MySQL"><a href="#4-3-使用MySQL客户端登录MySQL" class="headerlink" title="4.3 使用MySQL客户端登录MySQL"></a>4.3 使用MySQL客户端登录MySQL</h2><p>一般使用yum或apt安装时，都会安装上MySQL的客户端。</p>
+<p>新安装的MySQL只有root用户可以登录。之后可以通过添加用户来使用别的用户登录MySQL。</p>
+<p>格式：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -u用户名 -p密码 -h主机名 -P端口号<br></code></pre></td></tr></table></figure>
+
+<p>举例1：</p>
+<p>使用root用户登录，主机：localhost，密码：123456，端口：3306</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -uroot -p123456 -hlocalhost -P3306<br></code></pre></td></tr></table></figure>
+
+<p>举例2：</p>
+<p>使用root用户登录，主机：localhost，密码：123456，端口：3306</p>
+<p><strong>注意：如果登录用户的主机为默认的localhost和端口也为默认的3306，那么可以不用输入<code>-h</code>和<code>-P</code></strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -uroot -p123456<br></code></pre></td></tr></table></figure>
+
+<p>举例3：</p>
+<p>使用root用户登录，主机：localhost，密码：123456，端口：3306</p>
+<p><strong>注意：不想在命令行显示输入密码，可以不输入密码，等待<code>Enter password:</code>出现后输入密码。此时输入的密码并不会显示在屏幕上。</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -uroot -p<br>Enter password:<br></code></pre></td></tr></table></figure>
+
+<p>举例4：</p>
+<p>使用<strong>joe用户</strong>登录，主机：localhost，密码：123456，端口：3306</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -ujoe -p123456<br></code></pre></td></tr></table></figure>
+
+<p>举例5：</p>
+<p>使用joe用户登录，<strong>主机：127.0.0.1</strong>，密码：123456，端口：3306</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -ujoe -p123456 -h127.0.0.1 -P3306<br></code></pre></td></tr></table></figure>
+
+<p>举例6：</p>
+<p>使用joe用户登录，主机：127.0.0.1，密码：123456，<strong>端口：3307</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -ujoe -p123456 -h127.0.0.1 -P3307<br></code></pre></td></tr></table></figure>
+
+<p>举例7：</p>
+<p>使用<strong>Trump用户</strong>登录，<strong>主机：192.168.255.5</strong>，密码：123456，<strong>端口：13306</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql -uTrump -p123456 -h192.168.255.5 -P3306<br></code></pre></td></tr></table></figure>
+
+<p>总结：</p>
+<ol>
+<li>使用MySQL客户端登录MySQL主要是格式上的4个参数。如果登录时某些错误后，在确认好MySQL是正常运行的情况下，修改某个参数即可。</li>
+<li>如果为了安全不想在命令行上显示输入的密码，可以将密码留空，等输入回车后出现<code>Enter password: </code>后再输入密码。</li>
+</ol>
+<h2 id="4-4-退出登录"><a href="#4-4-退出登录" class="headerlink" title="4.4 退出登录"></a>4.4 退出登录</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; exit<br>#或<br>mysql&gt; quit<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="五、MySQL使用演示"><a href="#五、MySQL使用演示" class="headerlink" title="五、MySQL使用演示"></a>五、MySQL使用演示</h1><h2 id="5-1-查看所有数据库"><a href="#5-1-查看所有数据库" class="headerlink" title="5.1 查看所有数据库"></a>5.1 查看所有数据库</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show databases;<br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| mysql              |<br>| performance_schema |<br>| sys                |<br>+--------------------+<br>6 rows in set (0.02 sec)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>“information_schema”是 MySQL 系统自带的数据库，主要保存 MySQL 数据库服务器的系统信息，比如数据库的名称、数据表的名称、字段名称、存取权限、数据文件 所在的文件夹和系统使用的文件夹，等等。</p>
+<p>“performance_schema”是 MySQL 系统自带的数据库，可以用来监控 MySQL 的各类性能指标。</p>
+<p>“sys”数据库是 MySQL 系统自带的数据库，主要作用是以一种更容易被理解的方式展示 MySQL 数据库服务器的各类性能指标，帮助系统管理员和开发人员监控 MySQL 的技术性能。</p>
+<p>“mysql”数据库保存了 MySQL 数据库服务器运行时需要的系统信息，比如数据文件夹、当前使用的字符集、约束检查信息，等等</p>
+</blockquote>
+<h2 id="5-2-创建数据库"><a href="#5-2-创建数据库" class="headerlink" title="5.2 创建数据库"></a>5.2 创建数据库</h2><p>格式：</p>
+<p><strong>注意：新建的数据库不能和已有的数据库重名</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; create databases 数据库名; #注意最后有分号“;”结尾<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>创建<code>dbtest</code>数据库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; create database dbtest;<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-3-使用数据库"><a href="#5-3-使用数据库" class="headerlink" title="5.3 使用数据库"></a>5.3 使用数据库</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; use 数据库名;<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; use dbtest;<br></code></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ol>
+<li>如果没有使用use语句，后面针对数据库的操作也没有加“数据名”的限定，那么会报“ERROR 1046<br>(3D000): No database selected”（没有选择数据库）</li>
+<li>使用完use语句之后，如果接下来的SQL都是针对一个数据库操作的，那就不用重复use了，如果要针对另<br>一个数据库操作，那么要重新use。</li>
+</ol>
+<h2 id="5-4-查看某个数据库的所有表"><a href="#5-4-查看某个数据库的所有表" class="headerlink" title="5.4 查看某个数据库的所有表"></a>5.4 查看某个数据库的所有表</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show tables from 数据库名;<br></code></pre></td></tr></table></figure>
+
+<p>举例1：</p>
+<p>查看<code>mysql</code>数据库所有表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show tables from mysql;<br>+------------------------------------------------------+<br>| Tables_in_mysql                                      |<br>+------------------------------------------------------+<br>| columns_priv                                         |<br>| component                                            |<br>| ......                                               |<br>| time_zone_transition                                 |<br>| time_zone_transition_type                            |<br>| user                                                 |<br>+------------------------------------------------------+<br>38 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>举例2：</p>
+<p>查看新建的<code>dbtest</code>数据库所有表</p>
+<p><strong>注意：<code>dbtest</code>此时并没有表，所以结果会显示“Empty set”</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show tables from dbtest;<br>Empty set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-5-创建新的表格"><a href="#5-5-创建新的表格" class="headerlink" title="5.5 创建新的表格"></a>5.5 创建新的表格</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">create table 表名称 &#123;<br>字段名 数据类型,<br>字段名 数据类型,<br>......<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>说明：如果不是最后一个字段，后面就用加逗号，因为逗号的作用是分割每个字段。</p>
+<p>举例：</p>
+<p>创建一个学生表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mysql">create table student (<br>id int,<br>name varchar(20) #说名字最长不超过20个字符<br>);<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-6-查看一个表的数据"><a href="#5-6-查看一个表的数据" class="headerlink" title="5.6 查看一个表的数据"></a>5.6 查看一个表的数据</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">select * from 数据库表名;<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>查看学生表的数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">select * from student;<br>Empty set (0.08 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-7-给表添加记录"><a href="#5-7-给表添加记录" class="headerlink" title="5.7 给表添加记录"></a>5.7 给表添加记录</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">insert into 表名称 values(值列表);<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>添加两条记录到student表中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">insert into student values(1,&#x27;Harry&#x27;);<br>insert into student values(2,&#x27;汉弗莱&#x27;);<br>insert into student values(3,&#x27;哈克&#x27;);<br></code></pre></td></tr></table></figure>
+
+<p>执行结果如下：</p>
+<p><strong>为什么会出现错误，下面会解释</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; insert into student values(1,&#x27;Harry&#x27;);<br>Query OK, 1 row affected (0.00 sec)<br><br>mysql&gt; insert into student values(2,&#x27;汉弗莱&#x27;);<br>ERROR 1366 (HY000): Incorrect string value: &#x27;\xE6\xB1\x89\xE5\xBC\x97...&#x27; for column &#x27;name&#x27; at row 1<br>mysql&gt; insert into student values(3,&#x27;哈克&#x27;);<br>ERROR 1366 (HY000): Incorrect string value: &#x27;\xE5\x93\x88\xE5\x85\x8B&#x27; for column &#x27;name&#x27; at row 1<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-8-查看创建表的信息"><a href="#5-8-查看创建表的信息" class="headerlink" title="5.8 查看创建表的信息"></a>5.8 查看创建表的信息</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show create table 表名称\G<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>查看student表的详细创建信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show create table student\G<br>*************************** 1. row ***************************<br>       Table: student<br>Create Table: CREATE TABLE `student` (<br>  `id` int(11) DEFAULT NULL,<br>  `name` varchar(20) DEFAULT NULL<br>) ENGINE=InnoDB DEFAULT CHARSET=latin1<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>上面的结果显示student表格的<code>CHARSET=latin1</code>，是MySQL的默认字符集，该字符在不支持中文。</p>
+<p><strong>如果修改<code>charset</code>，解决办法在第六点</strong></p>
+<h2 id="5-9-查看数据库的创建信息"><a href="#5-9-查看数据库的创建信息" class="headerlink" title="5.9 查看数据库的创建信息"></a>5.9 查看数据库的创建信息</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show create database 数据库名\G<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>查看<code>mysql</code>数据库的详细创建信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show create database mysql\G<br>************************** 1. row ***************************<br>       Database: mysql<br>Create Database: CREATE DATABASE `mysql` /*!40100 DEFAULT CHARACTER SET latin1 */<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>上面的结果显示<code>mysql</code>数据库也不支持中文，字符集默认是latin1。</p>
+<h2 id="5-10-删除表格、"><a href="#5-10-删除表格、" class="headerlink" title="5.10 删除表格、"></a>5.10 删除表格、</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">drop table 表明称;<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<p>删除学生表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">drop table student;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="六、修改MySQL的编码设置"><a href="#六、修改MySQL的编码设置" class="headerlink" title="六、修改MySQL的编码设置"></a>六、修改MySQL的编码设置</h1><h2 id="6-1-查看MySQL编码"><a href="#6-1-查看MySQL编码" class="headerlink" title="6.1 查看MySQL编码"></a>6.1 查看MySQL编码</h2><p>格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show variables like &#x27;character_%&#x27;;<br>show variables like &#x27;collation_%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>执行结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show variables like &#x27;character_%&#x27;;<br>+--------------------------+----------------------------+<br>| Variable_name            | Value                      |<br>+--------------------------+----------------------------+<br>| character_set_client     | utf8                       |<br>| character_set_connection | utf8                       |<br>| character_set_database   | latin1                     | #创建表的默认“charset”格式<br>| character_set_filesystem | binary                     |<br>| character_set_results    | utf8                       |<br>| character_set_server     | latin1                     |<br>| character_set_system     | utf8                       |<br>| character_sets_dir       | /usr/share/mysql/charsets/ |<br>+--------------------------+----------------------------+<br>8 rows in set (0.02 sec)<br><br>mysql&gt; show variables like &#x27;collation_%&#x27;;<br>+----------------------+-------------------+<br>| Variable_name        | Value             |<br>+----------------------+-------------------+<br>| collation_connection | utf8_general_ci   |<br>| collation_database   | latin1_swedish_ci |<br>| collation_server     | latin1_swedish_ci |<br>+----------------------+-------------------+<br>3 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-2-修改MySQL编码"><a href="#6-2-修改MySQL编码" class="headerlink" title="6.2 修改MySQL编码"></a>6.2 修改MySQL编码</h2><p><strong>该方法适用于MySQL5.7</strong>（只有MySQL5.7和以前的版本需要修改）</p>
+<p>因为在MySQL 8.0版本之前，默认字符集为latin1，utf8字符集指向的是utf8mb3。网站开发人员在数据库设计的时候往往会将编码修改为utf8字符集。如果遗忘修改默认的编码，就会出现乱码的问题。从MySQL 8.0开始，数据库的默认编码改为 <code>utf8mb4</code> ，从而避免了上述的乱码问题。</p>
+<ol>
+<li>修改MySQL配置文件</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs sh">vim /etc/my.cnf<br>[mysql]<br>......<br>default-character-set=utf8mb4 <span class="hljs-comment">#默认字符集</span><br>......<br><br>[mysqld]<br>......<br>character-set-server=utf8mb4<br>collation-server=utf8mb4_general_ci<br>......<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>重启MySQL</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sh">systemctl restart mysql<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>再次查看MySQL编码</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs sh">mysql&gt; show variables like <span class="hljs-string">&#x27;character_%&#x27;</span>;<br>+--------------------------+----------------------------+<br>| Variable_name            | Value                      |<br>+--------------------------+----------------------------+<br>| character_set_client     | utf8mb4                    |<br>| character_set_connection | utf8mb4                    |<br>| character_set_database   | utf8mb4                    |<br>| character_set_filesystem | binary                     |<br>| character_set_results    | utf8mb4                    |<br>| character_set_server     | utf8mb4                    |<br>| character_set_system     | utf8                       |<br>| character_sets_dir       | /usr/share/mysql/charsets/ |<br>+--------------------------+----------------------------+<br>8 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.01 sec)<br><br>mysql&gt; show variables like <span class="hljs-string">&#x27;collation_%&#x27;</span>;<br>+----------------------+--------------------+<br>| Variable_name        | Value              |<br>+----------------------+--------------------+<br>| collation_connection | utf8mb4_general_ci |<br>| collation_database   | utf8mb4_general_ci |<br>| collation_server     | utf8mb4_general_ci |<br>+----------------------+--------------------+<br>3 rows <span class="hljs-keyword">in</span> <span class="hljs-built_in">set</span> (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="七、MySQL图形化管理工具"><a href="#七、MySQL图形化管理工具" class="headerlink" title="七、MySQL图形化管理工具"></a>七、MySQL图形化管理工具</h1><p>MySQL图形化管理工具极大地方便了数据库的操作与管理，常用的图形化管理工具有：MySQL Workbench、phpMyAdmin、Navicat Preminum、MySQLDumper、SQLyog、dbeaver、MySQL ODBC<br>Connector。</p>
+<h2 id="7-1-MySQL-Workbench"><a href="#7-1-MySQL-Workbench" class="headerlink" title="7.1 MySQL Workbench"></a>7.1 MySQL Workbench</h2><p>MySQL官方提供的图形化管理工具MySQL Workbench完全支持MySQL 5.0以上的版本。MySQL Workbench 分为社区版和商业版，社区版完全免费，而商业版则是按年收费。</p>
+<p>MySQL Workbench 为数据库管理员、程序开发者和系统规划师提供可视化设计、模型建立、以及数据库管理功能。它包含了用于创建复杂的数据建模ER模型，正向和逆向数据库工程，也可以用于执行通常需要花费大量时间的、难以变更和管理的文档任务。</p>
+<p>下载地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://dev.mysql.com/downloads/workbench/<br></code></pre></td></tr></table></figure>
+
+<p>使用方法略。</p>
+<h2 id="7-2-Navicat"><a href="#7-2-Navicat" class="headerlink" title="7.2 Navicat"></a>7.2 Navicat</h2><p>Navicat MySQL是一个强大的MySQL数据库服务器管理和开发工具。它可以与任何3.21或以上版本的MySQL一起工作，支持触发器、存储过程、函数、事件、视图、管理用户等，对于新手来说易学易用。<br>其精心设计的图形用户界面（GUI）可以让用户用一种安全简便的方式来快速方便地创建、组织、访问和共享信息。Navicat支持中文，有免费版本提供。</p>
+<p>下载地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://www.navicat.com/<br></code></pre></td></tr></table></figure>
+
+<p>使用方法略。</p>
+<h2 id="7-3-SQLyog"><a href="#7-3-SQLyog" class="headerlink" title="7.3 SQLyog"></a>7.3 SQLyog</h2><p>SQLyog 是业界著名的 Webyog 公司出品的一款简洁高效、功能强大的图形化 MySQL 数据库管理工具。<br>这款工具是使用C++语言开发的。该工具可以方便地创建数据库、表、视图和索引等，还可以方便地进行插入、更新和删除等操作，同时可以方便地进行数据库、数据表的备份和还原。该工具不仅可以通过SQL文件进行大量文件的导入和导出，还可以导入和导出XML、HTML和CSV等多种格式的数据。</p>
+<p> 下载地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://www.webyog.com/<br></code></pre></td></tr></table></figure>
+
+<p>使用方法略。</p>
+<h2 id="7-4-dbeaver"><a href="#7-4-dbeaver" class="headerlink" title="7.4 dbeaver"></a>7.4 dbeaver</h2><p>DBeaver是一个通用的数据库管理工具和 SQL 客户端，支持所有流行的数据库：MySQL、PostgreSQL、SQLite、Oracle、DB2、SQL Server、 Sybase、MS Access、Teradata、 Firebird、Apache Hive、Phoenix、Presto等。DBeaver比大多数的SQL管理工具要轻量，而且支持中文界面。DBeaver社区版作为一个免费开源的产品，和其他类似的软件相比，在功能和易用性上都毫不逊色。</p>
+<p>下载地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://dbeaver.io/download/<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-5-使用图形化工具可能会出现的问题"><a href="#7-5-使用图形化工具可能会出现的问题" class="headerlink" title="7.5 使用图形化工具可能会出现的问题"></a>7.5 使用图形化工具可能会出现的问题</h2><p>有些图形界面工具，特别是旧版本的图形界面工具，在连接MySQL8时出现<strong>“Authentication plugin ‘caching_sha2_password’ cannot be loaded”</strong>错误。</p>
+<p>出现这个原因是MySQL8之前的版本中加密规则是mysql_native_password，而在MySQL8之后，加密规则是caching_sha2_password。</p>
+<p>解决问题方法有两种，</p>
+<ul>
+<li>第一种是升级图形界面工具版本。</li>
+<li>第二种是把MySQL8用户登录密码加密规则还原成mysql_native_password。</li>
+</ul>
+<p><strong>第二种方法的解决步骤</strong></p>
+<p>用命令行登录MySQL数据库之后，执行如下命令修改用户密码加密规则并更新用户密码，这里修改用户名为“root@localhost”的用户密码规则为“mysql_native_password”，密码自行设置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#使用mysql数据库<br>USE mysql;<br><br>#修改&#x27;root&#x27;@&#x27;localhost&#x27;用户的密码规则和密码<br>ALTER USER &#x27;root&#x27;@&#x27;localhost&#x27; IDENTIFIED WITH mysql_native_password BY &#x27;abc123&#x27;;<br><br>#刷新权限<br>FLUSH PRIVILEGES;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="八、常见问题解决"><a href="#八、常见问题解决" class="headerlink" title="八、常见问题解决"></a>八、常见问题解决</h1><h2 id="8-1-root用户密码忘记，重置的操作"><a href="#8-1-root用户密码忘记，重置的操作" class="headerlink" title="8.1 root用户密码忘记，重置的操作"></a>8.1 root用户密码忘记，重置的操作</h2><h2 id="8-2-客户端命令行的字符集问题"><a href="#8-2-客户端命令行的字符集问题" class="headerlink" title="8.2 客户端命令行的字符集问题"></a>8.2 客户端命令行的字符集问题</h2><h2 id="8-3-修改已有数据库和表的字符编码"><a href="#8-3-修改已有数据库和表的字符编码" class="headerlink" title="8.3 修改已有数据库和表的字符编码"></a>8.3 修改已有数据库和表的字符编码</h2><h3 id="8-3-1-修改数据库字符编码"><a href="#8-3-1-修改数据库字符编码" class="headerlink" title="8.3.1 修改数据库字符编码"></a>8.3.1 修改数据库字符编码</h3><p><strong>查看数据库改前的字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show create database dbtest \G<br>*************************** 1. row ***************************<br>       Database: dbtest<br>Create Database: CREATE DATABASE `dbtest` /*!40100 DEFAULT CHARACTER SET latin1 */<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><strong>修改数据库字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; alter database dbtest charset utf8mb4;<br>Query OK, 1 row affected (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><strong>查看修改后的数据库字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show create database dbtest \G<br>*************************** 1. row ***************************<br>       Database: dbtest<br>Create Database: CREATE DATABASE `dbtest` /*!40100 DEFAULT CHARACTER SET utf8mb4 */<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h3 id="8-3-2-修改表的字符编码"><a href="#8-3-2-修改表的字符编码" class="headerlink" title="8.3.2 修改表的字符编码"></a>8.3.2 修改表的字符编码</h3><p><strong>查看表修改前的字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show create table student \G<br>*************************** 1. row ***************************<br>       Table: student<br>Create Table: CREATE TABLE `student` (<br>  `id` int(11) DEFAULT NULL,<br>  `name` varchar(20) CHARACTER SET latin1 DEFAULT NULL<br>) ENGINE=InnoDB DEFAULT CHARSET=latin1<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><strong>修改表的字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; alter table student charset utf8mb4;<br>Query OK, 0 rows affected (0.04 sec)<br>Records: 0  Duplicates: 0  Warnings: 0<br></code></pre></td></tr></table></figure>
+
+<p><strong>查看修改后表的字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show create table student \G<br>*************************** 1. row ***************************<br>       Table: student<br>Create Table: CREATE TABLE `student` (<br>  `id` int(11) DEFAULT NULL,<br>  `name` varchar(20) CHARACTER SET latin1 DEFAULT NULL<br>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h3 id="8-3-3-修改表中字段的字符编码"><a href="#8-3-3-修改表中字段的字符编码" class="headerlink" title="8.3.3 修改表中字段的字符编码"></a>8.3.3 修改表中字段的字符编码</h3><p><strong>修改表字段前的字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show create table student \G<br>*************************** 1. row ***************************<br>       Table: student<br>Create Table: CREATE TABLE `student` (<br>  `id` int(11) DEFAULT NULL,<br>  `name` varchar(20) CHARACTER SET latin1 DEFAULT NULL #表中字段还是“latin1”<br>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><strong>修改表字段的字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; alter table student modify name varchar(20) charset utf8mb4;<br>Query OK, 1 row affected (0.10 sec)<br>Records: 1  Duplicates: 0  Warnings: 0<br></code></pre></td></tr></table></figure>
+
+<p><strong>查看修改后的表字段字符编码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show create table student \G<br>*************************** 1. row ***************************<br>       Table: student<br>Create Table: CREATE TABLE `student` (<br>  `id` int(11) DEFAULT NULL,<br>  `name` varchar(20) DEFAULT NULL<br>) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2022/12/23/MySQL%E4%B9%8B%E5%9F%BA%E6%9C%AC%E7%9A%84SELECT%E8%AF%AD%E5%8F%A5/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL之基本的SELECT语句</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/12/20/MySQL%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A6%82%E8%BF%B0/">
+                        <span class="hidden-mobile">MySQL之数据库概述</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

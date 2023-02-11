@@ -1,0 +1,519 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>MySQL之多表查询 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MySQL之多表查询">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2022-12-30 16:27" pubdate>
+        2022年12月30日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      20
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL之多表查询</h1>
+            
+            <div class="markdown-body">
+              <p>多表查询，也称为关联查询，指两个或更多个表一起完成查询操作。<br>前提条件：这些一起查询的表之间是有关系的（一对一、一对多），它们之间一定是有关联字段，这个<br>关联字段可能建立了外键，也可能没有建立外键。比如：员工表和部门表，这两个表依靠“部门编号”进<br>行关联。</p>
+<h1 id="一、一个案例引发的多表连接"><a href="#一、一个案例引发的多表连接" class="headerlink" title="一、一个案例引发的多表连接"></a>一、一个案例引发的多表连接</h1><h2 id="1-1-案例说明"><a href="#1-1-案例说明" class="headerlink" title="1.1 案例说明"></a>1.1 案例说明</h2><p>举例：</p>
+<p>从多个表中获取数据：查询员工的姓名及其部门名称</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT last_name, department_name<br>FROM employees, departments;<br><br>#结果<br>+-----------+----------------------+<br>| last_name | department_name      |<br>+-----------+----------------------+<br>| King      | Administration       |<br>| King      | Marketing            |<br>| King      | Purchasing           |<br>......<br>| Gietz     | Recruiting           |<br>| Gietz     | Payroll              |<br>+-----------+----------------------+<br>2889 rows in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<p><font color=red><strong>分析错误情况：</strong></font></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT COUNT(employee_id) FROM employees;<br><br>#结果<br>+--------------------+<br>| COUNT(employee_id) |<br>+--------------------+<br>|                107 |  #输出107行<br>+--------------------+<br>1 row in set (0.07 sec)<br><br><br>SELECT COUNT(department_id)FROM departments;<br><br>#结果<br>+----------------------+<br>| COUNT(department_id) |<br>+----------------------+<br>|                   27 |   #输出27行<br>+----------------------+<br>1 row in set (0.05 sec)<br><br><br>SELECT 107*27 FROM dual;<br><br>#结果<br>+--------+<br>| 107*27 |<br>+--------+<br>|   2889 |   #输出2889行<br>+--------+<br>1 row in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>我们把上述多表查询中出现的问题称为：笛卡尔积的错误。</p>
+<h2 id="1-2-笛卡尔积（或交叉连接）的理解"><a href="#1-2-笛卡尔积（或交叉连接）的理解" class="headerlink" title="1.2 笛卡尔积（或交叉连接）的理解"></a>1.2 笛卡尔积（或交叉连接）的理解</h2><p>笛卡尔乘积是一个数学运算。假设我有两个集合 X 和 Y，那么 X 和 Y 的笛卡尔积就是 X 和 Y 的所有可能组合，也就是第一个对象来自于 X，第二个对象来自于 Y 的所有可能。组合的个数即为两个集合中元素个数的乘积数。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-6.png" srcset="/blog/img/loading.gif"></p>
+<p>SQL92中，笛卡尔积也称为<font color=orange><code>交叉连接</code></font>，英文是<font color=orange><code>CROSS JOIN</code></font>。在 SQL99 中也是使用 CROSS JOIN表示交叉连接。它的作用就是可以把任意表进行连接，即使这两张表不相关。在MySQL中如下情况会出现笛卡尔积：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#查询员工姓名和所在部门名称<br>SELECT last_name,department_name FROM employees,departments;<br>SELECT last_name,department_name FROM employees CROSS JOIN departments;<br>SELECT last_name,department_name FROM employees INNER JOIN departments;<br>SELECT last_name,department_name FROM employees JOIN departments;<br></code></pre></td></tr></table></figure>
+
+<h2 id="1-3-案例分析与问题解决"><a href="#1-3-案例分析与问题解决" class="headerlink" title="1.3 案例分析与问题解决"></a>1.3 案例分析与问题解决</h2><ul>
+<li><p><font color=red><strong>笛卡尔积的错误会在下面条件下产生：</strong></font></p>
+<ul>
+<li>省略多个表的连接条件（或关联条件）</li>
+<li>连接条件（或关联条件）无效</li>
+<li>所有表中的所有行互相连接</li>
+</ul>
+</li>
+<li><p>为了避免笛卡尔积， 可以<font color=red><strong>在 WHERE 加入有效的连接条件。</strong></font></p>
+</li>
+<li><p>加入连接条件后，查询语法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT table1.column, table2.column<br>FROM table1, table2<br>WHERE table1.column1 = table2.column2;  #连接条件<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><font color=red><strong>在 WHERE子句中写入连接条件。</strong></font></li>
+</ul>
+</li>
+<li><p>正确写法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#案例：查询员工的姓名及其部门名称<br>SELECT last_name, department_name<br>FROM employees, departments<br>WHERE employees.department_id = departments.department_id;<br><br>#结果<br>+-------------+------------------+<br>| last_name   | department_name  |<br>+-------------+------------------+<br>| Whalen      | Administration   |<br>| Hartstein   | Marketing        |<br>......<br>| Popp        | Finance          |<br>| Higgins     | Accounting       |<br>| Gietz       | Accounting       |<br>+-------------+------------------+<br>106 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure></li>
+<li><p><font color=red><strong>在表中有相同列时，在列名之前加上表名前缀。</strong></font></p>
+</li>
+</ul>
+<h1 id="二、夺标查询分类讲解"><a href="#二、夺标查询分类讲解" class="headerlink" title="二、夺标查询分类讲解"></a>二、夺标查询分类讲解</h1><h2 id="2-1-等值连接-vs-非等值连接"><a href="#2-1-等值连接-vs-非等值连接" class="headerlink" title="2.1 等值连接 vs 非等值连接"></a>2.1 等值连接 vs 非等值连接</h2><h3 id="2-1-1-等值连接"><a href="#2-1-1-等值连接" class="headerlink" title="2.1.1 等值连接"></a>2.1.1 等值连接</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-7.png" srcset="/blog/img/loading.gif"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT employees.employee_id,employees.last_name,employees.department_id,departments.department_id,departments.location_id<br>FROM employees,departments<br>WHERE employees.department_id = departments.department_id;<br><br>#结果<br>+-------------+-------------+---------------+---------------+-------------+<br>| employee_id | last_name   | department_id | department_id | location_id |<br>+-------------+-------------+---------------+---------------+-------------+<br>|         103 | Hunold      |            60 |            60 |        1400 |<br>|         104 | Ernst       |            60 |            60 |        1400 |<br>......<br>|         179 | Johnson     |            80 |            80 |        2500 |<br>|         204 | Baer        |            70 |            70 |        2700 |<br>+-------------+-------------+---------------+---------------+-------------+<br>106 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><font color=DarkRed><strong>拓展2：区分重复的列名</strong></font></p>
+<ul>
+<li><font color=DarkRed><strong>多个表中有相同列时，必须在列名之前加上表名前缀。</strong></font></li>
+<li>在不同表中具有相同列名的列可以用<font color=orange><strong>表名</strong></font>加以区分。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT employees.last_name,departments.department_name,employees.department_id<br>FROM employees,departments<br>WHERE employees.department_id = departments.department_id;<br><br>#结果<br>+-------------+------------------+---------------+<br>| last_name   | department_name  | department_id |<br>+-------------+------------------+---------------+<br>| Whalen      | Administration   |            10 |<br>| Hartstein   | Marketing        |            20 |<br>......<br>| Higgins     | Accounting       |           110 |<br>| Gietz       | Accounting       |           110 |<br>+-------------+------------------+---------------+<br>106 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><font color=DarkRed><strong>拓展3：表的别名</strong></font></p>
+<ul>
+<li>使用别名可以简化查询。</li>
+<li>列名前使用表名前缀可以提高查询效率。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT e.employee_id,e.last_name,e.department_id,d.department_id,d.location_id<br>FROM employees e,departments d<br>WHERE e.department_id = d.department_id;<br><br>#结果<br>+-------------+-------------+---------------+---------------+-------------+<br>| employee_id | last_name   | department_id | department_id | location_id |<br>+-------------+-------------+---------------+---------------+-------------+<br>|         103 | Hunold      |            60 |            60 |        1400 |<br>|         104 | Ernst       |            60 |            60 |        1400 |<br>......<br>|         177 | Livingston  |            80 |            80 |        2500 |<br>|         179 | Johnson     |            80 |            80 |        2500 |<br>|         204 | Baer        |            70 |            70 |        2700 |<br>+-------------+-------------+---------------+---------------+-------------+<br>106 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，如果我们使用了表的别名，在查询字段中、过滤条件中就只能使用别名进行代替，<br>不能使用原有的表名，否则就会报错。</p>
+<p>阿里开发规范 ：</p>
+<blockquote>
+<p>【 <font color=orange>强制</font> 】对于数据库中表记录的查询和变更，只要涉及多个表，都需要在列名前加表的别名（或<br>表名）进行限定。</p>
+<p><font color=orange>说明</font>：对多表进行查询记录、更新记录、删除记录时，如果对操作列没有限定表的别名（或表<br>名），并且操作列在多个表中存在时，就会抛异常。</p>
+<p><font color=orange>正例</font>：select t1.name from table_first as t1 , table_second as t2 where t1.id=t2.id;</p>
+<p><font color=orange>反例</font>：在某业务中，由于多表关联查询语句没有加表的别名（或表名）的限制，正常运行两年<br>后，最近在 某个表中增加一个同名字段，在预发布环境做数据库变更后，线上查询语句出现出<br>1052 异常：Column ‘name’ in field list is ambiguous。</p>
+</blockquote>
+<p><font color=DarkRed><strong>拓展4：连接多个表</strong></font></p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-8.png" srcset="/blog/img/loading.gif"></p>
+<p><font color=DarkRed><strong>总结：连接 n个表,至少需要n-1个连接条件。</strong></font>比如，连接三个表，至少需要两个连接条件。</p>
+<p>练习：</p>
+<p>查询出公司员工的 last_name,department_name, city</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT e.last_name,d.department_id,l.city <br>FROM employees e,departments d,locations l <br>WHERE e.department_id = d.department_id AND d.location_id = l.location_id;<br><br>#结果<br>+-------------+---------------+---------------------+<br>| last_name   | department_id | city                |<br>+-------------+---------------+---------------------+<br>| Hunold      |            60 | Southlake           |<br>| Ernst       |            60 | Southlake           |<br>......<br>| Johnson     |            80 | Oxford              |<br>| Baer        |            70 | Munich              |<br>+-------------+---------------+---------------------+<br>106 rows in set (0.03 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-1-2-非等值连接"><a href="#2-1-2-非等值连接" class="headerlink" title="2.1.2 非等值连接"></a>2.1.2 非等值连接</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-9.png" srcset="/blog/img/loading.gif"></p>
+<p>举例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT e.last_name,e.salary,j.grade_level <br>FROM employees e,job_grades j <br>WHERE e.salary BETWEENj.lowest_sal AND j.highest_Sal;<br><br>#结果<br>+-------------+----------+-------------+<br>| last_name   | salary   | grade_level |<br>+-------------+----------+-------------+<br>| King        | 24000.00 | E           |<br>| Kochhar     | 17000.00 | E           |<br>| De Haan     | 17000.00 | E           |<br>......<br>| Higgins     | 12000.00 | D           |<br>| Gietz       |  8300.00 | C           |<br>+-------------+----------+-------------+<br>107 rows in set (0.02 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-自连接-vs-非自连接"><a href="#2-2-自连接-vs-非自连接" class="headerlink" title="2.2 自连接 vs 非自连接"></a>2.2 自连接 vs 非自连接</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-10.png" srcset="/blog/img/loading.gif"></p>
+<p>当table1和table2本质上是同一张表，只是用取别名的方式虚拟成两张表以代表不同的意义。然后两个表再进行内连接，外连接等查询。</p>
+<p>举例1：</p>
+<p>查询employees表，返回“Xxx works for Xxx”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT CONCAT(worker.last_name,&#x27; works for &#x27;,manager.last_name) <br>FROM employees worker,employees manager <br>WHERE worker.manager_id = manager.employee_id; <br><br>#结果<br>+----------------------------------------------------------+<br>| CONCAT(worker.last_name,&#x27; works for &#x27;,manager.last_name) |<br>+----------------------------------------------------------+<br>| Kochhar works for King                                   |<br>| De Haan works for King                                   |<br>| Hunold works for De Haan                                 |<br>......<br>| Mavris works for Kochhar                                 |<br>| Baer works for Kochhar                                   |<br>| Higgins works for Kochhar                                |<br>| Gietz works for Higgins                                  |<br>+----------------------------------------------------------+<br>106 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>举例2：</p>
+<p>查询员工id,员工姓名及其管理者的id和姓名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql"><br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Promehteus%E7%AE%80%E4%BB%8B/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Promehteus简介</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/12/29/MySQL%E4%B9%8B%E6%8E%92%E5%BA%8F%E4%B8%8E%E5%88%86%E9%A1%B5/">
+                        <span class="hidden-mobile">MySQL之排序与分页</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

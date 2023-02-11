@@ -181,22 +181,19 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/11/07/%E5%AE%9E%E7%8E%B0LAMP%E6%9E%B6%E6%9E%84/">实现LAMP架构</a>
+        <a href="/blog/2023/02/08/Prometheus%E4%B9%8B%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/">Prometheus之存储系统</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/11/07/%E5%AE%9E%E7%8E%B0LAMP%E6%9E%B6%E6%9E%84/">
+        <a href="/blog/2023/02/08/Prometheus%E4%B9%8B%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/">
           
           
             
           
-          一、LAMP介绍1.1 动态资源与语言1.1.1 WEB资源类型
-静态资源：原始形式与响应内容一致，在客户端浏览器执行
-动态资源：原始形式通常为程序文件，需要在服务器端执行之后，将执行结果返回给客户端
+          Prometheus存储系统一、prometheus本地存储简介Prometheus有着非常高效的时间序列数据存储方法，每个采样数据仅仅占用3.5byte左右空间。假如有上百万条时间序列，30秒的采样频率，采样数据保留60天，大概会占用200多G空间。
+默认情况下，prometheus将采集到的数据存储在本地的TSDB数据库中，路径默认为prometheus安装目录的data目录。
 
-注意：静态和动态的区别，不在于网页是否能动态变化，而在于服务端的页面文件和客户端得到页面文件是否一致
-范例：静态资源
-1234#客户端主机现在的时间:&lt;script type=&quot;t
+数据写入过程
         </a>
       </p>
 
@@ -204,8 +201,45 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-11-07 16:48" pubdate>
-              2022-11-07
+            <time datetime="2023-02-08 14:40" pubdate>
+              2023-02-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2023/02/06/Prometheus%E4%B9%8B%E8%81%94%E9%82%A6/">Prometheus之联邦</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2023/02/06/Prometheus%E4%B9%8B%E8%81%94%E9%82%A6/">
+          
+          
+            
+          
+          Prometheus之联邦一、prometheus联邦简介1.1 什么是联邦集群一个prometheus server联邦下面有多个prometheus server的联邦节点，这些联邦节点下有多个exproter。从exporter采集到的数据最终都会汇总到prometheus server联邦上。
+
+
+一个prometheus server（简称A）下有多个prometheus server（
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-02-06 14:14" pubdate>
+              2023-02-06
             </time>
           </div>
         
@@ -214,7 +248,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/apache-lamp/">apache lamp</a>
+              <a href="/blog/tags/prometheus/">prometheus</a>
             
           </div>
         
@@ -228,17 +262,21 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/10/26/HTTPP%E5%8D%8F%E8%AE%AE%E5%92%8CWEB%E6%9C%8D%E5%8A%A1%E5%99%A8APACHE/">HTTPP协议和WEB服务器APACHE</a>
+        <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/">Prometheus之数据与可视化</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/10/26/HTTPP%E5%8D%8F%E8%AE%AE%E5%92%8CWEB%E6%9C%8D%E5%8A%A1%E5%99%A8APACHE/">
+        <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/">
           
           
             
           
-          HTTPP协议和WEB服务器APACHE一、Internet和HTTP协议1.1Internet 因特网
-因特网是”Internet”的中文译名，它起源于美国的五角大楼，它的前身是美国国防部高级研究计划局（ARPA）主持研制的ARPAnet。20世纪50年代末，正处于冷战时期。当时美国军方为了自己的计算机网络在受到袭击时,即使部分网络被摧毁，其余部分仍能保持通信联系，便由美国国防部的高级研究计划局
+          Prometheus之数据与可视化一、二、Grafana2.1 Grafana简介grafana是一款近几年新兴的开源数据绘图工具平台。现如今在各大企业中被广泛使用。其强大而美观的绘图能力以及4.0之后的报警功能让人爱不释手。
+Grafana官方网站：
+1https://grafana.com
+
+Grafana官方下载网站：
+1https://grafana.com/grafana/downloa
         </a>
       </p>
 
@@ -246,8 +284,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-26 15:52" pubdate>
-              2022-10-26
+            <time datetime="2023-01-10 16:05" pubdate>
+              2023-01-10
             </time>
           </div>
         
@@ -256,7 +294,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Apache-httpd/">Apache httpd</a>
+              <a href="/blog/tags/prometheus-grafana/">prometheus grafana</a>
             
           </div>
         
@@ -270,16 +308,17 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/10/19/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E5%B7%A5%E5%85%B7%E5%92%8C%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">文本处理工具和正则表达式</a>
+        <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%8E%A2%E7%B4%A2PromQL/">Prometheus之探索PromQL</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/10/19/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E5%B7%A5%E5%85%B7%E5%92%8C%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">
+        <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%8E%A2%E7%B4%A2PromQL/">
           
           
             
           
-          一、文本编辑工具 VIM二、各种文本工具三、基本正则表达式和扩展正则表达式四、文本处理三剑客之grep五、文本处理三剑客之sed六、文本处理三剑客之awk
+          探索PromQL通过PromQL用户可以非常方便地对监控样本数据进行统计分析，PromQL支持常见的运算操作符，同时PromQL中还提供了大量的内置函数可以实现对数据的高级处理。当然在学习PromQL之前，还需要了解Prometheus的样本数据模型。PromQL作为Prometheus的核心能力除了实现数据的对外查询和展现，同时告警监控也是依赖PromQL实现的。
+Prometheu提供一个函数
         </a>
       </p>
 
@@ -287,54 +326,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-10-19 17:32" pubdate>
-              2022-10-19
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/05/16/%E5%B1%80%E5%9F%9F%E7%BD%91%E5%86%85%E8%BF%9E%E6%8E%A5%E5%85%B6%E4%BB%96%E7%94%B5%E8%84%91%E7%9A%84VMWare%E8%99%9A%E6%8B%9F%E6%9C%BA/">局域网内连接其他电脑的VMWare虚拟机</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/05/16/%E5%B1%80%E5%9F%9F%E7%BD%91%E5%86%85%E8%BF%9E%E6%8E%A5%E5%85%B6%E4%BB%96%E7%94%B5%E8%84%91%E7%9A%84VMWare%E8%99%9A%E6%8B%9F%E6%9C%BA/">
-          
-          
-            
-          
-          局域网内连接其他电脑的VMWare虚拟机一、流程图二、实现过程2.1 修改windows电脑的防火墙配置开始-&gt;点击“Windows 系统”-&gt;点击“控制面板”
-
-点击“windwos Defender 防火墙”
-
-点击“高级设置”
-
-点击“入站规则”
-
-点击”入站规则“
-
-点击”端口“-&gt;点击”下一步“
-
-选择”TCP“-&gt;选择”特定本地端口“-&gt;输入”6379“-
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-16 23:07" pubdate>
-              2022-05-16
+            <time datetime="2023-01-10 10:58" pubdate>
+              2023-01-10
             </time>
           </div>
         
@@ -343,7 +336,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Vmware/">Vmware</a>
+              <a href="/blog/tags/prometheus/">prometheus</a>
             
           </div>
         
@@ -357,20 +350,17 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/05/14/Ubuntu1804%E5%AE%89%E8%A3%85gitlab-ce/">Ubuntu1804安装gitlab-ce</a>
+        <a href="/blog/2023/01/10/Prometheus%E4%B9%8BPushgateway%E4%BB%8B%E7%BB%8D%E4%B8%8E%E4%BD%BF%E7%94%A8/">Prometheus之Pushgateway介绍与使用</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/05/14/Ubuntu1804%E5%AE%89%E8%A3%85gitlab-ce/">
+        <a href="/blog/2023/01/10/Prometheus%E4%B9%8BPushgateway%E4%BB%8B%E7%BB%8D%E4%B8%8E%E4%BD%BF%E7%94%A8/">
           
           
             
           
-          Ubuntu 1804 安装 gitlab-ce一、安装和配置必须的依赖项12345#更新aptapt update#安装依赖apt install -y curl openssh-server ca-certificates tzdata perl
-
-
-
-二、下载 deb 包并且安装2.1 所有gitlab-ce的版本123456789101112131415161718192021222324
+          Pushgateway介绍与使用一、pushgateway介绍pushgateway是另一种采用被动推送的方式（exporter是主动获取）获取监控数据的prometheus插件。
+pushgateway是可以单独运行在任何节点上的插件（并不一定要在被监控客户端），通过用户自定义开发脚本把需要监控的数据发送给pushgateway，最后pushgateway再把数据推送给prometheus se
         </a>
       </p>
 
@@ -378,8 +368,42 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-14 20:54" pubdate>
-              2022-05-14
+            <time datetime="2023-01-10 10:58" pubdate>
+              2023-01-10
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2023/01/10/Prometheus%E5%91%8A%E8%AD%A6%E5%A4%84%E7%90%86/">Prometheus告警处理</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2023/01/10/Prometheus%E5%91%8A%E8%AD%A6%E5%A4%84%E7%90%86/">
+          
+          
+            
+          
+          Prometheus告警处理在前面的部分中已经介绍了告警能力在Prometheus的架构中被划分为两个部分，在Prometheus Server中定义告警规则以及产生告警，Alertmanager组件则用于处理这些由Prometheus产生的告警。Alertmanager即Prometheus体系中告警的统一处理中心。Alertmanager提供了多种内置第三方告警通知方式，同时还提供了对Webh
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-01-10 10:58" pubdate>
+              2023-01-10
             </time>
           </div>
         
@@ -388,7 +412,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/gitlab-ce-Ubuntu/">gitlab-ce Ubuntu</a>
+              <a href="/blog/tags/prometheus/">prometheus</a>
             
           </div>
         
@@ -402,19 +426,21 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/05/08/SonarQube%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E6%B5%8B%E8%AF%95/">SonarQube代码质量测试</a>
+        <a href="/blog/2023/01/10/Prometheus%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">Prometheus安装与初步使用</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/05/08/SonarQube%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E6%B5%8B%E8%AF%95/">
+        <a href="/blog/2023/01/10/Prometheus%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">
           
           
             
           
-          一、SonarQube 简介1.1 SonarQube 简单介绍SonarQube 是一个用于代码质量管理的开放平台，通过插件机制，SonarQube 可以集成不同的测试工具，代码分析工具，以及持续集成工具，例如 Hudson/Jenkins 等。
-官方网站：http://www.sonarqube.org/
-官方下载网站：https://www.sonarqube.org/downloads/
-
+          Prometheus 安装与初步使用系统：CentOS 7.9
+配置：4cpu、2g内存
+安装软件：prometheus server、node_exporter
+一、安装前准备1.1 设置时区
+查看时区
+12345678910111213#查看时区是否正确# timedatectl status     Local time: Fri 2022-12-30 21:15:08 CST  Unive
         </a>
       </p>
 
@@ -422,8 +448,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-08 11:42" pubdate>
-              2022-05-08
+            <time datetime="2023-01-10 10:57" pubdate>
+              2023-01-10
             </time>
           </div>
         
@@ -432,7 +458,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/SonarQube/">SonarQube</a>
+              <a href="/blog/tags/prometheus/">prometheus</a>
             
           </div>
         
@@ -446,21 +472,16 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">CentOS7使用yum安装PostgreSQL</a>
+        <a href="/blog/2023/01/10/Promehteus%E7%AE%80%E4%BB%8B/">Promehteus简介</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">
+        <a href="/blog/2023/01/10/Promehteus%E7%AE%80%E4%BB%8B/">
           
           
             
           
-          一、安装PostgreSQL这里以安装 PostgreSQL 12来做例子
-进入PostgreSQL的红帽版本的下载网站：
-https://www.postgresql.org/download/linux/redhat/
-选择对应的版本，安装即可。
-
-1234567891011#安装PostgreSQL仓库的repo文件yum install -y https://download.postgr
+          Prometheus简介一、什么是PrometheusPrometheus是由前Google工程师从2012年开始在Soundcloud以开源软件的形式进行研发的系统监控和告警工具包。自比以后，许多公司和组织都采用了Prometheus作为监控告警工具。Prometheus的开发者和用户社区非常活跃，它现在是一个独立的开源项目，可以独立于任何公司进行维护。为了证明这一点，Prometheus于20
         </a>
       </p>
 
@@ -468,8 +489,8 @@ https://www.postgresql.org/download/linux/redhat/
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-05-07 22:26" pubdate>
-              2022-05-07
+            <time datetime="2023-01-10 10:57" pubdate>
+              2023-01-10
             </time>
           </div>
         
@@ -478,7 +499,7 @@ https://www.postgresql.org/download/linux/redhat/
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/PostgreSQL-Linux/">PostgreSQL Linux</a>
+              <a href="/blog/tags/prometheus/">prometheus</a>
             
           </div>
         
@@ -492,16 +513,19 @@ https://www.postgresql.org/download/linux/redhat/
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/04/08/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85gitlab/">CentOS7使用yum安装gitlab</a>
+        <a href="/blog/2022/12/30/MySQL%E4%B9%8B%E5%A4%9A%E8%A1%A8%E6%9F%A5%E8%AF%A2/">MySQL之多表查询</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/04/08/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85gitlab/">
+        <a href="/blog/2022/12/30/MySQL%E4%B9%8B%E5%A4%9A%E8%A1%A8%E6%9F%A5%E8%AF%A2/">
           
           
             
           
-          CentOS7使用yum安装gitlab一、配置yum源12345678vim /etc/yum.repos.d/gitlab.repo[gitlab-ce]name=Gitlab CE Repositorybaseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/gpgcheck=0enabled=1yum 
+          多表查询，也称为关联查询，指两个或更多个表一起完成查询操作。前提条件：这些一起查询的表之间是有关系的（一对一、一对多），它们之间一定是有关联字段，这个关联字段可能建立了外键，也可能没有建立外键。比如：员工表和部门表，这两个表依靠“部门编号”进行关联。
+一、一个案例引发的多表连接1.1 案例说明举例：
+从多个表中获取数据：查询员工的姓名及其部门名称
+123456789101112131415SELE
         </a>
       </p>
 
@@ -509,47 +533,8 @@ https://www.postgresql.org/download/linux/redhat/
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-04-08 21:29" pubdate>
-              2022-04-08
-            </time>
-          </div>
-        
-        
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">CentOS7使用rpm方式安装gitlab</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">
-          
-          
-            
-          
-          CentOS7使用rpm方式安装gitlab此教程以安装gitlab14.2.1版本为基础
-一、安装前准备1234567#关闭防火墙systemctl stop firewalld#关闭selinuxvim /etc/sysconfig/selinux.....SELINUX=disabled......
-
-
-
-二、安装依赖1yum install -y curl policycoreutils-
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-04-07 21:01" pubdate>
-              2022-04-07
+            <time datetime="2022-12-30 16:27" pubdate>
+              2022-12-30
             </time>
           </div>
         
@@ -558,7 +543,7 @@ https://www.postgresql.org/download/linux/redhat/
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/gitlab/">gitlab</a>
+              <a href="/blog/tags/MySQL/">MySQL</a>
             
           </div>
         
@@ -572,24 +557,26 @@ https://www.postgresql.org/download/linux/redhat/
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/04/05/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">阿里云专有网络VPC</a>
+        <a href="/blog/2022/12/29/MySQL%E4%B9%8B%E6%8E%92%E5%BA%8F%E4%B8%8E%E5%88%86%E9%A1%B5/">MySQL之排序与分页</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/04/05/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">
+        <a href="/blog/2022/12/29/MySQL%E4%B9%8B%E6%8E%92%E5%BA%8F%E4%B8%8E%E5%88%86%E9%A1%B5/">
           
           
             
           
-          阿里云专有网络VPC学习目标：
-了解专有网络VPC的产生背景以及优势
-了解专有网络VPC及相关组件的概念和使用方法
-掌握专有网络VPC的使用场景和最佳实践
-VPC、SLB、NAT、EIP、VPN、共享带宽、共享流量包
-一、专有网络VPC1.1 专用网络VPC介绍
-1.2 专有网络VPC特点
-灵活：自主网络规划管理，灵活掌握网络部署
-易扩展：使用NAT网关可管理公网出入口，结合高速通道实现混合云架构
+          一、排序数据1.1 排序规则
+使用 ORDER BY 子句排序
+ASC（ascend）: 升序
+DESC（descend）:降序
+
+
+ORDER BY 子句在SELECT语句的结尾
+
+1.2 单列排序举例1：
+hire_date使用降序前
+12345678910111213141516SELECT last_name,job_id,department_id,hire_dateFROM emplo
         </a>
       </p>
 
@@ -597,8 +584,8 @@ VPC、SLB、NAT、EIP、VPN、共享带宽、共享流量包
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-04-05 21:47" pubdate>
-              2022-04-05
+            <time datetime="2022-12-29 15:06" pubdate>
+              2022-12-29
             </time>
           </div>
         
@@ -607,7 +594,7 @@ VPC、SLB、NAT、EIP、VPN、共享带宽、共享流量包
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/%E9%98%BF%E9%87%8C%E4%BA%91-%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">阿里云 专有网络VPC</a>
+              <a href="/blog/tags/MySQL/">MySQL</a>
             
           </div>
         
@@ -619,7 +606,7 @@ VPC、SLB、NAT、EIP、VPN、共享带宽、共享流量包
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/8/">8</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

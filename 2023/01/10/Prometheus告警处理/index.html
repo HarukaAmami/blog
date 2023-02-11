@@ -1,0 +1,1048 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Prometheus告警处理 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Prometheus告警处理">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-01-10 10:58" pubdate>
+        2023年1月10日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      12k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      169
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Prometheus告警处理</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Prometheus告警处理"><a href="#Prometheus告警处理" class="headerlink" title="Prometheus告警处理"></a>Prometheus告警处理</h1><p>在前面的部分中已经介绍了告警能力在Prometheus的架构中被划分为两个部分，在Prometheus Server中定义告警规则以及产生告警，Alertmanager组件则用于处理这些由Prometheus产生的告警。Alertmanager即Prometheus体系中告警的统一处理中心。Alertmanager提供了多种内置第三方告警通知方式，同时还提供了对Webhook通知的支持，通过Webhook用户可以完成对告警更多个性化的扩展。</p>
+<h1 id="一、Prometheus告警简介"><a href="#一、Prometheus告警简介" class="headerlink" title="一、Prometheus告警简介"></a>一、Prometheus告警简介</h1><p>告警能力在Prometheus的架构中被划分成两个独立的部分。如下所示，通过在Prometheus中定义AlertRule（告警规则），Prometheus会周期性的对告警规则进行计算，如果满足告警触发条件就会向Alertmanager发送告警信息。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-97.png" srcset="/blog/img/loading.gif"></p>
+<p>在Prometheus中一条告警规则主要由以下几部分组成：</p>
+<ul>
+<li>告警名称：用户需要为告警规则命名，当然对于命名而言，需要能够直接表达出该告警的主要内容。</li>
+<li>告警规则：告警规则实际上主要由PromQL进行定义，其实际意义是当表达式（PromQL）查询结果持续多长时间（During）后出发告警。</li>
+</ul>
+<p>在Prometheus中，还可以通过Group（告警组）对一组相关的告警进行统一定义。当然这些定义都是通过YAML文件来统一管理的。</p>
+<p>Alertmanager作为一个独立的组件，负责接收并处理来自Prometheus Server(也可以是其它的客户端程序)的告警信息。Alertmanager可以对这些告警信息进行进一步的处理，比如当接收到大量重复告警时能够消除重复的告警信息，同时对告警信息进行分组并且路由到正确的通知方，Prometheus内置了对邮件，Slack等多种通知方式的支持，同时还支持与Webhook的集成，以支持更多定制化的场景。例如，目前Alertmanager还不支持钉钉，那用户完全可以通过Webhook与钉钉机器人进行集成，从而通过钉钉接收告警信息。同时AlertManager还提供了静默和告警抑制机制来对告警通知行为进行优化。</p>
+<h2 id="1-1-Alertmanager特性"><a href="#1-1-Alertmanager特性" class="headerlink" title="1.1 Alertmanager特性"></a>1.1 Alertmanager特性</h2><p>Alertmanager除了提供基本的告警通知能力以外，还主要提供了如：分组、抑制以及静默等告警特性：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-98.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="1-2-分组"><a href="#1-2-分组" class="headerlink" title="1.2 分组"></a>1.2 分组</h2><p>分组机制可以将详细的告警信息合并成一个通知。在某些情况下，比如由于系统宕机导致大量的告警被同时触发，在这种情况下分组机制可以将这些被触发的告警合并为一个告警通知，避免一次性接受大量的告警通知，而无法对问题进行快速定位。</p>
+<p>例如，当集群中有数百个正在运行的服务实例，并且为每一个实例设置了告警规则。假如此时发生了网络故障，可能导致大量的服务实例无法连接到数据库，结果就会有数百个告警被发送到Alertmanager。</p>
+<p>而作为用户，可能只希望能够在一个通知中中就能查看哪些服务实例收到影响。这时可以按照服务所在集群或者告警名称对告警进行分组，而将这些告警内聚在一起成为一个通知。</p>
+<p>告警分组，告警时间，以及告警的接受方式可以通过Alertmanager的配置文件进行配置。</p>
+<h2 id="1-3-抑制"><a href="#1-3-抑制" class="headerlink" title="1.3 抑制"></a>1.3 抑制</h2><p>抑制是指当某一告警发出后，可以停止重复发送由此告警引发的其它告警的机制。</p>
+<p>例如，当集群不可访问时触发了一次告警，通过配置Alertmanager可以忽略与该集群有关的其它所有告警。这样可以避免接收到大量与实际问题无关的告警通知。</p>
+<p>抑制机制同样通过Alertmanager的配置文件进行设置。</p>
+<h2 id="1-4-静默"><a href="#1-4-静默" class="headerlink" title="1.4 静默"></a>1.4 静默</h2><p>静默提供了一个简单的机制可以快速根据标签对告警进行静默处理。如果接收到的告警符合静默的配置，Alertmanager则不会发送告警通知。</p>
+<p>静默设置需要在Alertmanager的Werb页面上进行设置。</p>
+<h2 id="1-5-prometheus触发一条告警的过程"><a href="#1-5-prometheus触发一条告警的过程" class="headerlink" title="1.5 prometheus触发一条告警的过程"></a>1.5 prometheus触发一条告警的过程</h2><blockquote>
+<p>prometheus–&gt;触发阈值–&gt;超出持续时间–&gt;alertmanager–&gt;分组|抑制|静默–&gt;媒体类型–&gt;邮件|钉钉|微信等</p>
+</blockquote>
+<h1 id="二、安装部署alertmanager"><a href="#二、安装部署alertmanager" class="headerlink" title="二、安装部署alertmanager"></a>二、安装部署alertmanager</h1><h2 id="2-1-下载alertmanager"><a href="#2-1-下载alertmanager" class="headerlink" title="2.1 下载alertmanager"></a>2.1 下载alertmanager</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir /apps<br>cd /apps<br>wget https://github.com/prometheus/alertmanager/releases/download/v0.25.0/alertmanager-0.25.0.linux-amd64.tar.gz<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-解压并做软连接"><a href="#2-2-解压并做软连接" class="headerlink" title="2.2 解压并做软连接"></a>2.2 解压并做软连接</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> tar xf alertmanager-0.25.0.linux-amd64.tar.gz</span> <br><span class="hljs-meta">#</span><span class="bash"> ln -s /apps/alertmanager-0.25.0.linux-amd64 /apps/prometheus_alertmanager</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-添加data文件夹"><a href="#2-3-添加data文件夹" class="headerlink" title="2.3 添加data文件夹"></a>2.3 添加data文件夹</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir /apps/alertmanager-0.25.0.linux-amd64/data</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-添加service文件"><a href="#2-4-添加service文件" class="headerlink" title="2.4 添加service文件"></a>2.4 添加service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/prometheus-altermanager.service</span><br>[Unit]<br>Description=Alertmanager for prometheus<br>Documentation=https://prometheus.io/docs/alerting/alertmanager/<br><br>[Service]<br>Restart=always<br>User=prometheus<br>ExecStart=/apps/prometheus_alertmanager/alertmanager --config.file=/apps/prometheus_alertmanager/alertmanager.yml --storage.path=/apps/prometheus_alertmanager/data<br>ExecReload=/bin/kill -HUP $MAINPID<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-5-创建启动用户"><a href="#2-5-创建启动用户" class="headerlink" title="2.5 创建启动用户"></a>2.5 创建启动用户</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-6-修改alertmanager文件所属"><a href="#2-6-修改alertmanager文件所属" class="headerlink" title="2.6 修改alertmanager文件所属"></a>2.6 修改alertmanager文件所属</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/alertmanager-0.25.0.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-7-启动alertmanager"><a href="#2-7-启动alertmanager" class="headerlink" title="2.7 启动alertmanager"></a>2.7 启动alertmanager</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-9-查看alertmanager网页"><a href="#2-9-查看alertmanager网页" class="headerlink" title="2.9 查看alertmanager网页"></a>2.9 查看alertmanager网页</h2><p>alertmanager网页端口：9093</p>
+<p>浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">alertmanagerIP:9093<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-164.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="三、Prometheus添加告警服务和规则"><a href="#三、Prometheus添加告警服务和规则" class="headerlink" title="三、Prometheus添加告警服务和规则"></a>三、Prometheus添加告警服务和规则</h1><h2 id="3-1-prometheus添加alertmanager服务"><a href="#3-1-prometheus添加alertmanager服务" class="headerlink" title="3.1 prometheus添加alertmanager服务"></a>3.1 prometheus添加alertmanager服务</h2><p>到了现在我们可以知道alertmanager，只是用来发邮件的。那谁通知alertmanager去发邮件呢？</p>
+<p>答案是prometheus，我们可以修改prometheus的配置文件，达到让prometheus通知alertmanager发送邮件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /apps/prometheus<br>vim prometheus.yml<br>......<br><span class="hljs-meta">#</span><span class="bash"> Alertmanager configuration</span><br>alerting:<br>  alertmanagers:<br>    - static_configs:<br>        - targets:<br>           - 10.0.0.17:9093 #指向alertmanager服务<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-创建规则文件"><a href="#3-2-创建规则文件" class="headerlink" title="3.2 创建规则文件"></a>3.2 创建规则文件</h2><h3 id="3-2-1-添加规则文件目录"><a href="#3-2-1-添加规则文件目录" class="headerlink" title="3.2.1 添加规则文件目录"></a>3.2.1 添加规则文件目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /apps/prometheus<br>mkdir rules<br><span class="hljs-meta">#</span><span class="bash"> vim rules/rule1.yml</span><br>groups:<br>- name: Host<br>  rules:<br>  - alert: HostOutOfMemory<br>    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 &lt; 10<br>    for: 2m<br>    labels:<br>      severity: critical<br>    annotations:<br>      summary: &quot;服务器可用内存不足 (instance &#123;&#123; $labels.instance &#125;&#125;)&quot;<br>      description: &quot;节点内存已满(&lt; 10% left)，VALUE = &#123;&#123; $value &#125;&#125;&quot;<br><br>  - alert: NodeDown<br>    expr: up == 0<br>    for: 2m<br>    labels:<br>      severity: critical<br>    annotations:<br>      summary: &quot;监控数据采集实例离线 (instance &#123;&#123; $labels.instance &#125;&#125;)&quot;<br>      description: &quot;监控数据采集实例离线&quot;<br></code></pre></td></tr></table></figure>
+
+<p>在文件中，我们将规则定义在“groups”下，每个“groups”可以定义多个告警规则。</p>
+<p>在“groups”的下一级一般只有“name”和“rules”。</p>
+<p><code>name</code>：“rules”的名称，可以在prometheus的WBE页面中的“Rules”查看。</p>
+<p><code>rules</code>：告警规则可以在prometheus的WBE页面中的“Alerts”查看。</p>
+<p>告警规则由以下几个部分组成：</p>
+<p><code>alert</code>：告警规则的名称。<br><code>expr</code>：基于PromQL表达式告警触发条件，用于计算是否有时间序列满足该条件。<br><code>for</code>：评估等待时间，可选参数。用于在第一次遇到新的触发报警等待一段时间，只有当触发条件持续一段时间后才发送告警。在等待期间新产生告警的状态为pending。<br><code>labels</code>：自定义标签，允许用户指定要附加到告警上的一组附加标签。<br><code>annotations</code>：用于指定一组附加信息，比如用于描述告警详细信息的文字等，annotations的内容在告警产生时会一同作为参数发送到Alertmanager。</p>
+<blockquote>
+<p>一般来说，在告警规则文件的annotations中使用<code>summary</code>描述告警的概要信息，<code>description</code>用于描述告警的详细信息。</p>
+<p>Alertmanager的UI也会根据这两个标签值，显示告警信息。</p>
+</blockquote>
+<p>配置文件的其他解释</p>
+<p><code>$labels</code>：通过<code>$labels.&lt;labelname&gt;</code>变量可以访问当前告警实例中指定标签的值。</p>
+<p><code>$value</code>：可以获取当前PromQL表达式计算的样本值。</p>
+<p>详细可以看以下的解释：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># To insert a firing element&#x27;s label values:</span><br>&#123;&#123; <span class="hljs-string">$labels.&lt;labelname&gt;</span> &#125;&#125;<br><span class="hljs-comment"># To insert the numeric expression value of the firing element:</span><br>&#123;&#123; <span class="hljs-string">$value</span> &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-2-修改规则文件目录和文件的所属"><a href="#3-2-2-修改规则文件目录和文件的所属" class="headerlink" title="3.2.2 修改规则文件目录和文件的所属"></a>3.2.2 修改规则文件目录和文件的所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-2.37.5.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-3-prometheus配置读取规则文件"><a href="#3-3-prometheus配置读取规则文件" class="headerlink" title="3.3 prometheus配置读取规则文件"></a>3.3 prometheus配置读取规则文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /apps/prometheus<br>vim prometheus.yml<br>......<br><span class="hljs-meta">#</span><span class="bash"> Load rules once and periodically evaluate them according to the global <span class="hljs-string">&#x27;evaluation_interval&#x27;</span>.</span><br>rule_files:<br>  - &quot;/apps/prometheus/rules/*.yml&quot; #指定规则文件<br><span class="hljs-meta">  #</span><span class="bash"> - <span class="hljs-string">&quot;first_rules.yml&quot;</span></span><br><span class="hljs-meta">  #</span><span class="bash"> - <span class="hljs-string">&quot;second_rules.yml&quot;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>注意：这里使用“*.yml”是让prometheus读取rules文件目录下所有的“yml”的文件，这样做可以避免输入每个yml文件而产生的人为错误。</p>
+<h2 id="3-4-检查配置文件"><a href="#3-4-检查配置文件" class="headerlink" title="3.4 检查配置文件"></a>3.4 检查配置文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span> <br>Checking prometheus.yml<br>  SUCCESS: 1 rule files found<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br><br>Checking /apps/prometheus/rules/rule1.yml<br>  SUCCESS: 2 rules found<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-5-重新启动prometheus"><a href="#3-5-重新启动prometheus" class="headerlink" title="3.5 重新启动prometheus"></a>3.5 重新启动prometheus</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="3-6-查看规则"><a href="#3-6-查看规则" class="headerlink" title="3.6 查看规则"></a>3.6 查看规则</h2><p>prometheus WEB页面，点击Rules。</p>
+<p>里面有“rules”目录下的告警规则。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-166.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="3-7-查看告警"><a href="#3-7-查看告警" class="headerlink" title="3.7 查看告警"></a>3.7 查看告警</h2><p>prometheus WEB页面，点击Alters</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-167.png" srcset="/blog/img/loading.gif"></p>
+<p>prometheus的事件状态：</p>
+<p><code>inactive</code>：没有异常</p>
+<p><code>pending</code>：已触发阈值，但未满足调价告警持续时间（即rule中的for字段）</p>
+<p><code>firing</code>：已触发阈值且满足条件并发送至alertmanager</p>
+<h1 id="四、实现邮件报警"><a href="#四、实现邮件报警" class="headerlink" title="四、实现邮件报警"></a>四、实现邮件报警</h1><p>邮箱是目前企业最常用的告警通知方式，Alertmanager内置了对SMTP协议的支持，因此对于企业用户而言，只需要一些基本的配置即可实现通过邮件的通知。</p>
+<h2 id="4-1-修改alertmanager配置文件"><a href="#4-1-修改alertmanager配置文件" class="headerlink" title="4.1 修改alertmanager配置文件"></a>4.1 修改alertmanager配置文件</h2><h3 id="4-1-1-定义全局配置"><a href="#4-1-1-定义全局配置" class="headerlink" title="4.1.1 定义全局配置"></a>4.1.1 定义全局配置</h3><p>在Alertmanager使用邮箱通知，用户只需要定义好SMTP相关的配置，并且在receiver中定义接收方的邮件地址即可。在Alertmanager中我们可以直接在配置文件的global中定义全局的SMTP配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">global:</span><br>  [ <span class="hljs-attr">smtp_from:</span> <span class="hljs-string">&lt;tmpl_string&gt;</span> ]<br>  [ <span class="hljs-attr">smtp_smarthost:</span> <span class="hljs-string">&lt;string&gt;</span> ]<br>  [ <span class="hljs-attr">smtp_hello:</span> <span class="hljs-string">&lt;string&gt;</span> <span class="hljs-string">|</span> <span class="hljs-string">default</span> <span class="hljs-string">=</span> <span class="hljs-string">&quot;localhost&quot;</span> ]<br>  [ <span class="hljs-attr">smtp_auth_username:</span> <span class="hljs-string">&lt;string&gt;</span> ]<br>  [ <span class="hljs-attr">smtp_auth_password:</span> <span class="hljs-string">&lt;secret&gt;</span> ]<br>  [ <span class="hljs-attr">smtp_auth_identity:</span> <span class="hljs-string">&lt;string&gt;</span> ]<br>  [ <span class="hljs-attr">smtp_auth_secret:</span> <span class="hljs-string">&lt;secret&gt;</span> ]<br>  [ <span class="hljs-attr">smtp_require_tls:</span> <span class="hljs-string">&lt;bool&gt;</span> <span class="hljs-string">|</span> <span class="hljs-string">default</span> <span class="hljs-string">=</span> <span class="hljs-literal">true</span> ]<br></code></pre></td></tr></table></figure>
+
+<p>这里以QQ邮箱为例，定义全局配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">global:</span><br>  <span class="hljs-attr">resolve_timeout:</span> <span class="hljs-string">5m</span><br>  <span class="hljs-attr">smtp_smarthost:</span> <span class="hljs-string">&#x27;smtp.qq.com:465&#x27;</span><br>  <span class="hljs-attr">smtp_from:</span> <span class="hljs-string">&#x27;346636558@qq.com&#x27;</span><br>  <span class="hljs-attr">smtp_auth_username:</span> <span class="hljs-string">&#x27;346636558@qq.com&#x27;</span><br>  <span class="hljs-attr">smtp_auth_password:</span> <span class="hljs-string">&#x27;vsugtwrozvjxbgja&#x27;</span><br>  <span class="hljs-attr">smtp_hello:</span> <span class="hljs-string">&#x27;@qq.com&#x27;</span><br>  <span class="hljs-attr">smtp_require_tls:</span> <span class="hljs-literal">false</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-1-2-定义路由配置"><a href="#4-1-2-定义路由配置" class="headerlink" title="4.1.2 定义路由配置"></a>4.1.2 定义路由配置</h3><p>在定义全局（global）配置后，我们下一步就需要定义路由配置。</p>
+<p>路由配置目的是让alertmanager根据路由配置，找到相应的接收器。</p>
+<p>alertmanager根据标签匹配到不同的子路由，根据子路由的定义，将告警信息用对应的接收器发送告警信息。</p>
+<p>路由例子：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">route:</span><br>  <span class="hljs-attr">group_by:</span> [<span class="hljs-string">&#x27;alertname&#x27;</span>]<br>  <span class="hljs-attr">group_wait:</span> <span class="hljs-string">30s</span><br>  <span class="hljs-attr">group_interval:</span> <span class="hljs-string">5m</span><br>  <span class="hljs-attr">repeat_interval:</span> <span class="hljs-string">30m</span><br>  <span class="hljs-attr">receiver:</span> <span class="hljs-string">&#x27;email&#x27;</span> <span class="hljs-comment">#接受者，写的是下面接收器的名称</span><br></code></pre></td></tr></table></figure>
+
+<p>关于路由的详细设置可以参考官方文档：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://prometheus.io/docs/alerting/latest/configuration/#route<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-1-3-定义接收器"><a href="#4-1-3-定义接收器" class="headerlink" title="4.1.3 定义接收器"></a>4.1.3 定义接收器</h3><p>完成路由配置之后，需要为接收器（receivers）设置邮件配置（email_configs）用于接收邮箱地址：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">&lt;string&gt;</span><br><span class="hljs-attr">email_configs:</span><br>  [ <span class="hljs-bullet">-</span> <span class="hljs-string">&lt;email_config&gt;</span>, <span class="hljs-string">...</span> ]<br></code></pre></td></tr></table></figure>
+
+<p>每个email_config中定义相应的接收人邮箱地址，如果当前接收人需要单独的SMTP配置，那直接在email_config中进行覆盖。</p>
+<p>如果当前收件人需要接受告警恢复的通知的话，在email_config中定义<code>send_resolved</code>为true，即<code>send_resolved: true</code></p>
+<p>如果所有的邮件配置使用了相同的SMTP配置，则可以直接定义全局的SMTP配置。</p>
+<p>以邮箱为接收器的例子：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">receivers:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">&#x27;email&#x27;</span><br>    <span class="hljs-attr">email_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">to:</span> <span class="hljs-string">&#x27;346636558@qq.com&#x27;</span><br>      <span class="hljs-attr">send_resolved:</span> <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-1-4-定义抑制机制"><a href="#4-1-4-定义抑制机制" class="headerlink" title="4.1.4 定义抑制机制"></a>4.1.4 定义抑制机制</h3><p>解释可以查看第一节。</p>
+<p>抑制机制例子：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">inhibit_rules:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">source_match:</span><br>      <span class="hljs-attr">severity:</span> <span class="hljs-string">&#x27;critical&#x27;</span><br>    <span class="hljs-attr">target_match:</span><br>      <span class="hljs-attr">severity:</span> <span class="hljs-string">&#x27;warning&#x27;</span><br>    <span class="hljs-attr">equal:</span> [<span class="hljs-string">&#x27;alertname&#x27;</span>, <span class="hljs-string">&#x27;dev&#x27;</span>, <span class="hljs-string">&#x27;instance&#x27;</span>]<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-1-5-配置文件的总结"><a href="#4-1-5-配置文件的总结" class="headerlink" title="4.1.5 配置文件的总结"></a>4.1.5 配置文件的总结</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus_altermanager</span><br><span class="hljs-meta">#</span><span class="bash"> vim alertmanager.yml</span><br>global: #定义全局配置<br>  resolve_timeout: 5m #当一个告警在alertmanager持续堆场时间未接受到新告警后就标记告警状态为resolved（已解决/已恢复）<br>  smtp_smarthost: &#x27;smtp.qq.com:465&#x27; #邮箱smtp地址<br>  smtp_from: &#x27;346636558@qq.com&#x27; #发件人邮箱地址<br>  smtp_auth_username: &#x27;346636558@qq.com&#x27; #发件人的登录的用户名，默认和发件人地址一致<br>  smtp_auth_password: &#x27;vsugtwrozvjxbgja&#x27; #发件人的登录密码，有时候是授权码<br>  smtp_hello: &#x27;@qq.com&#x27;<br>  smtp_require_tls: false #是否需要tls协议，默认是true<br><br>route: #设置报警的分发策略<br>  group_by: [&#x27;alertname&#x27;] #通过alertname的值对告警进行分类<br>  group_wait: 30s #一组告警第一次发送之前等待的延迟时间，即产生告警延迟多少秒将组内新产生的消息一起合并发送（一般设置为0秒~几分钟）<br>  group_interval: 5m #一组已发送过初始通知的告警接收到新告警后，下次发送通知前等待的延迟时间（一般设置为5分钟或更多）<br>  repeat_interval: 30m #一条成功发送的告警，在最终发送通知之前等待的时间（通常设置为3小时或更长时间）<br>  receiver: &#x27;email&#x27; #设置接收人<br><br>receivers: #定义接受者<br>  - name: &#x27;email&#x27;<br>    email_configs:<br>      - to: &#x27;346636558@qq.com&#x27;<br>      send_resolved=true #发送恢复告警<br><br>inhibit_rules: #抑制规则<br>  - source_match: #源匹配级别，当匹配成功发出通知，但是其他‘alertname’，‘dev’，‘instancce’产生的warning级别告警通知将被抑制<br>      severity: &#x27;critical&#x27; #报警的事件级别<br>    target_match:<br>      severity: &#x27;warning&#x27; #调用“source_match”的serverity，即如果已经有‘critical’级别的报警，那么将匹配目标为新产生的告警级别为‘warning’的奖杯抑制<br>    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;] #匹配哪些对象的告警<br></code></pre></td></tr></table></figure>
+
+<p>间隔示例：</p>
+<blockquote>
+<p>group_wait: 10s #第一次产生告警，等待10s，组内有告警就一起发出，没有其他告警就单独发出。</p>
+<p>group_interval: 2m #第二次产生告警，先等待2分钟，2分钟后还没有恢复就进入“repeat_interval”</p>
+<p>group_interval: 5m #在最终发送消息前再等待5分钟，5分钟后还没有恢复就发送第二次告警</p>
+</blockquote>
+<h2 id="4-2-检查配置文件语法"><a href="#4-2-检查配置文件语法" class="headerlink" title="4.2 检查配置文件语法"></a>4.2 检查配置文件语法</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool check-config alertmanager.yml</span> <br>Checking &#x27;alertmanager.yml&#x27;  SUCCESS<br>Found:<br> - global config<br> - route<br> - 1 inhibit rules<br> - 1 receivers<br> - 0 templates<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-3-重新读取alertmanager配置文件"><a href="#4-3-重新读取alertmanager配置文件" class="headerlink" title="4.3 重新读取alertmanager配置文件"></a>4.3 重新读取alertmanager配置文件</h2><h3 id="4-3-1-通过重启读取alertmanager配置文件"><a href="#4-3-1-通过重启读取alertmanager配置文件" class="headerlink" title="4.3.1 通过重启读取alertmanager配置文件"></a>4.3.1 通过重启读取alertmanager配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="4-3-2-通过API读取alertmanager配置文件"><a href="#4-3-2-通过API读取alertmanager配置文件" class="headerlink" title="4.3.2 通过API读取alertmanager配置文件"></a>4.3.2 通过API读取alertmanager配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> curl -XPOST http://localhost:9093/-/reload</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="4-4-验证alertmanager是否重新读取配置文件"><a href="#4-4-验证alertmanager是否重新读取配置文件" class="headerlink" title="4.4 验证alertmanager是否重新读取配置文件"></a>4.4 验证alertmanager是否重新读取配置文件</h2><p>浏览器访问</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">alertmanagerIP:9093<br></code></pre></td></tr></table></figure>
+
+<p>点击“Status”，查看config。对比配置文件是否有发生过修改。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-165.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="4-5-实现故障"><a href="#4-5-实现故障" class="headerlink" title="4.5 实现故障"></a>4.5 实现故障</h2><p>将某一台node_exporter下线，实现故障效果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="4-6-查看故障后的状态"><a href="#4-6-查看故障后的状态" class="headerlink" title="4.6 查看故障后的状态"></a>4.6 查看故障后的状态</h2><h3 id="4-6-1-查看Prometheus的Alerts页面"><a href="#4-6-1-查看Prometheus的Alerts页面" class="headerlink" title="4.6.1 查看Prometheus的Alerts页面"></a>4.6.1 查看Prometheus的Alerts页面</h3><p>进入Prometheus WEB 的“Alerts”页面进行查看</p>
+<ul>
+<li>某一条警报进入“pending”状态。在2分钟之后，问题还没解决就进入“firing”状态</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-168.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>进入“firing”状态</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-169.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="4-6-2-查看alertmanager状态"><a href="#4-6-2-查看alertmanager状态" class="headerlink" title="4.6.2 查看alertmanager状态"></a>4.6.2 查看alertmanager状态</h3><h4 id="4-6-2-1-查看web页面"><a href="#4-6-2-1-查看web页面" class="headerlink" title="4.6.2.1 查看web页面"></a>4.6.2.1 查看web页面</h4><p>在告警进入到“firing”状态后，就会将告警发送到alertmanager。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-170.png" srcset="/blog/img/loading.gif"></p>
+<h4 id="4-6-2-2-使用命令查看alertmannager的告警"><a href="#4-6-2-2-使用命令查看alertmannager的告警" class="headerlink" title="4.6.2.2 使用命令查看alertmannager的告警"></a>4.6.2.2 使用命令查看alertmannager的告警</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool alert --alertmanager.url=http://10.0.0.17:9093</span><br>Alertname  Starts At                Summary                               State   <br>NodeDown   2023-02-02 06:30:05 UTC  监控数据采集实例离线 (instance 10.0.0.17:9100)  active<br></code></pre></td></tr></table></figure>
+
+<h3 id="4-6-3-查看邮箱"><a href="#4-6-3-查看邮箱" class="headerlink" title="4.6.3 查看邮箱"></a>4.6.3 查看邮箱</h3><p>进入邮箱后可以看到alertmanager发送的邮件，点击邮件可以看到我们之前定义的rules文件的信息。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-171.png" srcset="/blog/img/loading.gif"></p>
+<p>到此我们实现了邮件报警。</p>
+<p>邮件报警详细的配置可以到官方文档页面进行查看：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://prometheus.io/docs/alerting/latest/configuration/#email_config<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-7-恢复后的邮件信息"><a href="#4-7-恢复后的邮件信息" class="headerlink" title="4.7 恢复后的邮件信息"></a>4.7 恢复后的邮件信息</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-183.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="4-8-实现邮件报警的总结"><a href="#4-8-实现邮件报警的总结" class="headerlink" title="4.8 实现邮件报警的总结"></a>4.8 实现邮件报警的总结</h2><p>想要实现邮件报警，需要Prometheus server和alertmanager的配合。</p>
+<p>在prometheus方面需要配置：</p>
+<ul>
+<li>开启alertmanager服务，让Prometheus知道使用哪个alertmanager实现发送信息的功能。</li>
+<li>配置告警规则。让Prometheus知道触发了哪些规则之后，需要发送告警信息。</li>
+</ul>
+<p>在alertmanager方面需要配置：</p>
+<ul>
+<li>全局配置。因为这次使用的是邮件报警，所以全局配置是围绕着邮件的SMTP服务进行配置。</li>
+<li>路由配置。让alertmanager知道当需要发送报警信息时，使用哪种方式进行发送。</li>
+<li>接收器配置。因为这次使用的是邮件报警，所以接收器的配置是围绕着邮箱进行配置的。</li>
+<li>抑制机制。</li>
+</ul>
+<h1 id="五、实现钉钉报警之机器人设定自定义关键词"><a href="#五、实现钉钉报警之机器人设定自定义关键词" class="headerlink" title="五、实现钉钉报警之机器人设定自定义关键词"></a>五、实现钉钉报警之机器人设定自定义关键词</h1><p>钉钉报警是钉钉机器人在相应的群里发送消息，从而通知对应的群或群里的某个人。</p>
+<p>通过使用扩展webhook服务，以支持将Alertmanager的告警通知转发到钉钉平台。</p>
+<p>要alertmanager实现钉钉报警，需要使用第三方工具实现。也就是说：prometheus通知alertmanager需要发送告警，然后alertmanager将消息发送给第三方工具，第三方工具发送信息给钉钉的服务器，最后钉钉服务器发送消息给对应的机器人。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-172.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="5-1-添加钉钉机器人"><a href="#5-1-添加钉钉机器人" class="headerlink" title="5.1 添加钉钉机器人"></a>5.1 添加钉钉机器人</h2><ul>
+<li>在钉钉群里点击“群设置”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-173.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“智能群助手”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-174.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“添加机器人”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-175.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>在“添加机器人”一项里点击“设置图标”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-176.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>选择“自定义”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-177.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“添加”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-178.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li><p>输入机器人名字，勾选“自定义关键词”，输入“关键词”，勾选同意条款，点击“完成”</p>
+</li>
+<li><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-179.png" srcset="/blog/img/loading.gif"></p>
+</li>
+<li><p>获得一个机器人的“Webhook”</p>
+</li>
+</ul>
+<p>注意：该“Webhook”需要保管好。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-180.png" srcset="/blog/img/loading.gif"></p>
+<p><a target="_blank" rel="noopener" href="https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512">https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512</a></p>
+<h2 id="5-2-测试钉钉机器人"><a href="#5-2-测试钉钉机器人" class="headerlink" title="5.2 测试钉钉机器人"></a>5.2 测试钉钉机器人</h2><h3 id="5-2-1-使用shell脚本测试钉钉机器人"><a href="#5-2-1-使用shell脚本测试钉钉机器人" class="headerlink" title="5.2.1 使用shell脚本测试钉钉机器人"></a>5.2.1 使用shell脚本测试钉钉机器人</h3><p>在任意一台服务器上（可以连接外网的），使用shell脚本测试机器人是否能发出消息。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim dingding.sh</span><br><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span><br>source /etc/profile<br>MESSAGE=$1<br><br>/usr/bin/curl -X &quot;POST&quot; &#x27;https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512&#x27; \<br>-H &#x27;Content-Type:application/json&#x27; \<br>-d &#x27;&#123;&quot;msgtype&quot;:&quot;text&quot;,<br>     &quot;text&quot;:&#123;<br>            &quot;content&quot;:&quot;&#x27;$&#123;MESSAGE&#125;&#x27;&quot;<br>     &#125;<br><br>&#125;&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>执行脚本进行测试</p>
+<ul>
+<li>不使用关键词测试</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> /bin/bash dingding.sh 测试测试</span><br>&#123;&quot;errcode&quot;:310000,&quot;errmsg&quot;:&quot;错误描述:关键词不匹配;解决方案:请联系群管理员查看此机器人的关键词，并在发送的信息中包含此关键词;&quot;&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用关键词测试</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> /bin/bash dingding.sh alertname=测试测试</span><br>&#123;&quot;errcode&quot;:0,&quot;errmsg&quot;:&quot;ok&quot;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>查看测试结果</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-181.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="5-3-部署prometheus-webhook-dingtalk"><a href="#5-3-部署prometheus-webhook-dingtalk" class="headerlink" title="5.3 部署prometheus-webhook-dingtalk"></a>5.3 部署prometheus-webhook-dingtalk</h2><p>注意：自定义关键词版本会使用<code>--ding.profile</code>的选项，但是在1.4.0以上的版本已经不支持该选项。所以建议使用自定义关键词的机器人，应该使用1.4.0及其以下版本的版本。如果使用机器人使用加签的方式，可以使用最新版。</p>
+<p>该工具的github地址为：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/timonwong/prometheus-webhook-dingtalk<br></code></pre></td></tr></table></figure>
+
+<p>部署dingtalk可以在任意一台连上外网且可以连接alertmanager的服务器上部署。</p>
+<h3 id="5-3-1-下载"><a href="#5-3-1-下载" class="headerlink" title="5.3.1 下载"></a>5.3.1 下载</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps</span><br><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> wget https://github.com/timonwong/prometheus-webhook-dingtalk/releases/download/v1.4.0/prometheus-webhook-dingtalk-1.4.0.linux-amd64.tar.gz</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-3-2-解压并做软连接"><a href="#5-3-2-解压并做软连接" class="headerlink" title="5.3.2 解压并做软连接"></a>5.3.2 解压并做软连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> tar xf prometheus-webhook-dingtalk-1.4.0.linux-amd64.tar.gz</span><br><span class="hljs-meta">#</span><span class="bash"> ln -s /apps/prometheus-webhook-dingtalk-1.4.0.linux-amd64 /apps/prometheus-webhook-dingtalk</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-3-3-添加service文件"><a href="#5-3-3-添加service文件" class="headerlink" title="5.3.3 添加service文件"></a>5.3.3 添加service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/prometheus-webhook-dingtalk.service</span><br>[Unit]<br>Description=prometheus-webhook-dingtalk<br>Documentation=https://theo.im/blog/2017/10/16/release-prometheus-alertmanager-webhook-for-dingtalk/<br><br>[Service]<br>Restart=addlways<br>User=prometheus<br>ExecStart=/apps/prometheus-webhook-dingtalk/prometheus-webhook-dingtalk --web.listen-address=0.0.0.0:8060 --ding.profile=alertname=https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512<br>ExecReload=/bin/kill -HUP $MAINPID<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h3 id="5-3-4-添加启动账户"><a href="#5-3-4-添加启动账户" class="headerlink" title="5.3.4 添加启动账户"></a>5.3.4 添加启动账户</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-3-5-修改文件所属"><a href="#5-3-5-修改文件所属" class="headerlink" title="5.3.5 修改文件所属"></a>5.3.5 修改文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-webhook-dingtalk-2.1.0.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="5-3-6-启动"><a href="#5-3-6-启动" class="headerlink" title="5.3.6 启动"></a>5.3.6 启动</h3><p>建议先使用<code>./prometheus-webhook-dingtalk --web.listen-address=&quot;0.0.0.0:8060&quot; --ding.profile=&quot;alertname=https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512&quot;</code>命令进行测试，因为有什么问题可以从日志上看出来。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-webhook-dingtalk.service</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> prometheus-webhook-dingtalk.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="5-4-修改alertmanager配置"><a href="#5-4-修改alertmanager配置" class="headerlink" title="5.4 修改alertmanager配置"></a>5.4 修改alertmanager配置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus_alertmanager</span><br><span class="hljs-meta">#</span><span class="bash"> vim alertmanager.yml</span><br>global:<br>  resolve_timeout: 5m<br>  smtp_smarthost: &#x27;smtp.qq.com:465&#x27;<br>  smtp_from: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_username: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_password: &#x27;vsugtwrozvjxbgja&#x27;<br>  smtp_hello: &#x27;@qq.com&#x27;<br>  smtp_require_tls: false<br><br>route:<br>  group_by: [&#x27;alertname&#x27;]<br>  group_wait: 1s<br>  group_interval: 1s<br>  repeat_interval: 1s<br>  receiver: &#x27;dingding&#x27; #这里修改为对应的接收者<br><br>receivers:<br>  - name: &#x27;web.hook&#x27;<br>    webhook_configs:<br>      - url: &#x27;http://127.0.0.1:5001/&#x27;<br>  - name: &#x27;email&#x27;<br>    email_configs:<br>      - to: &#x27;346636558@qq.com&#x27;<br>  - name: &#x27;dingding&#x27; #添加新的接收者<br>    webhook_configs:<br>      - url: &#x27;http://10.0.0.17:8060/dingtalk/alertname/send&#x27; #url不知道怎么写可以查看“/var/log/message”，在启动webhook-dingtalk后会有对应的url显示。注意：发送告警信息的服务器地址是安装了prometheus-webhook-dingtalk的服务器<br>        send_resolved: true<br><br>inhibit_rules:<br>  - source_match:<br>      severity: &#x27;critical&#x27;<br>    target_match:<br>      severity: &#x27;warning&#x27;<br>    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-5-检查语法"><a href="#5-5-检查语法" class="headerlink" title="5.5 检查语法"></a>5.5 检查语法</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool check-config alertmanager.yml</span> <br>Checking &#x27;alertmanager.yml&#x27;  SUCCESS<br>Found:<br> - global config<br> - route<br> - 1 inhibit rules<br> - 3 receivers<br> - 0 templates<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-6-重新读取alertmanager配置文件"><a href="#5-6-重新读取alertmanager配置文件" class="headerlink" title="5.6 重新读取alertmanager配置文件"></a>5.6 重新读取alertmanager配置文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="5-7-实现故障"><a href="#5-7-实现故障" class="headerlink" title="5.7 实现故障"></a>5.7 实现故障</h2><p>将某一台node_exporter下线，实现故障效果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="5-8-查看钉钉收到的消息"><a href="#5-8-查看钉钉收到的消息" class="headerlink" title="5.8 查看钉钉收到的消息"></a>5.8 查看钉钉收到的消息</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-182.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="5-9-解决故障"><a href="#5-9-解决故障" class="headerlink" title="5.9 解决故障"></a>5.9 解决故障</h2><p>将某一台node_exporter上线，实现恢复故障效果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="5-10-查看钉钉收到的消息"><a href="#5-10-查看钉钉收到的消息" class="headerlink" title="5.10 查看钉钉收到的消息"></a>5.10 查看钉钉收到的消息</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-184.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="六、实现钉钉报警之机器人设定加签"><a href="#六、实现钉钉报警之机器人设定加签" class="headerlink" title="六、实现钉钉报警之机器人设定加签"></a>六、实现钉钉报警之机器人设定加签</h1><p>这里就不重复添加钉钉机器人了，在上一节添加的机器人里将自定义关键词改成加签</p>
+<h2 id="6-1-修改机器人设置"><a href="#6-1-修改机器人设置" class="headerlink" title="6.1 修改机器人设置"></a>6.1 修改机器人设置</h2><ul>
+<li>点击群设置</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-173.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“智能群助手”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-174.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击对应的机器人</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-185.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>在安全设置里，取消勾选“自定义关键词”，勾选加签，并复制秘钥（秘钥要保存好），点击完成</li>
+</ul>
+<p>SEC90f5288e9b16325ed3476e13129d37a1e1fe305fd0920524b6be55273cc35b5e</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-186.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="6-2-部署prometheus-webhook-dingtalk"><a href="#6-2-部署prometheus-webhook-dingtalk" class="headerlink" title="6.2 部署prometheus-webhook-dingtalk"></a>6.2 部署prometheus-webhook-dingtalk</h2><p>prometheus-webhook-dingtalk的部署和上一节一样，但是要修改一下内容</p>
+<h3 id="6-2-1-添加配置文件"><a href="#6-2-1-添加配置文件" class="headerlink" title="6.2.1 添加配置文件"></a>6.2.1 添加配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus-webhook-dingtalk</span><br><span class="hljs-meta">#</span><span class="bash"> cp config.example.yml config.yml</span><br><span class="hljs-meta">#</span><span class="bash"> vim config.yml</span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Request timeout</span></span><br><span class="hljs-meta">#</span><span class="bash"> timeout: 5s</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Uncomment following line in order to write template from scratch (be careful!)</span></span><br><span class="hljs-meta">#</span><span class="bash">no_builtin_template: <span class="hljs-literal">true</span></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Customizable templates path</span></span><br><span class="hljs-meta">#</span><span class="bash">templates:</span><br><span class="hljs-meta">#</span><span class="bash">  - contrib/templates/legacy/template.tmpl</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># You can also override default template using `default_message`</span></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># The following example to use the &#x27;legacy&#x27; template from v0.3.0</span></span><br><span class="hljs-meta">#</span><span class="bash">default_message:</span><br><span class="hljs-meta">#</span><span class="bash">  title: <span class="hljs-string">&#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;</span></span><br><span class="hljs-meta">#</span><span class="bash">  text: <span class="hljs-string">&#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;</span></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Targets, previously was known as &quot;profiles&quot;</span></span><br>targets:<br>  alertname:<br>    url: https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512<br>    # secret for signature<br>    secret: SEC90f5288e9b16325ed3476e13129d37a1e1fe305fd0920524b6be55273cc35b5e #加签的内容复制到这里<br>    # Customize template content<br>    message:<br>      # Use legacy template<br>      title: &#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;<br>      text: &#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-2-添加service文件"><a href="#6-2-2-添加service文件" class="headerlink" title="6.2.2 添加service文件"></a>6.2.2 添加service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/prometheus-webhook-dingtalk.service</span><br>[Unit]<br>Description=prometheus-webhook-dingtalk<br>Documentation=https://theo.im/blog/2017/10/16/release-prometheus-alertmanager-webhook-for-dingtalk/<br><br>[Service]<br>Restart=addlways<br>User=prometheus<br>ExecStart=/apps/prometheus-webhook-dingtalk/prometheus-webhook-dingtalk --web.listen-address=0.0.0.0:8060 --config.file=/apps/prometheus-webhook-dingtalk/config.yml<br>ExecReload=/bin/kill -HUP $MAINPID<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-3-修改文件所属"><a href="#6-2-3-修改文件所属" class="headerlink" title="6.2.3 修改文件所属"></a>6.2.3 修改文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-webhook-dingtalk-1.4.0.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-4-启动"><a href="#6-2-4-启动" class="headerlink" title="6.2.4 启动"></a>6.2.4 启动</h3><p>建议先使用<code>./prometheus-webhook-dingtalk --web.listen-address=0.0.0.0:8060 --config.file=/apps/prometheus-webhook-dingtalk/conf</code>命令进行测试，因为有什么问题可以从日志上看出来。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-webhook-dingtalk.service</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> prometheus-webhook-dingtalk.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="6-3-实现故障"><a href="#6-3-实现故障" class="headerlink" title="6.3 实现故障"></a>6.3 实现故障</h2><p>将某一台node_exporter下线，实现故障效果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="6-4-查看钉钉收到的消息"><a href="#6-4-查看钉钉收到的消息" class="headerlink" title="6.4 查看钉钉收到的消息"></a>6.4 查看钉钉收到的消息</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-187.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="6-4-恢复故障"><a href="#6-4-恢复故障" class="headerlink" title="6.4 恢复故障"></a>6.4 恢复故障</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="6-5-查看钉钉收到的消息"><a href="#6-5-查看钉钉收到的消息" class="headerlink" title="6.5 查看钉钉收到的消息"></a>6.5 查看钉钉收到的消息</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-188.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="6-6-钉钉使用自定义模板"><a href="#6-6-钉钉使用自定义模板" class="headerlink" title="6.6 钉钉使用自定义模板"></a>6.6 钉钉使用自定义模板</h2><p>我们可以从解决故障的消息中看到，“prometheus-webhook-dingtalk”默认使用的模板在恢复消息时发送的信息不怎么明确，也说不上好看。但我们可以自行设计或参考网上的模板，来自定义我们的消息模板。让收到的消息更加明确清楚。</p>
+<h3 id="6-6-1-添加模板"><a href="#6-6-1-添加模板" class="headerlink" title="6.6.1 添加模板"></a>6.6.1 添加模板</h3><p>模板来源：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.yoyoask.com/?p=4514<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus-webhook-dingtalk/contrib/templates</span><br><span class="hljs-meta">#</span><span class="bash"> vim template.tmpl</span><br>&#123;&#123; define &quot;__subject&quot; &#125;&#125;[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;] &#123;&#123; .GroupLabels.SortedPairs.Values | join &quot; &quot; &#125;&#125; &#123;&#123; if gt (len .CommonLabels) (len .GroupLabels) &#125;&#125;(&#123;&#123; with .CommonLabels.Remove .GroupLabels.Names &#125;&#125;&#123;&#123; .Values | join &quot; &quot; &#125;&#125;&#123;&#123; end &#125;&#125;)&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;<br>&#123;&#123; define &quot;__alertmanagerURL&quot; &#125;&#125;&#123;&#123; .ExternalURL &#125;&#125;/#/alerts?receiver=&#123;&#123; .Receiver &#125;&#125;&#123;&#123; end &#125;&#125;<br> <br>&#123;&#123; define &quot;__text_alert_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;<br>**Labels**<br>&#123;&#123; range .Labels.SortedPairs &#125;&#125; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br>**Annotations**<br>&#123;&#123; range .Annotations.SortedPairs &#125;&#125; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br>**Source:** [&#123;&#123; .GeneratorURL &#125;&#125;](&#123;&#123; .GeneratorURL &#125;&#125;)<br>&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;<br> <br>&#123;&#123; define &quot;default.__text_alert_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;<br>---<br>**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;<br> <br>**运营团队:** &#123;&#123; .Labels.team | upper &#125;&#125;<br> <br>**触发时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.StartsAt) &quot;Asia/Shanghai&quot; &#125;&#125;<br> <br>**事件信息:** <br>&#123;&#123; range .Annotations.SortedPairs &#125;&#125; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;<br> <br> <br>&#123;&#123; end &#125;&#125;<br> <br>**事件标签:**<br>&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) &quot;severity&quot;) (ne (.Name) &quot;summary&quot;) (ne (.Name) &quot;team&quot;) &#125;&#125; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;<br>&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br>&#123;&#123; define &quot;default.__text_alertresovle_list&quot; &#125;&#125;&#123;&#123; range . &#125;&#125;<br>---<br>**告警级别:** &#123;&#123; .Labels.severity | upper &#125;&#125;<br> <br>**运营团队:** &#123;&#123; .Labels.team | upper &#125;&#125;<br> <br>**触发时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.StartsAt) &quot;Asia/Shanghai&quot; &#125;&#125;<br> <br>**结束时间:** &#123;&#123; dateInZone &quot;2006.01.02 15:04:05&quot; (.EndsAt) &quot;Asia/Shanghai&quot; &#125;&#125;<br> <br>**事件信息:**<br>&#123;&#123; range .Annotations.SortedPairs &#125;&#125; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;<br> <br> <br>&#123;&#123; end &#125;&#125;<br> <br>**事件标签:**<br>&#123;&#123; range .Labels.SortedPairs &#125;&#125;&#123;&#123; if and (ne (.Name) &quot;severity&quot;) (ne (.Name) &quot;summary&quot;) (ne (.Name) &quot;team&quot;) &#125;&#125; - &#123;&#123; .Name &#125;&#125;: &#123;&#123; .Value | markdown | html &#125;&#125;<br>&#123;&#123; end &#125;&#125;&#123;&#123; end &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br> <br>&#123;&#123;/* Default */&#125;&#125;<br>&#123;&#123; define &quot;default.title&quot; &#125;&#125;&#123;&#123; template &quot;__subject&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;<br>&#123;&#123; define &quot;default.content&quot; &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels &quot;alertname&quot; &#125;&#125;](&#123;&#123; template &quot;__alertmanagerURL&quot; . &#125;&#125;)**<br>&#123;&#123; if gt (len .Alerts.Firing) 0 -&#125;&#125;<br> <br>&#123;&#123; template &quot;default.__text_alert_list&quot; .Alerts.Firing &#125;&#125;<br> <br> <br>&#123;&#123;- end &#125;&#125;<br> <br>&#123;&#123; if gt (len .Alerts.Resolved) 0 -&#125;&#125;<br>&#123;&#123; template &quot;default.__text_alertresovle_list&quot; .Alerts.Resolved &#125;&#125;<br> <br> <br>&#123;&#123;- end &#125;&#125;<br>&#123;&#123;- end &#125;&#125;<br> <br>&#123;&#123;/* Legacy */&#125;&#125;<br>&#123;&#123; define &quot;legacy.title&quot; &#125;&#125;&#123;&#123; template &quot;__subject&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;<br>&#123;&#123; define &quot;legacy.content&quot; &#125;&#125;#### \[&#123;&#123; .Status | toUpper &#125;&#125;&#123;&#123; if eq .Status &quot;firing&quot; &#125;&#125;:&#123;&#123; .Alerts.Firing | len &#125;&#125;&#123;&#123; end &#125;&#125;\] **[&#123;&#123; index .GroupLabels &quot;alertname&quot; &#125;&#125;](&#123;&#123; template &quot;__alertmanagerURL&quot; . &#125;&#125;)**<br>&#123;&#123; template &quot;__text_alert_list&quot; .Alerts.Firing &#125;&#125;<br>&#123;&#123;- end &#125;&#125;<br> <br>&#123;&#123;/* Following names for compatibility */&#125;&#125;<br>&#123;&#123; define &quot;ding.link.title&quot; &#125;&#125;&#123;&#123; template &quot;default.title&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;<br>&#123;&#123; define &quot;ding.link.content&quot; &#125;&#125;&#123;&#123; template &quot;default.content&quot; . &#125;&#125;&#123;&#123; end &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-6-2-修改配置文件"><a href="#6-6-2-修改配置文件" class="headerlink" title="6.6.2 修改配置文件"></a>6.6.2 修改配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /apps/prometheus-webhook-dingtalk<br>vim config.yml<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Request timeout</span></span><br><span class="hljs-meta">#</span><span class="bash"> timeout: 5s</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Customizable templates path</span></span><br><span class="hljs-meta">#</span><span class="bash"> templates:</span><br><span class="hljs-meta">#</span><span class="bash">   - contrib/templates/legacy/template.tmpl</span><br>templates:<br>  - /apps/prometheus-webhook-dingtalk/contrib/templates/template.tmpl<br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># You can also override default template using `default_message`</span></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># The following example to use the &#x27;legacy&#x27; template from v0.3.0</span></span><br><span class="hljs-meta">#</span><span class="bash"> default_message:</span><br><span class="hljs-meta">#</span><span class="bash">   title: <span class="hljs-string">&#x27;&#123;&#123; template &quot;legacy.title&quot; . &#125;&#125;&#x27;</span></span><br><span class="hljs-meta">#</span><span class="bash">   text: <span class="hljs-string">&#x27;&#123;&#123; template &quot;legacy.content&quot; . &#125;&#125;&#x27;</span></span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment"># Targets, previously was known as &quot;profiles&quot;</span></span><br>targets:<br>  alertname:<br>    url: https://oapi.dingtalk.com/robot/send?access_token=d1285271e9859b25ec8ae3f9fa2fd52bb4bff4b459870f5ecfcf8b24eadf8512<br>    # secret for signature<br>    secret: SEC90f5288e9b16325ed3476e13129d37a1e1fe305fd0920524b6be55273cc35b5e<br>    # Customize template content<br>    message:<br>      title: &#x27;&#123;&#123; template &quot;ding.link.title&quot; . &#125;&#125;&#x27;<br>      text: &#x27;&#123;&#123; template &quot;ding.link.content&quot; . &#125;&#125;&#x27;<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-6-3-修改文件所属"><a href="#6-6-3-修改文件所属" class="headerlink" title="6.6.3 修改文件所属"></a>6.6.3 修改文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-webhook-dingtalk</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-6-4-重启"><a href="#6-6-4-重启" class="headerlink" title="6.6.4 重启"></a>6.6.4 重启</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-webhook-dingtalk.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-6-5-实现故障"><a href="#6-6-5-实现故障" class="headerlink" title="6.6.5 实现故障"></a>6.6.5 实现故障</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-6-6-查看钉钉接收到的信息"><a href="#6-6-6-查看钉钉接收到的信息" class="headerlink" title="6.6.6 查看钉钉接收到的信息"></a>6.6.6 查看钉钉接收到的信息</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-189.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="6-6-7-恢复故障"><a href="#6-6-7-恢复故障" class="headerlink" title="6.6.7 恢复故障"></a>6.6.7 恢复故障</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="6-6-8-查看钉钉接收到的信息"><a href="#6-6-8-查看钉钉接收到的信息" class="headerlink" title="6.6.8 查看钉钉接收到的信息"></a>6.6.8 查看钉钉接收到的信息</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-190.png" srcset="/blog/img/loading.gif"></p>
+<p>参考博客：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.jianshu.com/p/eae67b770c3e<br>https://www.yoyoask.com/?p=4514<br></code></pre></td></tr></table></figure>
+
+<p>旧版教程（有参考意义）：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://theo.im/blog/2017/10/16/release-prometheus-alertmanager-webhook-for-dingtalk/<br></code></pre></td></tr></table></figure>
+
+<h2 id="6-7-钉钉发送告警消息的总结"><a href="#6-7-钉钉发送告警消息的总结" class="headerlink" title="6.7 钉钉发送告警消息的总结"></a>6.7 钉钉发送告警消息的总结</h2><p>实现钉钉告警的流程</p>
+<ol>
+<li>添加钉钉机器人</li>
+<li>部署prometheus-webhook-dingtalk</li>
+<li>根据需要自定添加模板</li>
+<li>在alertmanager添加关于钉钉告警的配置</li>
+</ol>
+<h1 id="七、实现企业微信通知"><a href="#七、实现企业微信通知" class="headerlink" title="七、实现企业微信通知"></a>七、实现企业微信通知</h1><p>本次实验需要自行注册一个企业微信。</p>
+<p>企业微信官网：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://work.weixin.qq.com/<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-1-注册企业微信"><a href="#7-1-注册企业微信" class="headerlink" title="7.1 注册企业微信"></a>7.1 注册企业微信</h2><p>输入信息，点击注册</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-191.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-2-登录企业微信"><a href="#7-2-登录企业微信" class="headerlink" title="7.2 登录企业微信"></a>7.2 登录企业微信</h2><p>使用企业微信APP扫码登录。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-192.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-3-创建应用"><a href="#7-3-创建应用" class="headerlink" title="7.3 创建应用"></a>7.3 创建应用</h2><ul>
+<li>点击应用管理</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-193.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“创建应用”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-194.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>上传应用logo，输入名称和介绍，选择部门或成员，点击创建应用</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-195.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>注册完成。此时需要保管好“AgetnID”和“Sercet”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-196.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-4-查看企业信息"><a href="#7-4-查看企业信息" class="headerlink" title="7.4 查看企业信息"></a>7.4 查看企业信息</h2><p>企业ID在发送微信报警信息时会调用</p>
+<ul>
+<li>点击我的企业</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-197.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-5-测试发送信息"><a href="#7-5-测试发送信息" class="headerlink" title="7.5 测试发送信息"></a>7.5 测试发送信息</h2><h3 id="7-5-1-进入机器人管理页面"><a href="#7-5-1-进入机器人管理页面" class="headerlink" title="7.5.1 进入机器人管理页面"></a>7.5.1 进入机器人管理页面</h3><ul>
+<li>点击应用管理</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-198.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击机器人，进入机器人的管理页面</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-199.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-5-2-发送消息"><a href="#7-5-2-发送消息" class="headerlink" title="7.5.2 发送消息"></a>7.5.2 发送消息</h3><ul>
+<li>在功能区域点击发消息</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-200.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>选择发送范围，输入返送内容，点击发送。</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-201.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>在企业微信查看信息</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-202.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-6-修改alertmanager配置"><a href="#7-6-修改alertmanager配置" class="headerlink" title="7.6 修改alertmanager配置"></a>7.6 修改alertmanager配置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus_alertmanager</span><br><span class="hljs-meta">#</span><span class="bash"> vim alertmanager.yml</span><br>global:<br>  resolve_timeout: 5m<br>  smtp_smarthost: &#x27;smtp.qq.com:465&#x27;<br>  smtp_from: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_username: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_password: &#x27;vsugtwrozvjxbgja&#x27;<br>  smtp_hello: &#x27;@qq.com&#x27;<br>  smtp_require_tls: false<br><br>route:<br>  group_by: [&#x27;alertname&#x27;]<br>  group_wait: 30s<br>  group_interval: 5m<br>  repeat_interval: 30m<br>  receiver: &#x27;wechat&#x27;<br><br>receivers:<br>  - name: &#x27;email&#x27;<br>    email_configs:<br>      - to: &#x27;346636558@qq.com&#x27;<br>        send_resolved: true<br>  - name: &#x27;dingding&#x27;<br>    webhook_configs:<br>      - url: &#x27;http://10.0.0.17:8060/dingtalk/alertname/send&#x27;<br>        send_resolved: true<br>  - name: &#x27;wechat&#x27; #新添加的接收者<br>    wechat_configs:<br>    - corp_id: &#x27;ww2b95eab05c21a1f7&#x27;  #企业微信crop id信息<br>      to_user: &#x27;@all&#x27;<br>      agent_id: &#x27;1000002&#x27;    #企业微信agent id信息<br>      api_secret: &#x27;4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8&#x27; #企业微信secret信息<br>      send_resolved: true<br><br>inhibit_rules:<br>  - source_match:<br>      severity: &#x27;critical&#x27;<br>    target_match:<br>      severity: &#x27;warning&#x27;<br>    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-7-检查语法"><a href="#7-7-检查语法" class="headerlink" title="7.7 检查语法"></a>7.7 检查语法</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool check-config alertmanager.yml</span> <br>Checking &#x27;alertmanager.yml&#x27;  SUCCESS<br>Found:<br> - global config<br> - route<br> - 1 inhibit rules<br> - 3 receivers<br> - 0 templates<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-8-alertmanager重新读取配置文件"><a href="#7-8-alertmanager重新读取配置文件" class="headerlink" title="7.8 alertmanager重新读取配置文件"></a>7.8 alertmanager重新读取配置文件</h2><p>通过让alertmanager重启，让alertmanager重新读取配置文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="7-9-实现故障"><a href="#7-9-实现故障" class="headerlink" title="7.9 实现故障"></a>7.9 实现故障</h2><p>将某一台node_exporter下线，实现故障效果。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="7-10-查看告警"><a href="#7-10-查看告警" class="headerlink" title="7.10 查看告警"></a>7.10 查看告警</h2><ul>
+<li>查看prometheus WEB的Alerts</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-203.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>查看alertmanager</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-204.png" srcset="/blog/img/loading.gif"></p>
+<p>虽然两者都看到报警了，但此时企业微信却没有收到信息。估计是企业微信方面出现了问题。</p>
+<h2 id="7-11-测试企业微信"><a href="#7-11-测试企业微信" class="headerlink" title="7.11 测试企业微信"></a>7.11 测试企业微信</h2><h3 id="7-11-1-准备测试脚本"><a href="#7-11-1-准备测试脚本" class="headerlink" title="7.11.1 准备测试脚本"></a>7.11.1 准备测试脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># vim test.py</span><br><span class="hljs-comment">#!/usr/bin/env python</span><br><span class="hljs-comment">#coding=utf_8</span><br><span class="hljs-comment">#!/root/.virtualenvs/wechat/bin/python</span><br><span class="hljs-comment"># usage: send message via wechat</span><br><br><span class="hljs-keyword">import</span> requests,sys,json<br><span class="hljs-keyword">import</span> urllib3<br>urllib3.disable_warnings()<br><br><br><span class="hljs-comment">###填写参数###</span><br><br><span class="hljs-comment"># Corpid是企业号的标识</span><br><br>Corpid = <span class="hljs-string">&quot;ww2b95eab05c21a1f7&quot;</span><br><br><br><span class="hljs-comment"># Secret是管理组凭证密钥</span><br><br>Secret = <span class="hljs-string">&quot;4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8&quot;</span><br><br>  <br><br><span class="hljs-comment"># 应用ID</span><br><br>Agentid = <span class="hljs-string">&quot;1000002&quot;</span><br><br>  <br><br><span class="hljs-comment"># token_config文件放置路径</span><br><br>Token_config = <span class="hljs-string">r&#x27;/usr/local/test__wechat_config.json&#x27;</span><br><br>  <br><br><span class="hljs-comment">###下面的代码都不需要动###</span><br><br><br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">GetTokenFromServer</span>(<span class="hljs-params">Corpid, Secret</span>):</span><br><br>    <span class="hljs-string">&quot;&quot;&quot;获取access_token&quot;&quot;&quot;</span><br><br>    Url = <span class="hljs-string">&quot;https://qyapi.weixin.qq.com/cgi-bin/gettoken&quot;</span><br><br>    Data = &#123;<br><br>        <span class="hljs-string">&quot;corpid&quot;</span>: Corpid,<br><br>        <span class="hljs-string">&quot;corpsecret&quot;</span>: Secret<br><br>    &#125;<br><br>    r = requests.get(url=Url, params=Data, verify=<span class="hljs-literal">False</span>)<br><br>    <span class="hljs-built_in">print</span>(r.json())<br><br>    <span class="hljs-keyword">if</span> r.json()[<span class="hljs-string">&#x27;errcode&#x27;</span>] != <span class="hljs-number">0</span>:<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br><br>    <span class="hljs-keyword">else</span>:<br><br>        Token = r.json()[<span class="hljs-string">&#x27;access_token&#x27;</span>]<br><br>        file = <span class="hljs-built_in">open</span>(Token_config, <span class="hljs-string">&#x27;w&#x27;</span>)<br><br>        file.write(r.text)<br><br>        file.close()<br><br>        <span class="hljs-keyword">return</span> Token<br><br>  <br><br>  <br><br><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">SendMessage</span>(<span class="hljs-params">Partyid, Subject, Content</span>):</span><br><br>    <span class="hljs-string">&quot;&quot;&quot;发送消息&quot;&quot;&quot;</span><br><br>    <span class="hljs-comment"># 获取token信息</span><br><br>    <span class="hljs-keyword">try</span>:<br><br>        file = <span class="hljs-built_in">open</span>(Token_config, <span class="hljs-string">&#x27;r&#x27;</span>)<br><br>        Token = json.load(file)[<span class="hljs-string">&#x27;access_token&#x27;</span>]<br><br>        file.close()<br><br>    <span class="hljs-keyword">except</span>:<br><br>        Token = GetTokenFromServer(Corpid, Secret)<br><br>  <br><br>    <span class="hljs-comment"># 发送消息</span><br><br><span class="hljs-comment">#    Url = &quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s&quot; % Token</span><br>    Url = <span class="hljs-string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=ACCESS_TOKEN&quot;</span> <br><br>    Data = &#123;<br><br>        <span class="hljs-string">&quot;toparty&quot;</span>: Partyid,<br><br>        <span class="hljs-string">&quot;msgtype&quot;</span>: <span class="hljs-string">&quot;text&quot;</span>,<br><br>        <span class="hljs-string">&quot;agentid&quot;</span>: Agentid,<br><br>        <span class="hljs-string">&quot;text&quot;</span>: &#123;<span class="hljs-string">&quot;content&quot;</span>: Subject + <span class="hljs-string">&#x27;\n&#x27;</span> + Content&#125;,<br><br>        <span class="hljs-string">&quot;safe&quot;</span>: <span class="hljs-string">&quot;0&quot;</span><br><br>    &#125;<br><br>    r = requests.post(url=Url, data=json.dumps(Data), verify=<span class="hljs-literal">False</span>)<br><br>  <br><br>    <span class="hljs-comment"># 如果发送失败，将重试三次</span><br><br>    n = <span class="hljs-number">1</span><br><br>    <span class="hljs-keyword">while</span> r.json()[<span class="hljs-string">&#x27;errcode&#x27;</span>] != <span class="hljs-number">0</span> <span class="hljs-keyword">and</span> n &lt; <span class="hljs-number">4</span>:<br><br>        n = n + <span class="hljs-number">1</span><br><br>        Token = GetTokenFromServer(Corpid, Secret)<br><br>        <span class="hljs-keyword">if</span> Token:<br><br>            Url = <span class="hljs-string">&quot;https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s&quot;</span> % Token<br><br>            r = requests.post(url=Url, data=json.dumps(Data), verify=<span class="hljs-literal">False</span>)<br><br>            <span class="hljs-built_in">print</span>(r.json())<br><br>  <br><br>    <span class="hljs-keyword">return</span> r.json()<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br><br>    <span class="hljs-comment"># 部门id</span><br><br>    Partyid = <span class="hljs-string">&#x27;1&#x27;</span><br><br>    <span class="hljs-comment"># 消息标题</span><br><br>    Subject = <span class="hljs-string">&#x27;自应用程序代码测试&#x27;</span><br><br>    <span class="hljs-comment"># 消息内容</span><br><br>    Content = <span class="hljs-string">&#x27;str(sys.argv[3])&#x27;</span><br><br>    Status = SendMessage(Partyid, Subject, Content)<br><br>    <span class="hljs-built_in">print</span>(Status)<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-11-2-安装Python环境"><a href="#7-11-2-安装Python环境" class="headerlink" title="7.11.2 安装Python环境"></a>7.11.2 安装Python环境</h3><p>环境是Python2.7，需要安装pip，通过pip安装工具</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> wget https://bootstrap.pypa.io/pip/2.7/get-pip.py</span><br><span class="hljs-meta">#</span><span class="bash"> python2 get-pip.py</span><br><span class="hljs-meta">#</span><span class="bash"> pip install requests</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-11-3-执行脚本"><a href="#7-11-3-执行脚本" class="headerlink" title="7.11.3 执行脚本"></a>7.11.3 执行脚本</h3><p>执行脚本后发现报错。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> python2.7 test.py</span> <br>&#123;u&#x27;access_token&#x27;: u&#x27;e1dtbQgyky7g3I1Xzv7DpKB1oGGM_x86rzOLnpV47av6sbzVBUI3lByViDV6Zxv9WWNh6I07IYtyz0o1h9-qD_BZe8KdH1jx49Yy8Qrdfa1Q4e7ii07uNwTO1zqZyKZF4GHbHxMj3rdwDwld2aM4ONj2getmJjQCmI9_ngA3oWGM5NEZ2LmMbwZ6ummNBAv3KfcKvsDctUuhP3Tx8dj-XQ&#x27;, u&#x27;expires_in&#x27;: 7200, u&#x27;errcode&#x27;: 0, u&#x27;errmsg&#x27;: u&#x27;ok&#x27;&#125;<br>&#123;u&#x27;errcode&#x27;: 60020, u&#x27;errmsg&#x27;: u&#x27;not allow to access from your ip, hint: [1675417676531332544732247], from ip: 113.109.111.76, more info at https://open.work.weixin.qq.com/devtool/query?e=60020&#x27;&#125;<br>&#123;u&#x27;access_token&#x27;: u&#x27;e1dtbQgyky7g3I1Xzv7DpKB1oGGM_x86rzOLnpV47av6sbzVBUI3lByViDV6Zxv9WWNh6I07IYtyz0o1h9-qD_BZe8KdH1jx49Yy8Qrdfa1Q4e7ii07uNwTO1zqZyKZF4GHbHxMj3rdwDwld2aM4ONj2getmJjQCmI9_ngA3oWGM5NEZ2LmMbwZ6ummNBAv3KfcKvsDctUuhP3Tx8dj-XQ&#x27;, u&#x27;expires_in&#x27;: 7200, u&#x27;errcode&#x27;: 0, u&#x27;errmsg&#x27;: u&#x27;ok&#x27;&#125;<br>&#123;u&#x27;errcode&#x27;: 60020, u&#x27;errmsg&#x27;: u&#x27;not allow to access from your ip, hint: [1675417677531330892132977], from ip: 113.109.111.76, more info at https://open.work.weixin.qq.com/devtool/query?e=60020&#x27;&#125;<br>&#123;u&#x27;access_token&#x27;: u&#x27;e1dtbQgyky7g3I1Xzv7DpKB1oGGM_x86rzOLnpV47av6sbzVBUI3lByViDV6Zxv9WWNh6I07IYtyz0o1h9-qD_BZe8KdH1jx49Yy8Qrdfa1Q4e7ii07uNwTO1zqZyKZF4GHbHxMj3rdwDwld2aM4ONj2getmJjQCmI9_ngA3oWGM5NEZ2LmMbwZ6ummNBAv3KfcKvsDctUuhP3Tx8dj-XQ&#x27;, u&#x27;expires_in&#x27;: 7200, u&#x27;errcode&#x27;: 0, u&#x27;errmsg&#x27;: u&#x27;ok&#x27;&#125;<br>&#123;u&#x27;errcode&#x27;: 60020, u&#x27;errmsg&#x27;: u&#x27;not allow to access from your ip, hint: [1675417677339600909606153], from ip: 113.109.111.76, more info at https://open.work.weixin.qq.com/devtool/query?e=60020&#x27;&#125;<br>&#123;u&#x27;errcode&#x27;: 60020, u&#x27;errmsg&#x27;: u&#x27;not allow to access from your ip, hint: [1675417677339600909606153], from ip: 113.109.111.76, more info at https://open.work.weixin.qq.com/devtool/query?e=60020&#x27;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>搜索报错的代码60020发现，原来是我的IP地址没有加入到服务器接收信息的白名单里面，所以微信端是收不到我的服务器发送的消息的。</p>
+<p>所以我们需要在企业微信的机器人里配置企业可信IP</p>
+<h2 id="7-12-设置可信域名"><a href="#7-12-设置可信域名" class="headerlink" title="7.12 设置可信域名"></a>7.12 设置可信域名</h2><p>注意：个人用户使用该方法有时效性，如果不行请找新的方法。</p>
+<h3 id="7-12-1-开通函数工作流"><a href="#7-12-1-开通函数工作流" class="headerlink" title="7.12.1 开通函数工作流"></a>7.12.1 开通函数工作流</h3><ul>
+<li>进入华为云，搜索云函数，点击立即使用</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-206.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-12-2-创建函数"><a href="#7-12-2-创建函数" class="headerlink" title="7.12.2 创建函数"></a>7.12.2 创建函数</h3><ul>
+<li>创建函数（创建前需要认证）</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-207.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“HTTP函数”，输入名称（名称随意），点击“创建函数”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-208.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-12-3-创建触发器"><a href="#7-12-3-创建触发器" class="headerlink" title="7.12.3 创建触发器"></a>7.12.3 创建触发器</h3><ul>
+<li>点击创建触发器</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-209.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>安全认证选择“none”，点击确定（没有分组的要创建分组）</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-210.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-12-4-发布API"><a href="#7-12-4-发布API" class="headerlink" title="7.12.4 发布API"></a>7.12.4 发布API</h3><ul>
+<li>点击新创建的触发器</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-211.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击左上角的API管理</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-212.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>选择对应的API点击编辑</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-213.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击下一步</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-214.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>删除“path”的内容，只剩下一个斜杠，点击立即完成</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-215.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“发布API”</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-216.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击发布</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-223.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-12-5-设置可信域名"><a href="#7-12-5-设置可信域名" class="headerlink" title="7.12.5 设置可信域名"></a>7.12.5 设置可信域名</h3><ul>
+<li>回到新创建的函数控制台，复制URL</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-217.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>进入企业微信机器人管理页面，在开发者借口里，点击设置可信域名</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-218.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>将URL复制到可信域名里，然后将“https://”和“/API名称去掉”（也就是掐头去尾，只留中间的内容），点击申请校验域名，然后点击下载文件</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-219.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>回到新添加的API函数的管理页面，点击代码</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-220.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击index.jsp，替换“res.end”里面的内容，然后按“Ctrl + s”保存和部署</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-221.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>回到企业微信，点击确定</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-222.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>回到机器人管理页面，可以看到网页授权及“JS-SDK”已经启用</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-224.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-13-配置企业可信IP"><a href="#7-13-配置企业可信IP" class="headerlink" title="7.13 配置企业可信IP"></a>7.13 配置企业可信IP</h2><ul>
+<li>进入机器人管理页面，在企业可信IP里点击配置</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-225.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>输入你的公网IP地址，点击确定</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-226.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-13-2-测试IP是否添加成功"><a href="#7-13-2-测试IP是否添加成功" class="headerlink" title="7.13.2 测试IP是否添加成功"></a>7.13.2 测试IP是否添加成功</h3><p>在执行脚本之后发现消息已经发送出去了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> python2.7 test.py</span> <br>&#123;u&#x27;access_token&#x27;: u&#x27;Q9Qxhb8Z2SnCqBPYuXimObAOTGcu8hLQeDIUJJFPnZolToZbgWaDeHUom8yx-vJJNFpmgLRfBVAh0f-1mZgGps9sRLrI2_okabb7J7gyPAtIHXoLN4w287ouMrAG69vp7igIS9EW2B5w0rGlCbN0RcTdBFftbn5lrgIIcHwbQmuKNxE1qbDQT-39_kRx4vjCplJRX8iK6er-xHACYglnyA&#x27;, u&#x27;expires_in&#x27;: 7200, u&#x27;errcode&#x27;: 0, u&#x27;errmsg&#x27;: u&#x27;ok&#x27;&#125;<br>&#123;u&#x27;msgid&#x27;: u&#x27;fcLc6UhB2absSaoEDgOVFL1Lu2Fdwziq8axGl66c0BBKdrc45jzUN_mHZhJw1WJIfBbIcLTVLJbFaO2Z7Z0QvQ&#x27;, u&#x27;errcode&#x27;: 0, u&#x27;errmsg&#x27;: u&#x27;ok&#x27;&#125;<br>&#123;u&#x27;msgid&#x27;: u&#x27;fcLc6UhB2absSaoEDgOVFL1Lu2Fdwziq8axGl66c0BBKdrc45jzUN_mHZhJw1WJIfBbIcLTVLJbFaO2Z7Z0QvQ&#x27;, u&#x27;errcode&#x27;: 0, u&#x27;errmsg&#x27;: u&#x27;ok&#x27;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同时查看机器人发送的消息</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-229.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-14-重新实现故障"><a href="#7-14-重新实现故障" class="headerlink" title="7.14 重新实现故障"></a>7.14 重新实现故障</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="7-15-查看企业微信"><a href="#7-15-查看企业微信" class="headerlink" title="7.15 查看企业微信"></a>7.15 查看企业微信</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-227.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-16-恢复故障"><a href="#7-16-恢复故障" class="headerlink" title="7.16 恢复故障"></a>7.16 恢复故障</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="7-17-查看企业微信"><a href="#7-17-查看企业微信" class="headerlink" title="7.17 查看企业微信"></a>7.17 查看企业微信</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-228.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-18-发送消息给指定部门"><a href="#7-18-发送消息给指定部门" class="headerlink" title="7.18 发送消息给指定部门"></a>7.18 发送消息给指定部门</h2><p>之前alertmanager发送消息的时候因为没有指定发送到哪个部门，所以是所有的部门都会一起发送的。但是这样会出现一个问题，一些与告警消息无关的组同样也会收到消息，这样会打扰到不相关的组，让别人觉得搞这个机器人的人是不是有你问题，凭什么我们也要收到这样的信息。比如：人事组，销售组，财务组等等。</p>
+<h3 id="7-18-1-获取部门ID"><a href="#7-18-1-获取部门ID" class="headerlink" title="7.18.1 获取部门ID"></a>7.18.1 获取部门ID</h3><p>我们可以到企业微信的通信录里，点击任意一个组右边的那三个点，就会出现部门ID了，并将部门ID记下来。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-230.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-18-2-修改alertmanager配置文件"><a href="#7-18-2-修改alertmanager配置文件" class="headerlink" title="7.18.2 修改alertmanager配置文件"></a>7.18.2 修改alertmanager配置文件</h3><p>alertmanager是如何知道部门ID的呢？这就需要我们在配置文件的企业微信的配置里添加<code>to_party: 部门ID</code>，同时将<code>to_user</code>一项删除或注释掉。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus_alertmanager</span><br><span class="hljs-meta">#</span><span class="bash"> vim alertmanager.yml</span><br>global:<br>  resolve_timeout: 5m<br>  smtp_smarthost: &#x27;smtp.qq.com:465&#x27;<br>  smtp_from: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_username: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_password: &#x27;vsugtwrozvjxbgja&#x27;<br>  smtp_hello: &#x27;@qq.com&#x27;<br>  smtp_require_tls: false<br><br>route:<br>  group_by: [&#x27;alertname&#x27;]<br>  group_wait: 30s<br>  group_interval: 5m<br>  repeat_interval: 30m<br>  receiver: &#x27;wechat&#x27;<br><br>receivers:<br>  - name: &#x27;email&#x27;<br>    email_configs:<br>      - to: &#x27;346636558@qq.com&#x27;<br>        send_resolved: true<br>  - name: &#x27;dingding&#x27;<br>    webhook_configs:<br>      - url: &#x27;http://10.0.0.17:8060/dingtalk/alertname/send&#x27;<br>        send_resolved: true<br>  - name: &#x27;wechat&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 2 #部门ID<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br><br><br>inhibit_rules:<br>  - source_match:<br>      severity: &#x27;critical&#x27;<br>    target_match:<br>      severity: &#x27;warning&#x27;<br>    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-18-3-检查配置文件"><a href="#7-18-3-检查配置文件" class="headerlink" title="7.18.3 检查配置文件"></a>7.18.3 检查配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool check-config alertmanager.yml</span> <br>Checking &#x27;alertmanager.yml&#x27;  SUCCESS<br>Found:<br> - global config<br> - route<br> - 1 inhibit rules<br> - 3 receivers<br> - 0 templates<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-18-4-重新读取alertmanager配置文件"><a href="#7-18-4-重新读取alertmanager配置文件" class="headerlink" title="7.18.4 重新读取alertmanager配置文件"></a>7.18.4 重新读取alertmanager配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-18-5-实现故障"><a href="#7-18-5-实现故障" class="headerlink" title="7.18.5 实现故障"></a>7.18.5 实现故障</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl stop prometheus-node_exporter.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-18-6-查看企业微信"><a href="#7-18-6-查看企业微信" class="headerlink" title="7.18.6 查看企业微信"></a>7.18.6 查看企业微信</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-231.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-19-消息分类发送"><a href="#7-19-消息分类发送" class="headerlink" title="7.19 消息分类发送"></a>7.19 消息分类发送</h2><p>此时的alertmanager是将所有的报警信息都发往一个组，但是在生产环境中，每个地方都有可能发生问题。比如数据库可能发生问题，网路可能发生问题，应用可能会发生问题。所有的报警信息不经过分类，全部发往一个组里，解决问题的人很难找到相应报警信息，会导致混乱。</p>
+<p>所以我们需要根据消息的属性设置规则，将消息分类发送。</p>
+<h3 id="7-19-1-修改prometheus的规则文件"><a href="#7-19-1-修改prometheus的规则文件" class="headerlink" title="7.19.1 修改prometheus的规则文件"></a>7.19.1 修改prometheus的规则文件</h3><ul>
+<li>修改规则文件，内容都是故意写错的。</li>
+<li>给不同的规则添加labels，每个规则的labels里可能有相同的，也有不同的。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus/rules</span><br><span class="hljs-meta">#</span><span class="bash"> vim rule1.yml</span><br>groups:<br>- name: Host<br>  rules:<br>  - alert: 节点内存使用率<br>    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 &lt; 90<br>    for: 2m<br>    labels:<br>      project: node<br>    annotations:<br>      summary: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器可用内存不足&quot;<br>      description: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器内存为：&#123;&#123; $value &#125;&#125;&quot;<br><br>  - alert: 节点离线<br>    expr: up == 0<br>    for: 2m<br>    labels:<br>      project: node<br>    annotations:<br>      summary: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器监控数据采集实例离线&quot;<br>      description: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器监控数据采集实例离线&quot;<br>  <br>  - alert: 节点可用内存<br>    expr: node_memory_MemFree_bytes &gt; 1024<br>    for: 2m<br>    labels:<br>      project: memory<br>    annotations:<br>      summary: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器可用内存大于1M&quot;<br>      description: &quot;(instance &#123;&#123; $labels.instance &#125;&#125;)服务器节点内存为：&#123;&#123; $value &#125;&#125;&quot;<br><br>  - alert: 节点CPU高负荷<br>    expr: 100 - (avg by (instance,job)(irate(node_cpu_seconds_total&#123;mode=&quot;idle&quot;&#125;[5m])) * 100) &gt; 0.1<br>    for: 2m<br>    labels:<br>      severity: critical<br>    annotations:<br>      summary: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器CPU使用率过高，请尽快处理！&quot;<br>      description: &quot; (instance &#123;&#123; $labels.instance &#125;&#125;)服务器CPU使用大于90%，当前使用率为：&#123;&#123; $value &#125;&#125;%. &quot;<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-19-2-alertmanager的配置文件"><a href="#7-19-2-alertmanager的配置文件" class="headerlink" title="7.19.2 alertmanager的配置文件"></a>7.19.2 alertmanager的配置文件</h3><p>需要消息分组的时候，我们在主路由（route）下需要再添加子路由（routes），alertmanager会根据rules的labels进行判断，</p>
+<ul>
+<li>将label中为<code>project: node</code>的报警信息发送给企业微信</li>
+<li>将label中为<code>project: memory</code>的报警信息发送给钉钉</li>
+<li>其他的消息使用邮件发送</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus_alertmanager</span><br><span class="hljs-meta">#</span><span class="bash"> vim alertmanager.yml</span><br>global:<br>  resolve_timeout: 5m<br>  smtp_smarthost: &#x27;smtp.qq.com:465&#x27;<br>  smtp_from: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_username: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_password: &#x27;vsugtwrozvjxbgja&#x27;<br>  smtp_hello: &#x27;@qq.com&#x27;<br>  smtp_require_tls: false<br><br>route:<br>  group_by: [&#x27;alertname&#x27;]<br>  group_wait: 30s<br>  group_interval: 5m<br>  repeat_interval: 30m<br>  receiver: &#x27;email&#x27;<br>  routes:<br>  - receiver: &#x27;dingding&#x27;<br>    group_wait: 30s<br>    match_re: #匹配的标签<br>      project: memory<br>  - receiver: &#x27;wechat&#x27;<br>    group_wait: 30s<br>    match_re:<br>      project: node<br><br>receivers:<br>  - name: &#x27;email&#x27;<br>    email_configs:<br>      - to: &#x27;346636558@qq.com&#x27;<br>        send_resolved: true<br>  - name: &#x27;dingding&#x27;<br>    webhook_configs:<br>      - url: &#x27;http://10.0.0.17:8060/dingtalk/alertname/send&#x27;<br>        send_resolved: true<br>  - name: &#x27;wechat&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 2<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br><br><br>inhibit_rules:<br>  - source_match:<br>      severity: &#x27;critical&#x27;<br>    target_match:<br>      severity: &#x27;warning&#x27;<br>    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-19-3-检查配置文件"><a href="#7-19-3-检查配置文件" class="headerlink" title="7.19.3 检查配置文件"></a>7.19.3 检查配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool check-config alertmanager.yml</span> <br>Checking &#x27;alertmanager.yml&#x27;  SUCCESS<br>Found:<br> - global config<br> - route<br> - 1 inhibit rules<br> - 3 receivers<br> - 0 templates<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-19-4-重新读取prometheus和alertmanager的配置文件"><a href="#7-19-4-重新读取prometheus和alertmanager的配置文件" class="headerlink" title="7.19.4 重新读取prometheus和alertmanager的配置文件"></a>7.19.4 重新读取prometheus和alertmanager的配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-19-5-查看结果"><a href="#7-19-5-查看结果" class="headerlink" title="7.19.5 查看结果"></a>7.19.5 查看结果</h3><ul>
+<li>邮件（注意一下标题）</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-232.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>钉钉（注意一下标题）</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-234.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>企业微信（注意一下标题）</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-233.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="7-19-6-消息分发总结"><a href="#7-19-6-消息分发总结" class="headerlink" title="7.19.6 消息分发总结"></a>7.19.6 消息分发总结</h3><ol>
+<li>规则的labels设定的越详细，那么在alertmanager里的子路由就可以划分的更精确。</li>
+</ol>
+<p>例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">groups:<br>- name: Host<br>  rules:<br>  - alert: HostOutOfMemory<br>    expr: node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 &lt; 90<br>    for: 2m<br>    labels:<br>      severity: critical<br>      project: memory<br>      department: 5<br>    annotations:<br>      summary: &quot;服务器可用内存不足 (instance &#123;&#123; $labels.instance &#125;&#125;)&quot;<br>      description: &quot;节点内存已满(&lt; 10% left)，VALUE = &#123;&#123; $value &#125;&#125;&quot;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>公司用企业微信的，企业微信中会分不同的组，有：网络组，数据库组，应用组等等。在配置文件中设置多个企业微信的接收者，其中最大的区别就是部门ID（前提是使用同一个机器人）。机器人会根据不同的ID进行消息发送。</li>
+</ol>
+<p>例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs shell">receivers:<br>  - name: &#x27;wechat-network&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 2<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br><br>  - name: &#x27;wechat-mysql&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 3<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br>      <br>  - name: &#x27;wechat-nginx&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 4<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br>      <br>  - name: &#x27;wechat-node&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 5<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>在路由方面，子路由设定的越精细，就越能精确定位需要接收报警信息的用户，也就避免发送无关的信息给无关的人。<strong>每一条消息只能通过一个路由发出，比如使用了email发送了消息，就不能使用企业微信发送同一条消息了。</strong></li>
+</ol>
+<h2 id="7-20-微信报警使用自定义模板"><a href="#7-20-微信报警使用自定义模板" class="headerlink" title="7.20 微信报警使用自定义模板"></a>7.20 微信报警使用自定义模板</h2><h3 id="7-20-1-定义模板"><a href="#7-20-1-定义模板" class="headerlink" title="7.20.1 定义模板"></a>7.20.1 定义模板</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus_alertmanager</span><br><span class="hljs-meta">#</span><span class="bash"> vim wechat_message_template.templ</span><br>&#123;&#123; define &quot;wechat.default.message&quot; &#125;&#125;<br>&#123;&#123; range $i, $alert :=.Alerts &#125;&#125;<br>===alertmanager 监控报警===<br>告警状态: &#123;&#123; .Status &#125;&#125;<br>告警级别: &#123;&#123; $alert.Labels.serverity &#125;&#125;<br>告警类型: &#123;&#123; $alert.Labels.alertname &#125;&#125;<br>告警应用: &#123;&#123; $alert.Annotations.summary &#125;&#125;<br>告警主机: &#123;&#123; $alert.Labels.instance &#125;&#125;<br>告警主题: &#123;&#123; $alert.Annotations.summary &#125;&#125;<br>触发阈值: &#123;&#123; $alert.Annotations.value &#125;&#125;<br>告警详情: &#123;&#123; $alert.Annotations.description &#125;&#125;<br>触发时间: &#123;&#123; $alert.StartsAt.Format &quot;2006-01-02 15:04:05&quot; &#125;&#125;<br>==========end==========<br>&#123;&#123; end &#125;&#125;<br>&#123;&#123; end &#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其他参考模板：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://jiuaidu.com/jianzhan/795473/<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-20-2-修改文件所属"><a href="#7-20-2-修改文件所属" class="headerlink" title="7.20.2 修改文件所属"></a>7.20.2 修改文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus_alertmanager/</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-20-3-alertmanager引用模板"><a href="#7-20-3-alertmanager引用模板" class="headerlink" title="7.20.3 alertmanager引用模板"></a>7.20.3 alertmanager引用模板</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim alertmanager.yml</span><br>global:<br>  resolve_timeout: 5m<br>  smtp_smarthost: &#x27;smtp.qq.com:465&#x27;<br>  smtp_from: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_username: &#x27;346636558@qq.com&#x27;<br>  smtp_auth_password: &#x27;vsugtwrozvjxbgja&#x27;<br>  smtp_hello: &#x27;@qq.com&#x27;<br>  smtp_require_tls: false<br><br>templates:<br>  - &#x27;/apps/prometheus_alertmanager/wechat_message_template.templ&#x27; #alertmanager引用模板<br><br>route:<br>  group_by: [&#x27;alertname&#x27;]<br>  group_wait: 30s<br>  group_interval: 5m<br>  repeat_interval: 30m<br>  receiver: &#x27;email&#x27;<br>  routes:<br>  - receiver: &#x27;dingding&#x27;<br>    group_wait: 30s<br>    match_re:<br>      project: memory<br>  - receiver: &#x27;wechat&#x27;<br>    group_wait: 30s<br>    match_re:<br>      project: node<br><br>receivers:<br>  - name: &#x27;email&#x27;<br>    email_configs:<br>      - to: &#x27;346636558@qq.com&#x27;<br>        send_resolved: true<br>  - name: &#x27;dingding&#x27;<br>    webhook_configs:<br>      - url: &#x27;http://10.0.0.17:8060/dingtalk/alertname/send&#x27;<br>        send_resolved: true<br>  - name: &#x27;wechat&#x27;<br>    wechat_configs:<br>    - corp_id: ww2b95eab05c21a1f7<br>      to_party: 2<br>      agent_id: 1000002<br>      api_secret: 4rqf5THUt0YN-PeEf_Ev-nW2Lw7gkq0bZWJmYA8U_o8<br>      send_resolved: true<br><br><br>inhibit_rules:<br>  - source_match:<br>      severity: &#x27;critical&#x27;<br>    target_match:<br>      severity: &#x27;warning&#x27;<br>    equal: [&#x27;alertname&#x27;, &#x27;dev&#x27;, &#x27;instance&#x27;]<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-20-4-检查语法"><a href="#7-20-4-检查语法" class="headerlink" title="7.20.4 检查语法"></a>7.20.4 检查语法</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./amtool check-config alertmanager.yml</span> <br>Checking &#x27;alertmanager.yml&#x27;  SUCCESS<br>Found:<br> - global config<br> - route<br> - 1 inhibit rules<br> - 3 receivers<br> - 1 templates<br>  SUCCESS<br></code></pre></td></tr></table></figure>
+
+<h3 id="7-20-4-alertmanager重新读取配置文件"><a href="#7-20-4-alertmanager重新读取配置文件" class="headerlink" title="7.20.4 alertmanager重新读取配置文件"></a>7.20.4 alertmanager重新读取配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus-altermanager.service</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="7-20-5-查看企业微信消息"><a href="#7-20-5-查看企业微信消息" class="headerlink" title="7.20.5 查看企业微信消息"></a>7.20.5 查看企业微信消息</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-237.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="7-21-企业微信发送告警信息的总结"><a href="#7-21-企业微信发送告警信息的总结" class="headerlink" title="7.21 企业微信发送告警信息的总结"></a>7.21 企业微信发送告警信息的总结</h2><p>实现企业微信告警的流程</p>
+<ol>
+<li>需要有企业微信</li>
+<li>需要配置机器人</li>
+<li>机器人需要配置企业可信域名和企业可信IP</li>
+<li>alertmanager配置企业微信的接收人</li>
+</ol>
+<h1 id="八、alertmanager高可用"><a href="#八、alertmanager高可用" class="headerlink" title="八、alertmanager高可用"></a>八、alertmanager高可用</h1><h2 id="8-1-单机"><a href="#8-1-单机" class="headerlink" title="8.1 单机"></a>8.1 单机</h2><p>我们现在的使用的alertmanager是单点的架构，假如alertmanager挂了之后，就不能实时发送告警信息了。</p>
+<p>那么显然这样是存在单点故障的，另外对运维而言，其实单点故障是很可怕的，收不到报警有时候是致命的，所以要用高可用的报警方式。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-235.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="8-2-基于负载均衡的高可用"><a href="#8-2-基于负载均衡的高可用" class="headerlink" title="8.2 基于负载均衡的高可用"></a>8.2 基于负载均衡的高可用</h2><p>通过负载均衡，将告警通知发送到存活的alertmanager上</p>
+<p>这种方法能直接实现高可用，是完全生产可用的，如果非要说一下弊端呢？就是引入了其他的组件来保证高可用。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-238.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="8-3-基于Gossip的高可用"><a href="#8-3-基于Gossip的高可用" class="headerlink" title="8.3 基于Gossip的高可用"></a>8.3 基于Gossip的高可用</h2><p>基于Alertmanager的告警分组机制即使不同的Prometheus Sever分别发送相同的告警给Alertmanager，Alertmanager也可以自动将这些告警合并为一个通知向receiver发送。</p>
+<p>但不幸的是，虽然Alertmanager能够同时处理多个相同的Prometheus Server所产生的告警。但是由于单个Alertmanager的存在，当前的部署结构存在明显的单点故障风险，当Alertmanager单点失效后，告警的后续所有业务全部失效。</p>
+<p>最直接的方式，就是尝试部署多套Alertmanager。但是由于Alertmanager之间不存在并不了解彼此的存在，因此则会出现告警通知被不同的Alertmanager重复发送多次的问题。</p>
+<p>为了解决这一问题，Alertmanager引入了Gossip机制。Gossip机制为多个Alertmanager之间提供了信息传递的机制。确保及时在多个Alertmanager分别接收到相同告警信息的情况下，也只有一个告警通知被发送给Receiver。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-236.png" srcset="/blog/img/loading.gif"></p>
+<p>参考博客：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs http">https://yunlzheng.gitbook.io/prometheus-book/part-ii-prometheus-jin-jie/readmd/alertmanager-high-availability<br>https://zhuanlan.zhihu.com/p/87717212<br>https://www.bbsmax.com/A/Ae5RjyEL5Q/<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="九、告警抑制与静默"><a href="#九、告警抑制与静默" class="headerlink" title="九、告警抑制与静默"></a>九、告警抑制与静默</h1><h2 id="9-1-告警抑制实现"><a href="#9-1-告警抑制实现" class="headerlink" title="9.1 告警抑制实现"></a>9.1 告警抑制实现</h2><p>假如有两种警告程度，第一种是普通程度，第二种是严重程度。</p>
+<p>如果检测到了第二种的严重程度时，此时就符合了发送普通程度的告警信息和发送严重程度的告警信息。基于告警规则，alertmanager就会发送严重程度的告警信息，而不发送普通程度的告警信息。</p>
+<p>这就是告警抑制，低程度的告警信息就会被抑制掉。</p>
+<p>可以使用以下规则进行测试</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> vim rules/rule1.yml</span><br>groups:<br>  - name: alertmanager_pod.rules<br>    rules:<br>      - alert: 磁盘容量<br>        expr: 100 - (node_filesystem_free_bytes&#123;fstype=~&quot;ext4|xfs&quot;&#125; / node_filesystem_size_bytes&#123;fstype=~&quot;ext4|xfs&quot;&#125; * 100 ) &gt; 80 #磁盘容量利用率大于80%<br>        for: 2s<br>        labels:<br>          severity: critical<br>        annotations:<br>          summary: &quot;&#123;&#123;$labels.mountpoint&#125;&#125; 磁盘分区使用率过高！&quot;<br>          description: &quot;&#123;&#123;$labels.mountpoint&#125;&#125; 磁盘分区使用大于80%（目前使用:&#123;&#123;$value&#125;&#125;%）&quot;<br><br>    - alert: 磁盘容量<br>      expr: 100 - (node_filesystem_free_bytes&#123;fstype=~&quot;ext4|xfs&quot;&#125; / node_filesystem_size_bytes&#123;fstype=~&quot;ext4|xfs&quot;&#125; * 100 ) &gt; 60 #磁盘容量利用率大于60%<br>      for: 2s<br>      labels:<br>        severity: warning<br>      annotatioinis:<br>        summary: &quot;&#123;&#123;$labels.mountpoint&#125;&#125; 磁盘分区使用率过高！&quot;<br>        description: &quot;&#123;&#123;$labels.mountpoint&#125;&#125; 磁盘分区使用大于60%(目前使用:&#123;&#123;$value&#125;&#125;%)&quot;<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-2-手动静默"><a href="#9-2-手动静默" class="headerlink" title="9.2 手动静默"></a>9.2 手动静默</h2><h3 id="9-2-1-手动静默"><a href="#9-2-1-手动静默" class="headerlink" title="9.2.1 手动静默"></a>9.2.1 手动静默</h3><p>在alertmanager的WEB页面，选择需要静默的告警时间，然后点击“Silence”</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-239.png" srcset="/blog/img/loading.gif"></p>
+<p>修改静默时间，填写创建者（Createor），填写说明（Comment），点击Create</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-240.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="9-2-2-查看结果"><a href="#9-2-2-查看结果" class="headerlink" title="9.2.2 查看结果"></a>9.2.2 查看结果</h3><p>点击Silences</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-241.png" srcset="/blog/img/loading.gif"></p>
+<p>选择对应的Silences的View</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-242.png" srcset="/blog/img/loading.gif"></p>
+<p>看到被手动静默的告警的详细信息</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-243.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="十、PrometheusAlert"><a href="#十、PrometheusAlert" class="headerlink" title="十、PrometheusAlert"></a>十、PrometheusAlert</h1><p>PrometheusAlert是开源的运维告警中心消息转发系统，支持主流的监控系统Prometheus、Zabbix、日志系统Graylog2，Graylog3、数据可视化系统Grafana、SonarQube、阿里云-云监控、以及所有支持WebHook接口的系统发出的预警消息。支持将收到的这些消息发送到钉钉，微信，emil，飞书，腾讯短信，腾讯电话，阿里云短信，阿里云电话，华为短信，百度云短信，容联云电话，七陌短信，七陌语音，TeleGram，百度Hi(如流)等。</p>
+<p>项目github地址</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/feiyu563/PrometheusAlert<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/prometheus/">prometheus</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Prometheus%E4%B9%8BPushgateway%E4%BB%8B%E7%BB%8D%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Prometheus之Pushgateway介绍与使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Prometheus%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">
+                        <span class="hidden-mobile">Prometheus安装与初步使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

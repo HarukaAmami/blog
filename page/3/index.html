@@ -181,16 +181,20 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/02/26/CentOS7-%E5%AE%89%E8%A3%85MySQL-Client/">CentOS7 安装MySQL Client</a>
+        <a href="/blog/2022/05/14/Ubuntu1804%E5%AE%89%E8%A3%85gitlab-ce/">Ubuntu1804安装gitlab-ce</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/02/26/CentOS7-%E5%AE%89%E8%A3%85MySQL-Client/">
+        <a href="/blog/2022/05/14/Ubuntu1804%E5%AE%89%E8%A3%85gitlab-ce/">
           
           
             
           
-          CentOS7 安装MySQL Client123456#添加rpm源# rpm -ivh https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm#通过yum搜索# yum search mysql-community#安装x64位的 mysql客户端# yum install mysql-community-clie
+          Ubuntu 1804 安装 gitlab-ce一、安装和配置必须的依赖项12345#更新aptapt update#安装依赖apt install -y curl openssh-server ca-certificates tzdata perl
+
+
+
+二、下载 deb 包并且安装2.1 所有gitlab-ce的版本123456789101112131415161718192021222324
         </a>
       </p>
 
@@ -198,8 +202,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-26 12:13" pubdate>
-              2022-02-26
+            <time datetime="2022-05-14 20:54" pubdate>
+              2022-05-14
             </time>
           </div>
         
@@ -208,249 +212,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-MySQL/">Linux MySQL</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix_titie.jpg" srcset="/blog/img/loading.gif" alt="使用zabbix5.0的Template DB MySQL模板来监控数据库">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/">使用zabbix5.0的Template DB MySQL模板来监控数据库</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/26/%E4%BD%BF%E7%94%A8zabbix5-0%E7%9A%84Template-DB-MySQL%E6%A8%A1%E6%9D%BF%E6%9D%A5%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE%E5%BA%93/">
-          
-          
-            
-          
-          使用zabbix5.0的Template DB MySQL模板来监控数据库一、安装zabbix-agent安装过程略
-二、添加zabbix-agent模板123456789101112131415161718# find / -name userparameter_mysql.conf/usr/local/src/zabbix-5.0.0/conf/zabbix_agentd/userparame
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-26 12:04" pubdate>
-              2022-02-26
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-zabbix/">Linux zabbix</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/03/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="CentOS7使用yum安装Elasticsearch7.X">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/03/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Elasticsearch/">CentOS7使用yum安装Elasticsearch7.X</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/03/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85Elasticsearch/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-03 16:49" pubdate>
-              2022-02-03
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-elasticsearch/">Linux elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/02/Elasticsearch%E8%AE%BE%E7%BD%AE%E5%9F%BA%E6%9C%AC%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elasticsearch设置基本安全认证配置">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/02/Elasticsearch%E8%AE%BE%E7%BD%AE%E5%9F%BA%E6%9C%AC%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE/">Elasticsearch设置基本安全认证配置</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/02/Elasticsearch%E8%AE%BE%E7%BD%AE%E5%9F%BA%E6%9C%AC%E5%AE%89%E5%85%A8%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-02 11:00" pubdate>
-              2022-02-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-elasticsearch/">Linux elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/02/Elasticsearch%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%8E%E9%99%90%E5%BA%A6%E5%AE%89%E5%85%A8%E6%80%A7/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elasticsearch配置最低限度安全性">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/02/Elasticsearch%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%8E%E9%99%90%E5%BA%A6%E5%AE%89%E5%85%A8%E6%80%A7/">Elasticsearch配置最低限度安全性</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/02/Elasticsearch%E9%85%8D%E7%BD%AE%E6%9C%80%E4%BD%8E%E9%99%90%E5%BA%A6%E5%AE%89%E5%85%A8%E6%80%A7/">
-          
-          
-            
-          
-          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-02 10:58" pubdate>
-              2022-02-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-elasticsearch/">Linux elasticsearch</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2022/02/02/CentOS7%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85zabbix5.0/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/zabbix/zabbix_titie.jpg" srcset="/blog/img/loading.gif" alt="CentOS7源码编译安装zabbix5.0">
-        </a>
-      </div>
-    
-    <article class="col-12 col-md-8 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2022/02/02/CentOS7%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85zabbix5.0/">CentOS7源码编译安装zabbix5.0</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2022/02/02/CentOS7%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85zabbix5.0/">
-          
-          
-            
-          
-          源码编译安装zabbix5.0的Server端和Agent端一、安装前准备1.1 安装jdkMySQL建议使用orcale的jdk
-安装过程略
-1.2 安装MySQL注意MySQL版本必须是5.0.3-8.0.x
-安装过程略
-1.3 编译安装nginx安装过程略
-1.4 安装php7.4php官方github：https://github.com/php/php-src
-1234567891011
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2022-02-02 10:29" pubdate>
-              2022-02-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/Linux-zabbix/">Linux zabbix</a>
+              <a href="/blog/tags/gitlab-ce-Ubuntu/">gitlab-ce Ubuntu</a>
             
           </div>
         
@@ -464,43 +226,19 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/01/21/Redis3-2-10%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">Redis3.2.10主从复制</a>
+        <a href="/blog/2022/05/08/SonarQube%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E6%B5%8B%E8%AF%95/">SonarQube代码质量测试</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/01/21/Redis3-2-10%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">
+        <a href="/blog/2022/05/08/SonarQube%E4%BB%A3%E7%A0%81%E8%B4%A8%E9%87%8F%E6%B5%8B%E8%AF%95/">
           
           
             
           
-          Redis3.2.10主从复制一、redis主从复制架构一主二从
+          一、SonarQube 简介1.1 SonarQube 简单介绍SonarQube 是一个用于代码质量管理的开放平台，通过插件机制，SonarQube 可以集成不同的测试工具，代码分析工具，以及持续集成工具，例如 Hudson/Jenkins 等。
+官方网站：http://www.sonarqube.org/
+官方下载网站：https://www.sonarqube.org/downloads/
 
-
-
-服务器地址
-主或从
-
-
-
-10.0.0.101
-主
-
-
-10.0.0.102
-从
-
-
-10.0.0.103
-从
-
-
-二、安装redis3.2.10三台服务器都安装redis3.2.10
-1
-
-
-
-三、修改配置文价10.0.0.101服务器修改配置文件
-12345678910111213141516171819202122232
         </a>
       </p>
 
@@ -508,8 +246,8 @@
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-21 20:55" pubdate>
-              2022-01-21
+            <time datetime="2022-05-08 11:42" pubdate>
+              2022-05-08
             </time>
           </div>
         
@@ -518,7 +256,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-Redis/">Linux Redis</a>
+              <a href="/blog/tags/SonarQube/">SonarQube</a>
             
           </div>
         
@@ -532,19 +270,21 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/01/21/Linux-gzip%E5%91%BD%E4%BB%A4/">Linux gzip命令</a>
+        <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">CentOS7使用yum安装PostgreSQL</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/01/21/Linux-gzip%E5%91%BD%E4%BB%A4/">
+        <a href="/blog/2022/05/07/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85PostgreSQL/">
           
           
             
           
-          Linux gzip命令一、gzip简介gzip是个使用广泛的压缩程序，文件经它压缩过后，其名称后面会多处“.gz”扩展名。
-gzip是在Linux系统中经常使用的一个对文件进行压缩和解压缩的命令，既方便又好用。
-gzip不仅可以用来压缩大的、较少使用的文件以节省磁盘空间，还可以和tar命令一起构成Linux操作系统中比较流行的压缩文件格式。
-据统计，gzip命令对文本文件有60%～70%的压缩率
+          一、安装PostgreSQL这里以安装 PostgreSQL 12来做例子
+进入PostgreSQL的红帽版本的下载网站：
+https://www.postgresql.org/download/linux/redhat/
+选择对应的版本，安装即可。
+
+1234567891011#安装PostgreSQL仓库的repo文件yum install -y https://download.postgr
         </a>
       </p>
 
@@ -552,8 +292,185 @@ gzip不仅可以用来压缩大的、较少使用的文件以节省磁盘空间�
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-21 20:54" pubdate>
-              2022-01-21
+            <time datetime="2022-05-07 22:26" pubdate>
+              2022-05-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/PostgreSQL-Linux/">PostgreSQL Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/04/08/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85gitlab/">CentOS7使用yum安装gitlab</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/04/08/CentOS7%E4%BD%BF%E7%94%A8yum%E5%AE%89%E8%A3%85gitlab/">
+          
+          
+            
+          
+          CentOS7使用yum安装gitlab一、配置yum源12345678vim /etc/yum.repos.d/gitlab.repo[gitlab-ce]name=Gitlab CE Repositorybaseurl=https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el$releasever/gpgcheck=0enabled=1yum 
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-08 21:29" pubdate>
+              2022-04-08
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">CentOS7使用rpm方式安装gitlab</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/04/07/CentOS7%E4%BD%BF%E7%94%A8rpm%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85gitlab/">
+          
+          
+            
+          
+          CentOS7使用rpm方式安装gitlab此教程以安装gitlab14.2.1版本为基础
+一、安装前准备1234567#关闭防火墙systemctl stop firewalld#关闭selinuxvim /etc/sysconfig/selinux.....SELINUX=disabled......
+
+
+
+二、安装依赖1yum install -y curl policycoreutils-
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-07 21:01" pubdate>
+              2022-04-07
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/gitlab/">gitlab</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/04/05/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">阿里云专有网络VPC</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/04/05/%E9%98%BF%E9%87%8C%E4%BA%91%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">
+          
+          
+            
+          
+          阿里云专有网络VPC学习目标：
+了解专有网络VPC的产生背景以及优势
+了解专有网络VPC及相关组件的概念和使用方法
+掌握专有网络VPC的使用场景和最佳实践
+VPC、SLB、NAT、EIP、VPN、共享带宽、共享流量包
+一、专有网络VPC1.1 专用网络VPC介绍
+1.2 专有网络VPC特点
+灵活：自主网络规划管理，灵活掌握网络部署
+易扩展：使用NAT网关可管理公网出入口，结合高速通道实现混合云架构
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-04-05 21:47" pubdate>
+              2022-04-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/%E9%98%BF%E9%87%8C%E4%BA%91-%E4%B8%93%E6%9C%89%E7%BD%91%E7%BB%9CVPC/">阿里云 专有网络VPC</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">Linux 快速删除海量文件</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/27/Linux-%E5%BF%AB%E9%80%9F%E5%88%A0%E9%99%A4%E6%B5%B7%E9%87%8F%E6%96%87%E4%BB%B6/">
+          
+          
+            
+          
+          Linux 快速删除海量文件Linux快速删除海量小文件
+事前提要：
+有人在群里提出：删除海量小文件，例如日志文件，用什么命令会快些。
+这里提供几个思路
+
+使用 rm -f * 命令删除该文件夹内的所有文件（不能在公司服务器使用）
+使用 ls -l | awk ‘{print “rm -f”,$9}’ | sh 命令删除该文件夹内所有的文件
+使用 ls | xargs rm -r 命令删除该文件夹
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-27 23:17" pubdate>
+              2022-03-27
             </time>
           </div>
         
@@ -576,31 +493,22 @@ gzip不仅可以用来压缩大的、较少使用的文件以节省磁盘空间�
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/01/21/Linux-gunzip%E5%91%BD%E4%BB%A4/">Linux gunzip命令</a>
+        <a href="/blog/2022/03/27/php%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E9%81%87%E5%88%B0%E7%9A%84%E5%9D%91-%E5%90%88%E9%9B%86/">php编译安装遇到的坑(合集)</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/01/21/Linux-gunzip%E5%91%BD%E4%BB%A4/">
+        <a href="/blog/2022/03/27/php%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E9%81%87%E5%88%B0%E7%9A%84%E5%9D%91-%E5%90%88%E9%9B%86/">
           
           
             
           
-          Linux gunzip命令一、gunzip简介gunzip命令用来解压缩文件。
-gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的文件，这些压缩文件预设最后的扩展名为.gz。事实上gunzip就是gzip的硬连接，因此不论是压缩或解压缩，都可通过gzip指令单独完成。
-二、语法1gunzip(选项)(参数)
+          php编译安装遇到的坑(合集)在centos7.6编译php7.4出现configure: WARNING: unrecognized options: –with-gd的问题
+1configure: WARNING: unrecognized options: –-with-gd
 
-
-
-三、选项
-
-
-选项
-解释
-
-
-
--a或–ascii
-使用ASCII
+解决方法：
+使用–enable-gd替代–with-gd
+原因：
+–with-gd becomes –enable
         </a>
       </p>
 
@@ -608,8 +516,8 @@ gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的�
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-21 20:53" pubdate>
-              2022-01-21
+            <time datetime="2022-03-27 23:10" pubdate>
+              2022-03-27
             </time>
           </div>
         
@@ -618,7 +526,7 @@ gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux/">Linux</a>
+              <a href="/blog/tags/php/">php</a>
             
           </div>
         
@@ -632,27 +540,19 @@ gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的�
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2022/01/20/Shell-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%88%A4%E6%96%AD%E6%8A%A5%E9%94%99/">Shell 字符串判断报错</a>
+        <a href="/blog/2022/03/22/CentOS7%E5%AE%89%E8%A3%85PHP-Composer/">CentOS7安装PHP Composer</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2022/01/20/Shell-%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%88%A4%E6%96%AD%E6%8A%A5%E9%94%99/">
+        <a href="/blog/2022/03/22/CentOS7%E5%AE%89%E8%A3%85PHP-Composer/">
           
           
             
           
-          Shell 字符串判断报错在shell脚本中，使用if判断字符串出现了报错
-报错内容为：
-1[: xxx: binary operator expected
-
-
-
-错误原因：
-使用了“-z”对一个变量判断是否为空字符串
-因为在shell中使用-z或-n对一个变量判空时，需要注意若直接使用[ -n/-z ${变量} ]这种形式，若${变量}中有空格将会报错
-解决办法：
-在判断时使用
-[[ -n/-z
+          CentOS7 安装PHP Composer安装最新版本的composercomposer.phar官网：https://getcomposer.org/
+一、安装php安装过程略
+二、下载composer.phar文件前提需要设定全局的环境变量（/etc/profile或/etc/profile.d/xxx.sh）（略）
+1curl -sS https://getcomposer.org/ins
         </a>
       </p>
 
@@ -660,8 +560,8 @@ gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的�
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2022-01-20 23:14" pubdate>
-              2022-01-20
+            <time datetime="2022-03-22 23:01" pubdate>
+              2022-03-22
             </time>
           </div>
         
@@ -670,7 +570,53 @@ gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的�
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-shell/">Linux shell</a>
+              <a href="/blog/tags/Linux-PHP-Composer/">Linux PHP Composer</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/03/05/Https%E8%AF%B7%E6%B1%82%E6%8A%A5%E9%94%99blocked-mixed-content%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/">Https请求报错blocked:mixed-content问题的解决</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/03/05/Https%E8%AF%B7%E6%B1%82%E6%8A%A5%E9%94%99blocked-mixed-content%E9%97%AE%E9%A2%98%E7%9A%84%E8%A7%A3%E5%86%B3/">
+          
+          
+            
+          
+          一、问题描述使用修改nginx配置，将项目中http请求改成https后，发现有的接口出现了“**blocked:mixed-content**”的问题
+问题截图
+
+
+二、问题分析原本使用http请求时没有出现这个错误的，但是后来改为使用https做请求就出现了这个问题。那问题就出现在由http转跳到https里了。
+然后寻找资料后发现了“**blocked:mixed-content**”的含义
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-03-05 22:17" pubdate>
+              2022-03-05
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Nginx-Https/">Linux Nginx Https</a>
             
           </div>
         
@@ -682,7 +628,7 @@ gunzip是个使用广泛的解压缩程序，它用于解开被gzip压缩过的�
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/blog/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/">1</a><a class="page-number" href="/blog/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/blog/page/4/">4</a><a class="page-number" href="/blog/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/8/">8</a><a class="extend next" rel="next" href="/blog/page/4/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/blog/page/2/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/">1</a><a class="page-number" href="/blog/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/blog/page/4/">4</a><a class="page-number" href="/blog/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/4/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   

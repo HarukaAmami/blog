@@ -1,0 +1,546 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Prometheus之联邦 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Prometheus之联邦">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-02-06 14:14" pubdate>
+        2023年2月6日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      18
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Prometheus之联邦</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Prometheus之联邦"><a href="#Prometheus之联邦" class="headerlink" title="Prometheus之联邦"></a>Prometheus之联邦</h1><h1 id="一、prometheus联邦简介"><a href="#一、prometheus联邦简介" class="headerlink" title="一、prometheus联邦简介"></a>一、prometheus联邦简介</h1><h2 id="1-1-什么是联邦集群"><a href="#1-1-什么是联邦集群" class="headerlink" title="1.1 什么是联邦集群"></a>1.1 什么是联邦集群</h2><p>一个prometheus server联邦下面有多个prometheus server的联邦节点，这些联邦节点下有多个exproter。从exporter采集到的数据最终都会汇总到prometheus server联邦上。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-251.png" srcset="/blog/img/loading.gif"></p>
+<ol>
+<li>一个prometheus server（简称A）下有多个prometheus server（简称B），同时A会采集B的所有数据（prometheus server联邦往prometheus联邦节点抓取数据）。</li>
+<li>prometheus server下有多个exporter，同样prometheus会采集所有exporter的数据。</li>
+<li>最终的结果就是第一个prometheus会汇总所有的数据</li>
+</ol>
+<h2 id="1-2-什么时候采用联邦集群"><a href="#1-2-什么时候采用联邦集群" class="headerlink" title="1.2 什么时候采用联邦集群"></a>1.2 什么时候采用联邦集群</h2><p>在大型企业中往往会有多个数据中心，我们可以在每个数据中心都配置一套完整的prometheus服务，用来采集该数据中心的所有数据。最后在通过一个prometheus服务器，汇总这些从数据中心采集到的数据并使用画图工具进行展示。这样上级就很清楚的看到多个数据中心的服务的运行情况了。</p>
+<h1 id="二、实现prometheus邦联"><a href="#二、实现prometheus邦联" class="headerlink" title="二、实现prometheus邦联"></a>二、实现prometheus邦联</h1><p>版本要保持一致</p>
+<table>
+<thead>
+<tr>
+<th>IP</th>
+<th>hostname</th>
+<th>安装的软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10.0.0.7</td>
+<td>prometheus-server</td>
+<td>prometheus，node_exporter</td>
+</tr>
+<tr>
+<td>10.0.0.17</td>
+<td>prometheus-federation1</td>
+<td>prometheus，node_exporter</td>
+</tr>
+<tr>
+<td>10.0.0.27</td>
+<td>prometheus-federation2</td>
+<td>prometheus，node_exporter</td>
+</tr>
+<tr>
+<td>10.0.0.37</td>
+<td>prometheus-node1</td>
+<td>node_exporter</td>
+</tr>
+<tr>
+<td>10.0.0.47</td>
+<td>prometheus-node2</td>
+<td>node_exporter</td>
+</tr>
+</tbody></table>
+<h2 id="2-1-安装prometheus"><a href="#2-1-安装prometheus" class="headerlink" title="2.1 安装prometheus"></a>2.1 安装prometheus</h2><p>所有需要安装prometheus的都可以按照以下流程进行安装</p>
+<h3 id="2-1-1-下载prometheus"><a href="#2-1-1-下载prometheus" class="headerlink" title="2.1.1 下载prometheus"></a>2.1.1 下载prometheus</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps</span><br><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> wget https://github.com/prometheus/prometheus/releases/download/v2.37.5/prometheus-2.37.5.linux-amd64.tar.gz</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-2-解压并做软连接"><a href="#2-1-2-解压并做软连接" class="headerlink" title="2.1.2 解压并做软连接"></a>2.1.2 解压并做软连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> tar xf prometheus-2.37.5.linux-amd64.tar.gz</span><br><span class="hljs-meta">#</span><span class="bash"> ln -s /apps/prometheus-2.37.5.linux-amd64 /apps/prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-3-添加service文件"><a href="#2-1-3-添加service文件" class="headerlink" title="2.1.3 添加service文件"></a>2.1.3 添加service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/prometheus.service</span><br>[Unit]<br>Description=Monitoring system and time series database<br>Documentation=https://prometheus.io/docs/introduction/overview/<br>After=network.target<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/prometheus/ #路径根据需求修改<br>ExecStart=/apps/prometheus/prometheus --config.file=/apps/prometheus/prometheus.yml --web.enable-lifecycle<br>ExecReload=/bin/kill -HUP $MAINPID<br>User=prometheus<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-4-创建启动用户"><a href="#2-1-4-创建启动用户" class="headerlink" title="2.1.4 创建启动用户"></a>2.1.4 创建启动用户</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-5-修改prometheus文件所属"><a href="#2-1-5-修改prometheus文件所属" class="headerlink" title="2.1.5 修改prometheus文件所属"></a>2.1.5 修改prometheus文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-2.37.5.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-6启动prometheus"><a href="#2-1-6启动prometheus" class="headerlink" title="2.1.6启动prometheus"></a>2.1.6启动prometheus</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-安装node-exporter"><a href="#2-2-安装node-exporter" class="headerlink" title="2.2 安装node_exporter"></a>2.2 安装node_exporter</h2><p>所有需要安装node_exporter的都可以按照以下流程进行安装</p>
+<h3 id="2-2-1-下载node-exporter"><a href="#2-2-1-下载node-exporter" class="headerlink" title="2.2.1 下载node_exporter"></a>2.2.1 下载node_exporter</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps</span><br><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> wget https://github.com/prometheus/node_exporter/releases/download/v1.5.0/node_exporter-1.5.0.linux-amd64.tar.gz</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-2-解压并做软连接"><a href="#2-2-2-解压并做软连接" class="headerlink" title="2.2.2 解压并做软连接"></a>2.2.2 解压并做软连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> tar xf node_exporter-1.5.0.linux-amd64.tar.gz</span><br><span class="hljs-meta">#</span><span class="bash"> ln -s /apps/node_exporter-1.5.0.linux-amd64 /apps/prometheus-node_exporter</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-3-添加service文件"><a href="#2-2-3-添加service文件" class="headerlink" title="2.2.3 添加service文件"></a>2.2.3 添加service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/prometheus-node_exporter.service</span><br>[Unit]<br>Description=Prometheus exporter for machine metrics<br>Documentation=https://github.com/prometheus/node_exporter<br>After=network.target<br><br>[Service]<br>ExecStart=/apps/prometheus-node_exporter/node_exporter<br>ExecReload=/bin/kill -HUP $MAINPID<br>User=prometheus<br>Restart=always<br>TimeoutStopSec=20s<br>SendSIGKILL=no<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-4-创建启动用户"><a href="#2-2-4-创建启动用户" class="headerlink" title="2.2.4 创建启动用户"></a>2.2.4 创建启动用户</h3><p>没有创建prometheus用户的都要创建</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-5-修改exporter所属"><a href="#2-2-5-修改exporter所属" class="headerlink" title="2.2.5 修改exporter所属"></a>2.2.5 修改exporter所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/node_exporter-1.5.0.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-6-启动exporter"><a href="#2-2-6-启动exporter" class="headerlink" title="2.2.6 启动exporter"></a>2.2.6 启动exporter</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-node_exporter</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> prometheus-node_exporter</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-3-配置prometheus联邦节点监控exporter"><a href="#2-3-配置prometheus联邦节点监控exporter" class="headerlink" title="2.3 配置prometheus联邦节点监控exporter"></a>2.3 配置prometheus联邦节点监控exporter</h2><p>prometheus联邦节点监控的exporter如下图所示：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-246.png" srcset="/blog/img/loading.gif"></p>
+<p>这里只演示联邦节点1的修改过程，联邦节点2也是同样的过程进行修改。</p>
+<h3 id="2-3-1-prometheus联邦节点修改配置"><a href="#2-3-1-prometheus联邦节点修改配置" class="headerlink" title="2.3.1 prometheus联邦节点修改配置"></a>2.3.1 prometheus联邦节点修改配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br>......<br>  - job_name: &quot;prometheus-federation1&quot;<br>    file_sd_configs:<br>      - files:<br>          - /apps/prometheus/file_sd/node-exporter.yaml<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-2-添加自动发现文件夹"><a href="#2-3-2-添加自动发现文件夹" class="headerlink" title="2.3.2 添加自动发现文件夹"></a>2.3.2 添加自动发现文件夹</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir file_sd</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-3-添加自动发现配置"><a href="#2-3-3-添加自动发现配置" class="headerlink" title="2.3.3 添加自动发现配置"></a>2.3.3 添加自动发现配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim file_sd/node-exporter.yaml</span><br>- targets:<br>  - &#x27;10.0.0.17:9100&#x27;<br>  labels:<br>    host: 10.0.0.17<br>    hostname: prometheus-federation1<br><br>- targets:<br>  - &#x27;10.0.0.37:9100&#x27;<br>  labels:<br>    host: 10.0.0.37<br>    hostname: prometheus-node1<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-4-修改文件所属"><a href="#2-3-4-修改文件所属" class="headerlink" title="2.3.4 修改文件所属"></a>2.3.4 修改文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-2.37.5.linux-amd64</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-5-检查语法"><a href="#2-3-5-检查语法" class="headerlink" title="2.3.5 检查语法"></a>2.3.5 检查语法</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span> <br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-6-重新读取prometheus配置"><a href="#2-3-6-重新读取prometheus配置" class="headerlink" title="2.3.6 重新读取prometheus配置"></a>2.3.6 重新读取prometheus配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-7-查看prometheus的Targets"><a href="#2-3-7-查看prometheus的Targets" class="headerlink" title="2.3.7 查看prometheus的Targets"></a>2.3.7 查看prometheus的Targets</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-247.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="2-4-配置prometheus-server监控联邦节点"><a href="#2-4-配置prometheus-server监控联邦节点" class="headerlink" title="2.4 配置prometheus server监控联邦节点"></a>2.4 配置prometheus server监控联邦节点</h2><h3 id="2-4-1-修改prometheus配置"><a href="#2-4-1-修改prometheus配置" class="headerlink" title="2.4.1 修改prometheus配置"></a>2.4.1 修改prometheus配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-2-添加自动发现文件夹"><a href="#2-4-2-添加自动发现文件夹" class="headerlink" title="2.4.2 添加自动发现文件夹"></a>2.4.2 添加自动发现文件夹</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-3-添加自动发现配置"><a href="#2-4-3-添加自动发现配置" class="headerlink" title="2.4.3 添加自动发现配置"></a>2.4.3 添加自动发现配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br>......<br>  - job_name: &quot;prometheus-federate&quot;<br>    scrape_interval: 10s<br>    honor_labels: true<br>    metrics_path: &#x27;/federate&#x27;<br>    params:<br>      &#x27;match[]&#x27;:<br>        - &#x27;&#123;job=&quot;prometheus&quot;&#125;&#x27;<br>        - &#x27;&#123;__name__=~&quot;job:.*&quot;&#125;&#x27;<br>        - &#x27;&#123;__name__=~&quot;node.*&quot;&#125;&#x27;<br>    file_sd_configs:<br>       - files:<br>           - /apps/prometheus/file_sd/prometheus-federate.yaml<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-4-修改文件所属"><a href="#2-4-4-修改文件所属" class="headerlink" title="2.4.4 修改文件所属"></a>2.4.4 修改文件所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-5-检查语法"><a href="#2-4-5-检查语法" class="headerlink" title="2.4.5 检查语法"></a>2.4.5 检查语法</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span> <br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-6-重新读取prometheus配置"><a href="#2-4-6-重新读取prometheus配置" class="headerlink" title="2.4.6 重新读取prometheus配置"></a>2.4.6 重新读取prometheus配置</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-7-查看prometheus联邦的Targets"><a href="#2-4-7-查看prometheus联邦的Targets" class="headerlink" title="2.4.7 查看prometheus联邦的Targets"></a>2.4.7 查看prometheus联邦的Targets</h3><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-248.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="2-4-8-查看prometheus邦联采集的数据"><a href="#2-4-8-查看prometheus邦联采集的数据" class="headerlink" title="2.4.8 查看prometheus邦联采集的数据"></a>2.4.8 查看prometheus邦联采集的数据</h3><p>我们可以从Targets里看出prometheus联邦采集数据的页面网址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http:prometheus联邦节点IP:9090/federate<br></code></pre></td></tr></table></figure>
+
+<p>点击该地址进行访问</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-249.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="2-4-9-prometheus联邦验证数据"><a href="#2-4-9-prometheus联邦验证数据" class="headerlink" title="2.4.9 prometheus联邦验证数据"></a>2.4.9 prometheus联邦验证数据</h3><p>从prometheus联邦的WEB页面上可以看到prometheus联邦采集了4个exporter的数据了。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-250.png" srcset="/blog/img/loading.gif"></p>
+<p>influxdb/thanos/victoriametrics</p>
+<p>prometheus不可以直连</p>
+<p>prometheus–&gt;adapter–&gt;elasticsearch</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/prometheus/">prometheus</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/02/08/Prometheus%E4%B9%8B%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Prometheus之存储系统</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%8F%AF%E8%A7%86%E5%8C%96/">
+                        <span class="hidden-mobile">Prometheus之数据与可视化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

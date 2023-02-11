@@ -1,0 +1,541 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Promehteus简介 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Promehteus简介">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-01-10 10:57" pubdate>
+        2023年1月10日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.5k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      27
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Promehteus简介</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Prometheus简介"><a href="#Prometheus简介" class="headerlink" title="Prometheus简介"></a>Prometheus简介</h1><h1 id="一、什么是Prometheus"><a href="#一、什么是Prometheus" class="headerlink" title="一、什么是Prometheus"></a>一、什么是Prometheus</h1><p>Prometheus是由前Google工程师从2012年开始在Soundcloud以开源软件的形式进行研发的系统监控和告警工具包。自比以后，许多公司和组织都采用了Prometheus作为监控告警工具。<strong>Prometheus的开发者和用户社区非常活跃，它现在是一个独立的开源项目，可以独立于任何公司进行维护。</strong>为了证明这一点，Prometheus于2016年5月加入CNCF基金会，成为继Kubernetes之后的第二个CNCF托管项目。</p>
+<p>Prometheus官网：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://prometheus.io/<br></code></pre></td></tr></table></figure>
+
+<p>CNCF基金会收录项目的图谱</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://landscape.cncf.io/<br></code></pre></td></tr></table></figure>
+
+<p>Prometheus下载地址</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/prometheus/prometheus<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://www.prometheus.wang/quickstart/static/prometheus-release-roadmaps.png" srcset="/blog/img/loading.gif" alt="Prometheus发展图"></p>
+<h1 id="二、Prometheus优势"><a href="#二、Prometheus优势" class="headerlink" title="二、Prometheus优势"></a>二、Prometheus优势</h1><p>Prometheus是一个开源的完整监控解决方案，其对传统监控系统的测试和告警模型进行了彻底的颠覆，形成了基于中央化的规则计算、统一分析和告警的新模型。</p>
+<p>相比于传统监控系统Prometheus具有以下优点：</p>
+<ol>
+<li><p>易于管理</p>
+<ul>
+<li>Prometheus核心部分只有一个单独的二进制文件，不存在任何的第三方依赖(数据库，缓存等等)。唯一需要的就是本地磁盘，因此不会有潜在级联故障的风险。<strong>（无依赖存储）</strong></li>
+<li>Prometheus采用http协议，使用pull / push 两种数据采集传输方式，可以在任何地方（本地电脑，开发环境，测试环境）搭建我们的监控系统。对于一些复杂的情况，还可以使用Prometheus服务发现(Service Discovery)的能力动态管理监控目标。</li>
+</ul>
+</li>
+<li><p>监控服务的内部运行状态</p>
+<p>Pometheus鼓励用户监控服务的内部状态，基于Prometheus丰富的Client库，用户可以轻松的在应用程序中添加对Prometheus的支持，从而让用户可以获取服务和应用内部真正的运行状态。</p>
+<p><img src="https://www.prometheus.wang/quickstart/static/monitor-internal.png" srcset="/blog/img/loading.gif" alt="监控服务内部运行状态"></p>
+<p>监控目标，可以采用服务发现或静态配置的方式</p>
+</li>
+<li><p>强大的数据模型</p>
+<p>所有采集的监控数据均以指标(metric)的形式保存在内置的时间序列数据库当中(TSDB)。所有的样本除了基本的指标名称以外，还包含一组用于描述该样本特征的标签。</p>
+<p>如下所示：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dart">http_request_status&#123;code=<span class="hljs-string">&#x27;200&#x27;</span>,content_path=<span class="hljs-string">&#x27;/api/path&#x27;</span>, environment=<span class="hljs-string">&#x27;produment&#x27;</span>&#125; =&gt; [value1<span class="hljs-meta">@timestamp</span>1,value2<span class="hljs-meta">@timestamp</span>2...]<br><br>http_request_status&#123;code=<span class="hljs-string">&#x27;200&#x27;</span>,content_path=<span class="hljs-string">&#x27;/api/path2&#x27;</span>, environment=<span class="hljs-string">&#x27;produment&#x27;</span>&#125; =&gt; [value1<span class="hljs-meta">@timestamp</span>1,value2<span class="hljs-meta">@timestamp</span>2...]<br></code></pre></td></tr></table></figure>
+
+<p>每一条时间序列由指标名称(Metrics Name)以及一组标签(Labels)唯一标识。每条时间序列按照时间的先后顺序存储一系列的样本值。</p>
+<p>表示维度的标签可能来源于你的监控对象的状态，比如code=404或者content_path=/api/path。也可能来源于的你的环境定义，比如environment=produment。基于这些Labels我们可以方便地对监控数据进行聚合，过滤，裁剪。</p>
+</li>
+<li><p>强大的查询语言PromQL</p>
+<p>Prometheus内置了一个强大的数据查询语言PromQL。 通过PromQL可以实现对监控数据的查询、聚合。同时PromQL也被应用于数据可视化(如Grafana)以及告警当中。</p>
+<p>通过PromQL可以轻松回答类似于以下问题：</p>
+<ul>
+<li>在过去一段时间中95%应用延迟时间的分布范围？</li>
+<li>预测在4小时后，磁盘空间占用大致会是什么情况？</li>
+<li>CPU占用率前5位的服务有哪些？(过滤)</li>
+</ul>
+</li>
+<li><p>高效</p>
+<p>对于监控系统而言，大量的监控任务必然导致有大量的数据产生。而Prometheus可以高效地处理这些数据，对于单一Prometheus Server实例而言它可以处理：</p>
+<ul>
+<li>数以百万的监控指标。</li>
+<li>每秒处理数十万的数据点。</li>
+</ul>
+</li>
+<li><p>可扩展性</p>
+<p>Prometheus是如此简单，因此你可以在每个数据中心、每个团队运行独立的Prometheus Sevrer。</p>
+<p>Prometheus对于联邦集群的支持，可以让多个Prometheus实例产生一个逻辑集群，当单实例Prometheus Server处理的任务量过大时，通过使用功能分区(sharding)+联邦集群(federation)可以对其进行扩展。</p>
+</li>
+<li><p>易于集成</p>
+<p>使用Prometheus可以快速搭建监控服务，并且可以非常方便地在应用程序中进行集成。目前支持： Java， JMX， Python， Go，Ruby， .Net， Node.js等等语言的客户端SDK，基于这些SDK可以快速让应用程序纳入到Prometheus的监控当中，或者开发自己的监控数据收集程序。同时这些客户端收集的监控数据，不仅仅支持Prometheus，还能支持Graphite这些其他的监控工具。</p>
+<p>同时Prometheus还支持与其他的监控系统进行集成：Graphite， Statsd， Collected， Scollector， muini， Nagios等。</p>
+<p>Prometheus社区还提供了大量第三方实现的监控数据采集支持：JMX， CloudWatch， EC2， MySQL， PostgresSQL， Haskell， Bash， SNMP， Consul， Haproxy， Mesos， Bind， CouchDB， Django， Memcached， RabbitMQ， Redis， RethinkDB， Rsyslog等等。</p>
+</li>
+<li><p>可视化</p>
+<p>Prometheus Server中自带了一个Prometheus UI，通过这个UI可以方便地直接对数据进行查询，并且支持直接以图形化的形式展示数据。同时Prometheus还提供了一个独立的基于Ruby On Rails的Dashboard解决方案Promdash。最新的Grafana可视化工具也已经提供了完整的Prometheus支持，基于Grafana可以创建更加精美的监控图标。基于Prometheus提供的API还可以实现自己的监控可视化UI。</p>
+</li>
+<li><p>开放性</p>
+<p>通常来说当我们需要监控一个应用程序时，一般需要该应用程序提供对相应监控系统协议的支持。因此应用程序会与所选择的监控系统进行绑定。为了减少这种绑定所带来的限制。对于决策者而言要么你就直接在应用中集成该监控系统的支持，要么就在外部创建单独的服务来适配不同的监控系统。</p>
+<p>而对于Prometheus来说，使用Prometheus的client library的输出格式不止支持Prometheus的格式化数据，也可以输出支持其它监控系统的格式化数据，比如Graphite。</p>
+<p>因此你甚至可以在不使用Prometheus的情况下，采用Prometheus的client library来让你的应用程序支持监控数据采集。</p>
+</li>
+</ol>
+<h1 id="三、Prometheus的局限性"><a href="#三、Prometheus的局限性" class="headerlink" title="三、Prometheus的局限性"></a>三、Prometheus的局限性</h1><ol>
+<li>Prometheus是一款指标监控系统，不适合存储事件及日志</li>
+<li>Prometheus认为只有最近的监控数据才有查询的需要，其本地存储的设计初衷只是保存短期数据，因而不支持针对大量的历史数据进行存储</li>
+<li>Prometheus的集群机制成熟度不高，即便基于Thanos亦是如此</li>
+<li>被监控集群过大，会出现性能瓶颈（使用集群可以解决该问题）</li>
+</ol>
+<h1 id="四、Prometheus对运维的要求"><a href="#四、Prometheus对运维的要求" class="headerlink" title="四、Prometheus对运维的要求"></a>四、Prometheus对运维的要求</h1><ul>
+<li>要求对操作系统有很深入扎实的知识，不能知识浮于表面。</li>
+<li>对数学思维有一定的要求，因为它基本的内核就是数学公式组成。</li>
+<li>对监控的经验有很高的要求，很多时候监控项需要很细的定制。</li>
+</ul>
+<h1 id="五、Prometheus-的组件"><a href="#五、Prometheus-的组件" class="headerlink" title="五、Prometheus 的组件"></a>五、Prometheus 的组件</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/prometheus">Prometheus Server</a>（服务端）：主要用于抓取数据和存储时序数据，另外还提供查询和 Alert Rule 配置管理。</li>
+<li><a target="_blank" rel="noopener" href="https://prometheus.io/docs/instrumenting/clientlibs/">client libraries</a>（客户端）：用于对接 Prometheus Server, 可以查询和上报数据。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/prometheus/pushgateway">push gateway</a> （推送网管）：用于批量，短期的监控数据的汇总节点，主要用于业务数据汇报等。</li>
+<li>各种汇报数据的 <a target="_blank" rel="noopener" href="https://prometheus.io/docs/instrumenting/exporters/">exporters</a> ：用来监控 HAProxy，StatsD，Graphite 等特殊的监控目标，并向 Prometheus 提供标准格式的监控样本数据。</li>
+<li>用于告警通知管理的 <a target="_blank" rel="noopener" href="https://github.com/prometheus/alertmanager">alertmanager</a> 。</li>
+<li>其他各种周边工具。</li>
+</ul>
+<h1 id="六、Prometheus架构图"><a href="#六、Prometheus架构图" class="headerlink" title="六、Prometheus架构图"></a>六、Prometheus架构图</h1><p>Prometheus 的整体架构以及生态系统组件如下图所示：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-4.png" srcset="/blog/img/loading.gif"></p>
+<p>从架构图可以看出 Prometheus 的主要模块包含， Server, Exporters, Pushgateway, PromQL, Alertmanager, WebUI 等。</p>
+<p>Prometheus大致使用逻辑如下：</p>
+<ol>
+<li>Prometheus server 定期从静态配置的 targets 或者服务发现的 targets 拉取数据。</li>
+<li>当新拉取的数据大于配置内存缓存区的时候，Prometheus 会将数据持久化到磁盘（如果使用 remote storage 将持久化到云端）。</li>
+<li>Prometheus 可以配置 rules，然后定时查询数据，当条件触发的时候，会将 alert 推送到配置的 Alertmanager。</li>
+<li>Alertmanager 收到警告的时候，可以根据配置，聚合，去重，降噪，最后发送警告。（当然也可以使用Grafana的某些功能来代替Alertmanager是警告）</li>
+<li>可以使用 API， Prometheus Console 或者 Grafana 查询和聚合数据。</li>
+</ol>
+<p><strong>使用Prometheus需要注意的地方</strong></p>
+<ul>
+<li>Prometheus 的数据是基于时序的 float64 的值，如果你的数据值有更多类型就无法满足。</li>
+</ul>
+<h1 id="七、Prometheus-适用于什么场景"><a href="#七、Prometheus-适用于什么场景" class="headerlink" title="七、Prometheus 适用于什么场景"></a>七、Prometheus 适用于什么场景</h1><p>Prometheus 适用于记录文本格式的时间序列，它既适用于以机器为中心的监控，也适用于高度动态的面向服务架构的监控。在微服务的世界中，它对多维数据收集和查询的支持有特殊优势。</p>
+<p>Prometheus 是专为提高系统可靠性而设计的，它可以在断电期间快速诊断问题，每个 Prometheus Server 都是相互独立的，不依赖于网络存储或其他远程服务。当基础架构出现故障时，你可以通过 Prometheus 快速定位故障点，而且不会消耗大量的基础架构资源。</p>
+<h1 id="八、Prometheus-不适合什么场景"><a href="#八、Prometheus-不适合什么场景" class="headerlink" title="八、Prometheus 不适合什么场景"></a>八、Prometheus 不适合什么场景</h1><p>Prometheus 非常重视可靠性，即使在出现故障的情况下，你也可以随时查看有关系统的可用统计信息。如果你需要百分之百的准确度，例如按请求数量计费，那么 Prometheus 不太适合你，因为它收集的数据可能不够详细完整。这种情况下，你最好使用其他系统来收集和分析数据以进行计费，并使用 Prometheus 来监控系统的其余部分。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/prometheus/">prometheus</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/01/10/Prometheus%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Prometheus安装与初步使用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2022/12/30/MySQL%E4%B9%8B%E5%A4%9A%E8%A1%A8%E6%9F%A5%E8%AF%A2/">
+                        <span class="hidden-mobile">MySQL之多表查询</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

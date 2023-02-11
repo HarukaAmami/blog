@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      56.7k 字
+      56.8k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      818
+      820
        分钟
     </span>
   
@@ -771,7 +771,7 @@
 
 <p>范例：</p>
 <p>查看wordpress@’10.0.0.%’权限<br>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
-<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#119;&#x6f;&#114;&#x64;&#112;&#114;&#x65;&#115;&#x73;&#x40;&#49;&#x30;&#x2e;&#x30;&#x2e;&#48;">&#119;&#x6f;&#114;&#x64;&#112;&#114;&#x65;&#115;&#x73;&#x40;&#49;&#x30;&#x2e;&#x30;&#x2e;&#48;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
+<p>+—————————————————————————————————————————–+<br>| Grants for <a href="mailto:&#x77;&#x6f;&#114;&#x64;&#112;&#x72;&#101;&#115;&#x73;&#x40;&#49;&#x30;&#x2e;&#48;&#x2e;&#x30;">&#x77;&#x6f;&#114;&#x64;&#112;&#x72;&#101;&#115;&#x73;&#x40;&#49;&#x30;&#x2e;&#48;&#x2e;&#x30;</a>.%                                                                                                 |<br>+—————————————————————————————————————————–+<br>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                                       |<br>| GRANT SELECT, INSERT, UPDATE, DELETE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |<br>+—————————————————————————————————————————–+</p>
 <p><font color='red'>注意：MariaDB服务进程启动时会读取mysql库中所有授权表至内存</font></p>
 <ol>
 <li>GRANT或REVOKE等执行权限操作会保存于系统表中，MariaDB的服务进程通常会自动重读授权表，使之生效</li>
@@ -784,7 +784,7 @@
 <p>mysql&gt; revoke delete on wordpress.* from ‘wordpress‘@’10.0.0.%’;</p>
 <p>mysql&gt; show grants for wordpress@’10.0.0.%’;</p>
 <p>+—————————————————————————————————————-+</p>
-<p>| Grants for <a href="mailto:&#x77;&#x6f;&#114;&#x64;&#x70;&#x72;&#101;&#x73;&#x73;&#64;&#x31;&#48;&#x2e;&#x30;&#46;&#48;">&#x77;&#x6f;&#114;&#x64;&#x70;&#x72;&#101;&#x73;&#x73;&#64;&#x31;&#48;&#x2e;&#x30;&#46;&#48;</a>.%                                                                                 |</p>
+<p>| Grants for <a href="mailto:&#x77;&#x6f;&#114;&#x64;&#x70;&#114;&#x65;&#115;&#x73;&#x40;&#x31;&#x30;&#x2e;&#x30;&#46;&#x30;">&#x77;&#x6f;&#114;&#x64;&#x70;&#114;&#x65;&#115;&#x73;&#x40;&#x31;&#x30;&#x2e;&#x30;&#46;&#x30;</a>.%                                                                                 |</p>
 <p>+—————————————————————————————————————-+</p>
 <p>| GRANT USAGE ON <em>.</em> TO ‘wordpress‘@’10.0.0.%’                                                        |</p>
 <p>| GRANT SELECT, INSERT, UPDATE ON ‘wordpress’.* TO ‘wordpress‘@’10.0.0.%’ |</p>
@@ -5412,6 +5412,17 @@
 <li><p>select * from city limit 5;</p>
 </li>
 </ol>
+<p>Ubuntu安装指定版本的MySQL数据库</p>
+<p>浏览器进入MySQL官方地址：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://downloads.mysql.com/archives/community/<br></code></pre></td></tr></table></figure>
+
+<p>选择MySQL版本，选择操作系统和系统版本</p>
+<p>下载<code>DEB Bundel</code>包（以MySQL8.0.27版本为例）</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># mkdir mysql8.0.27</span><br><span class="hljs-comment"># cd mysql8.0.27</span><br><span class="hljs-comment"># wget https://downloads.mysql.com/archives/get/p/23/file/mysql-server_8.0.27-1ubuntu18.04_amd64.deb-bundle.tar</span><br></code></pre></td></tr></table></figure>
+
+<p>解压并安装</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># tar xf mysql-server_8.0.27-1ubuntu18.04_amd64.deb-bundle.tar</span><br><span class="hljs-comment"># dpkg -i *.deb</span><br></code></pre></td></tr></table></figure>
+
 
             </div>
             <hr>

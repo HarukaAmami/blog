@@ -178,29 +178,27 @@
   <div class="row mx-auto index-card">
     
     
-    <article class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/blog/2022/01/20/Elastic-Stack%E9%85%8D%E7%BD%AE%E5%AE%89%E5%85%A8%E6%80%A7%E7%AE%80%E4%BB%8B/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elastic Stack配置安全性简介">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/10/02/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/">面试准备</a>
+        <a href="/blog/2022/01/20/Elastic-Stack%E9%85%8D%E7%BD%AE%E5%AE%89%E5%85%A8%E6%80%A7%E7%AE%80%E4%BB%8B/">Elastic Stack配置安全性简介</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/10/02/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/">
+        <a href="/blog/2022/01/20/Elastic-Stack%E9%85%8D%E7%BD%AE%E5%AE%89%E5%85%A8%E6%80%A7%E7%AE%80%E4%BB%8B/">
           
           
             
           
-          面试准备一、面试技术篇1.1 linxu常用命令面试题将所有命令都练习，然后再找“linux常用命令面试题”
-如何查看占用8080端口的进程
-netstat –apn | grep 8080
-1.2 Linux系统知识面试题1.2.1linux开机启动流程
-开机自检bios
-mbr引导
-grub引导菜单
-加载内核
-启动init进程
-读取inittab文件，执行rc.sysinit.rc等脚本
-启动
+          Elastic Stack配置安全性简介从 Elastic Stack 6.8 和 7.1 开始，Elasticsearch在默认分发包中免费提供多项安全功能，例如 TLS 加密通信、基于角色的访问控制 (RBAC)，等等。
+安全需求取决于您是进行本地开发还是在生产环境中保护所有通信。由于安全需求各不相同，以下场景提供了配置 Elastic Stack 的选项。
+最低限度的安全性（Elastics
         </a>
       </p>
 
@@ -208,8 +206,8 @@ grub引导菜单
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-10-02 16:43" pubdate>
-              2021-10-02
+            <time datetime="2022-01-20 22:06" pubdate>
+              2022-01-20
             </time>
           </div>
         
@@ -218,7 +216,7 @@ grub引导菜单
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/linux-%E9%9D%A2%E8%AF%95/">linux 面试</a>
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
             
           </div>
         
@@ -232,21 +230,18 @@ grub引导菜单
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/09/25/MySQL%E6%95%B0%E6%8D%AE%E5%BA%93/">MySQL数据库</a>
+        <a href="/blog/2022/01/20/CentOS7%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E7%B1%BB%E5%91%BD%E4%BB%A4/">CentOS7安装网络类命令</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/09/25/MySQL%E6%95%B0%E6%8D%AE%E5%BA%93/">
+        <a href="/blog/2022/01/20/CentOS7%E5%AE%89%E8%A3%85%E7%BD%91%E7%BB%9C%E7%B1%BB%E5%91%BD%E4%BB%A4/">
           
           
             
           
-          MySQL数据库不足之处：
-DQL应用缺少内容，根据老王的pdf进行补充（老王例子需要的数据库在：D:\Linux\马哥Linux2020视频\文档+笔记\马哥教育Linux云计算就业班M41实验环境文档\上课实验环境文件\第二部分）
-一、中级DBA职业规划1.1 需要学会的内容（“*”表示重要程度）
-MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
-
- MySQL升级步骤扩展 *
+          CentOS7安装网络类命令CentOS7最小化安装默认没有安装net-tools组件，所以关于ifconfig，netstat，route一系列网络类的命令也就无法使用。
+查看net-tools组件：
+12345678910111213141516171819202122232425262728293031# yum info net-toolsLoaded plugins: fastestmi
         </a>
       </p>
 
@@ -254,8 +249,8 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-25 12:12" pubdate>
-              2021-09-25
+            <time datetime="2022-01-20 22:05" pubdate>
+              2022-01-20
             </time>
           </div>
         
@@ -264,7 +259,55 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/Linux-MySQL/">Linux MySQL</a>
+              <a href="/blog/tags/Linux/">Linux</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/20/CentOS7%E7%B3%BB%E7%BB%9FTab%E8%A1%A5%E5%85%A8%E5%91%BD%E4%BB%A4/">CentOS7系统Tab补全命令</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/20/CentOS7%E7%B3%BB%E7%BB%9FTab%E8%A1%A5%E5%85%A8%E5%91%BD%E4%BB%A4/">
+          
+          
+            
+          
+          CentOS7tab键补全安装最小化安装CentOS7，不能使用tab自动补全。
+此时安装：
+1# yum install -y bash-completion
+
+安装完成后，需要重新登陆shell终端才会生效！
+参考博客：
+https://www.cnblogs.com/liuguangjiji/p/10471046.html
+
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-20 21:53" pubdate>
+              2022-01-20
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux/">Linux</a>
             
           </div>
         
@@ -276,24 +319,24 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
     
     
       <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/blog/2021/09/02/ELK/" target="_self">
-          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="ELK">
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasitcsearch/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Ubuntu1804二进制安装Elasitcsearch">
         </a>
       </div>
     
     <article class="col-12 col-md-8 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/09/02/ELK/">ELK</a>
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasitcsearch/">Ubuntu1804二进制安装Elasitcsearch</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/09/02/ELK/">
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasitcsearch/">
           
           
             
           
-          ELK一、ELK介绍1.1 什么是ELK通俗来讲，ELK 是由 Elasticsearch、Logstash、Kibana 三个开源软件的组成的 一个组合体，ELK 是 elastic 公司研发的一套完整的日志收集、分析和展示的企业 级解决方案，在这三个软件当中，每个软件用于完成不同的功能，ELK 又称为 ELK  stack，官方域名为 elastic.co，ELK stack 的主要优点有如下
+          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
         </a>
       </p>
 
@@ -301,8 +344,8 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:33" pubdate>
-              2021-09-02
+            <time datetime="2022-01-16 21:41" pubdate>
+              2022-01-16
             </time>
           </div>
         
@@ -311,7 +354,248 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/linux-elasticsearch-logstash-filebeat-kibana/">linux elasticsearch logstash filebeat kibana</a>
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8deb%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Ubuntu1804使用deb安装Elasticsearch">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8deb%E5%AE%89%E8%A3%85Elasticsearch/">Ubuntu1804使用deb安装Elasticsearch</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8deb%E5%AE%89%E8%A3%85Elasticsearch/">
+          
+          
+            
+          
+          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-16 21:24" pubdate>
+              2022-01-16
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Ubuntu1804使用apt安装Elasticsearch">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/">Ubuntu1804使用apt安装Elasticsearch</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/16/Ubuntu1804%E4%BD%BF%E7%94%A8apt%E5%AE%89%E8%A3%85Elasticsearch/">
+          
+          
+            
+          
+          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-16 19:44" pubdate>
+              2022-01-16
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/blog/2022/01/15/Elastaicsearch%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E5%90%88%E9%9B%86/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="Elastaicsearch启动失败合集">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/15/Elastaicsearch%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E5%90%88%E9%9B%86/">Elastaicsearch启动失败合集</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/15/Elastaicsearch%E5%90%AF%E5%8A%A8%E5%A4%B1%E8%B4%A5%E5%90%88%E9%9B%86/">
+          
+          
+            
+          
+          一、使用systemctl启动超时问题
+使用rpm安装elasticsearch安装完成后，在修改配置无误后，使用systemctl启动elasticsearch出现报错。
+报错的内容如下：
+12#就是指elasticsearch启动超时elasticsearch.service start operation timed out. Terminating.
+
+解决办法：
+123456789101
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-15 14:47" pubdate>
+              2022-01-15
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/blog/2022/01/13/CentOS7%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="CentOS7二进制安装Elasticsearch7.X">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/13/CentOS7%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasticsearch/">CentOS7二进制安装Elasticsearch7.X</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/13/CentOS7%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85Elasticsearch/">
+          
+          
+            
+          
+          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-13 23:04" pubdate>
+              2022-01-13
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/blog/2022/01/13/CentOS7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Elasticsearch/" target="_self">
+          <img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk-title.png" srcset="/blog/img/loading.gif" alt="CentOS7使用rpm安装Elasticsearch7.X">
+        </a>
+      </div>
+    
+    <article class="col-12 col-md-8 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2022/01/13/CentOS7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Elasticsearch/">CentOS7使用rpm安装Elasticsearch7.X</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2022/01/13/CentOS7%E4%BD%BF%E7%94%A8rpm%E5%AE%89%E8%A3%85Elasticsearch/">
+          
+          
+            
+          
+          一、安装前准备1.1 修改limits.conf1234567891011121314151617181920212223242526272829303132333435363738394041424344454647# vim /etc/security/limits.conf#root账户的资源软限制和硬限制root soft core unlimitedroot hard core unli
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2022-01-13 22:21" pubdate>
+              2022-01-13
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/Linux-Elasticsearch/">Linux Elasticsearch</a>
             
           </div>
         
@@ -325,16 +609,19 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
-        <a href="/blog/2021/09/02/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E4%B8%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1/">消息队列与微服务</a>
+        <a href="/blog/2021/12/16/Linux-tar%E5%91%BD%E4%BB%A4/">Linux tar命令</a>
       </h1>
 
       <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E4%B8%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1/">
+        <a href="/blog/2021/12/16/Linux-tar%E5%91%BD%E4%BB%A4/">
           
           
             
           
-          消息队列与微服务一、MQ(Message queuing)1.1 MQ 由来123456Message Queue 的需求由来已久，在 19 世纪 80 年代金融交易中，美国高盛等公司采用 Teknekron 公司的产品，当时的 Message queuing 软件叫做(the information bus（TIB）,后来 TIB 被电信和通讯等公司采用，然后路透社收购了 Teknekron 公
+          Linux tar命令一、tar命令的作用作用：tar命令可以将多个文件或目录打包成一个大的文件，而且也时平时最常用的命令之一。在打包完了之后还可以对文件进行压缩，tar命令也同样提供了压缩的功能。
+二、打包和压缩概念的解释打包：是指将多个文件或多个目录都集中在一个文件里
+压缩：将一个大文件通过压缩算法变成小的文件
+为什么要区分这两个概念呢？这源于Linux中很多压缩程序只能针对一个文件进行压缩，
         </a>
       </p>
 
@@ -342,8 +629,8 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
         
           <div class="post-meta mr-3">
             <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:32" pubdate>
-              2021-09-02
+            <time datetime="2021-12-16 22:47" pubdate>
+              2021-12-16
             </time>
           </div>
         
@@ -352,276 +639,7 @@ MySQL 5.7 安装部署（二进制） 编译自己扩展 *****
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/blog/tags/linux-rabbitmq-zookeeper-kafka/">linux rabbitmq zookeeper kafka</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E6%9C%8D%E5%8A%A1/">网络文件共享服务</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E5%85%B1%E4%BA%AB%E6%9C%8D%E5%8A%A1/">
-          
-          
-            
-          
-          网络文件共享服务一、存储类型
-存储类型分为三种
-
-直连式存储：Direct-Attached Storage，简称DAS
-网络附加存储：Network-Attached Storage，简称NAS
-存储区域网络：Storage Area Network，简称SAN
-
-1.1 DAS存储
-DAS存储是最常见的一种存储方式，尤其是在中小企业应用中。PC中的硬盘或只有一个外部SCSI接口的JBOD都属于
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:32" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-%E7%BD%91%E7%BB%9C%E6%96%87%E4%BB%B6%E6%9C%8D%E5%8A%A1/">linux 网络文件服务</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%B0%83%E5%BA%A6%E5%99%A8LVS/">企业级调度器LVS</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%B0%83%E5%BA%A6%E5%99%A8LVS/">
-          
-          
-            
-          
-          企业级调度器LVS一、集群和分布式系统性能扩展方式：
-
-Scale UP：垂直扩展，向上扩展,增强，性能更强的计算机运行同样的服务
-Scale Out：水平扩展，向外扩展,增加设备，并行地运行多个服务调度分配问题，Cluster
-
-垂直扩展不再提及：
-随着计算机性能的增长，其价格会成倍增长
-单台计算机的性能是有上限的，不可能无限制地垂直扩展
-多核CPU意味着即使是单台计算机也可以并行的。那么，为什
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:31" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-lvs/">linux lvs</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AB%EF%BC%89docker%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9B%BE%E5%BD%A2%E5%B7%A5%E5%85%B7Portainer/">企业级容器技术docker（八）docker可视化图形工具Portainer</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AB%EF%BC%89docker%E5%8F%AF%E8%A7%86%E5%8C%96%E5%9B%BE%E5%BD%A2%E5%B7%A5%E5%85%B7Portainer/">
-          
-          
-            
-          
-          企业级容器技术docker八、 可视化图形工具Portainer8.1 Portainer介绍
-Portainer是一个可视化的容器镜像的图形管理工具，利用Portainer可以轻松构建，管理和维护Docker环境。 而且完全免费，基于容器化的安装方式，方便高效部署。
-官方站点: https://www.portainer.io/
-8.2 安装 Portainer官方安装说明: https://w
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:31" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">企业级容器技术docker（二）docker镜像制作和管理</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%BA%8C%EF%BC%89docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C%E5%92%8C%E7%AE%A1%E7%90%86/">
-          
-          
-            
-          
-          企业级容器技术docker二、Docker 镜像制作和管理2.1 Docker 镜像说明2.1.1 Docker 镜像中有没有内核从镜像大小上面来说，一个比较小的镜像只有1MB多点或几MB，而内核文件需要几十MB， 因此镜像里面是没有内核的，镜像在被启动为容器后将直接使用宿主机的内核，而镜像本身则只提供相应的rootfs，即系统正常运行所必须的用户空间的文件系统，比如: /dev/，/proc，/
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:30" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">企业级容器技术docker（六）docker单机编排</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E5%85%AD%EF%BC%89docker%E5%8D%95%E6%9C%BA%E7%BC%96%E6%8E%92/">
-          
-          
-            
-          
-          企业级容器技术docker六、 单机编排之Docker Compose6.1 Docker Compse介绍
-当在宿主机启动较多的容器时候，如果都是手动操作会觉得比较麻烦而且容易出错，此时推荐使用docker 单机编排工具 docker-compose
-docker-compose 是 docker 容器的一种单机编排服务，docker-compose 是一个管理多个容器的工具，比如: 可以解决容
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:29" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">企业级容器技术docker（七）docker资源限制</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2021/09/02/%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AFdocker%EF%BC%88%E4%B8%83%EF%BC%89docker%E8%B5%84%E6%BA%90%E9%99%90%E5%88%B6/">
-          
-          
-            
-          
-          企业级容器技术docker七、 docker 的资源限制7.1 docker 资源限制7.1.1 容器资源限制介绍官方文档: https://docs.docker.com/config/containers/resource_constraints/
-默认情况下，容器没有资源的使用限制，可以使用主机内核调度程序允许的尽可能多的资源
-Docker 提供了控制容器使用资源的方法,可以限制容器使用多少
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2021-09-02 14:29" pubdate>
-              2021-09-02
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/linux-docker/">linux docker</a>
+              <a href="/blog/tags/Linux-tar/">Linux tar</a>
             
           </div>
         
@@ -633,7 +651,7 @@ Docker 提供了控制容器使用资源的方法,可以限制容器使用多少
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/blog/page/5/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/4/">4</a><a class="page-number" href="/blog/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/blog/page/7/">7</a><a class="page-number" href="/blog/page/8/">8</a><a class="extend next" rel="next" href="/blog/page/7/"><i class="iconfont icon-arrowright"></i></a>
+      <a class="extend prev" rel="prev" href="/blog/page/5/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/">1</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/4/">4</a><a class="page-number" href="/blog/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/blog/page/7/">7</a><a class="page-number" href="/blog/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/7/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   
