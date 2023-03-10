@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      170
+      171
        分钟
     </span>
   
@@ -399,6 +399,10 @@
 <p>数据卷容器可以作为共享的方式为其他容器提供文件共享，类似于NFS共享，可以在生产中启动一个实例挂载本地的目录，然后其他的容器分别挂载此容器的目录，即可保证各容器之间的数据一致性</p>
 <p>数据卷容器的 Server 和 Client 可以不使用同一个镜像生成</p>
 <p><strong>数据卷容器类似一个数据库</strong></p>
+<p>挂载数据卷的容器，因为权限问题导致容器里的用户没权限访问，可以在宿主机里将挂载的目录所属修改为容器里的用户的uid和gid</p>
+<p>比如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">容器用户</span><br>groupadd -g 2022 rlin<br>useradd -g rlin -u 2022 rlin<br><span class="hljs-meta">#</span><span class="bash">宿主机</span><br>chown -R 2022.2022 /data/tomcat<br></code></pre></td></tr></table></figure>
+
 
             </div>
             <hr>

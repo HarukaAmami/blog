@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      54k 字
+      54.1k 字
     </span>
   
 
@@ -1461,6 +1461,9 @@
 <li><p>只要是修改dockerd里的配置，都可以通过修改service文件和damon.json，使修改的配置生效。</p>
 </li>
 </ol>
+<p>批量删除none镜像，可以写成脚本运用计划任务，每隔一段时间执行一次。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">docker rmi -f `docker images | grep none | awk &#x27;&#123;print $3&#125;&#x27;`<br></code></pre></td></tr></table></figure>
+
 
             </div>
             <hr>

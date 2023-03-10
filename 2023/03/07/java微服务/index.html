@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>java微服务 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="java微服务">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-03-07 19:23" pubdate>
+        2023年3月7日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.9k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      31
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">java微服务</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Nacos集群部署"><a href="#Nacos集群部署" class="headerlink" title="Nacos集群部署"></a>Nacos集群部署</h1><h2 id="安装MySQL"><a href="#安装MySQL" class="headerlink" title="安装MySQL"></a>安装MySQL</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">卸载mariadb</span><br>[root@mufengrow7 ~]# rpm -e --nodeps `rpm -qa | grep mariadb`<br><span class="hljs-meta">#</span><span class="bash">安装MySQLgpgkey</span><br>[root@mufengrow7 ~]# rpm --import http://repo.mysql.com/RPM-GPG-KEY-mysql-2022<br>[root@mufengrow7 ~]# rpm --import http://repo.mysql.com/RPM-GPG-KEY-mysql<br><span class="hljs-meta">#</span><span class="bash">安装MySQL仓库</span><br>[root@mufengrow7 ~]# rpm -ih --force --nodeps https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm<br><span class="hljs-meta">#</span><span class="bash">修改MySQL仓库</span><br>[root@mufengrow7 ~]# vim /etc/yum.repos.d/mysql-community.repo<br><span class="hljs-meta">#</span><span class="bash">安装MySQL5.7</span><br>[root@mufengrow7 ~]# yum install -y mysql-community-server.x86_64<br></code></pre></td></tr></table></figure>
+
+<h2 id="安装jdk1-8"><a href="#安装jdk1-8" class="headerlink" title="安装jdk1.8"></a>安装jdk1.8</h2><p>jdk1.8可以在orcale官网下载的二进制安装包或者使用仓库管理工具安装openjdk1.8。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">使用openjdk就需要安装两个包，openjdk和openjdk-devel</span><br>[root@mufengrow7 ~]# yum install -y java-1.8.0-openjdk java-1.8.0-openjdk-devel<br></code></pre></td></tr></table></figure>
+
+<h2 id="安装maven-非必要"><a href="#安装maven-非必要" class="headerlink" title="安装maven(非必要)"></a>安装maven(非必要)</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# cd /usr/local/src/<br>[root@CentOS7 src]# tar xf apache-maven-3.6.3-bin.tar.gz -C /usr/local/<br>[root@CentOS7 src]# ln -sv /usr/local/apache-maven-3.6.3 /usr/local/maven<br>‘/usr/local/maven’ -&gt; ‘/usr/local/apache-maven-3.6.3’<br>[root@CentOS7 src]# vim /etc/profile<br>export MAVEN_HOME=/usr/local/maven<br>export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$MAVEN_HOME/bin:$PATH<br>[root@CentOS7 src]# source /etc/profile<br>export MAVEN_HOME=/usr/local/maven<br>export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$MAVEN_HOME/bin:$PATH<br></code></pre></td></tr></table></figure>
+
+<h2 id="安装nacos"><a href="#安装nacos" class="headerlink" title="安装nacos"></a>安装nacos</h2><p>现在测试过nacos1.4.2和nacos2.0.3版本能正常搭建集群</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">下载nacos二进制安装包</span><br>[root@mufengrow7 ~]# wget https://github.com/alibaba/nacos/releases/download/2.1.2/nacos-server-1.4.2.tar.gz<br><span class="hljs-meta">#</span><span class="bash">解压nacos安装包</span><br>[root@mufengrow7 ~]# tar xf nacos-server-1.4.2.tar.gz<br></code></pre></td></tr></table></figure>
+
+<h2 id="修改MySQL创建nacos用的数据库并添加nacos用户"><a href="#修改MySQL创建nacos用的数据库并添加nacos用户" class="headerlink" title="修改MySQL创建nacos用的数据库并添加nacos用户"></a>修改MySQL创建nacos用的数据库并添加nacos用户</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">登录MySQL</span><br>[root@mufengrow7 ~]# mysql -uroot -p<br>Enter password: <br>Welcome to the MySQL monitor.  Commands end with ; or \g.<br>Your MySQL connection id is 2<br>Server version: 5.7.41<br><br>Copyright (c) 2000, 2023, Oracle and/or its affiliates.<br><br>Oracle is a registered trademark of Oracle Corporation and/or its<br>affiliates. Other names may be trademarks of their respective<br>owners.<br><br>Type &#x27;help;&#x27; or &#x27;\h&#x27; for help. Type &#x27;\c&#x27; to clear the current input statement.<br><span class="hljs-meta">#</span><span class="bash">修改用户密码</span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> SET PASSWORD = PASSWORD(<span class="hljs-string">&#x27;Admin123456@&#x27;</span>);</span><br>Query OK, 0 rows affected, 1 warning (0.00 sec)<br><span class="hljs-meta">#</span><span class="bash">创建nacos_config数据</span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> create database nacos_config;</span><br>Query OK, 1 row affected (0.00 sec)<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">设置用户可以被其他网络连接，测试环境直接使用root用户，生产环境需要nacos用户</span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> UPDATE mysql.user SET HOST=<span class="hljs-string">&#x27;%&#x27;</span> WHERE USER=<span class="hljs-string">&#x27;root&#x27;</span>;</span><br>Query OK, 1 row affected (0.00 sec)<br>Rows matched: 1  Changed: 1  Warnings: 0<br><span class="hljs-meta"></span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> FLUSH PRIVILEGES;</span><br>Query OK, 0 rows affected (0.00 sec)<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查看用户host信息</span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> select user,host from mysql.user;</span><br>+---------------+-----------+<br>| user          | host      |<br>+---------------+-----------+<br>| root          | %         |<br>| mysql.session | localhost |<br>| mysql.sys     | localhost |<br>+---------------+-----------+<br>3 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="MySQL导入nacos数据"><a href="#MySQL导入nacos数据" class="headerlink" title="MySQL导入nacos数据"></a>MySQL导入nacos数据</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">导入nacos的sql文件</span><br>[root@mufengrow7 ~]# cd /root/nacos/nacos/conf<br>[root@mufengrow7 conf]# mysql -uroot -p nacos_config &lt; mysql-schema.sql<br>Enter password: <br><span class="hljs-meta">#</span><span class="bash">登录MySQL验证数据库</span><br>[root@mufengrow7 conf]# mysql -uroot -pAdmin123456@<br>mysql: [Warning] Using a password on the command line interface can be insecure.<br>Welcome to the MySQL monitor.  Commands end with ; or \g.<br>Your MySQL connection id is 5<br>Server version: 5.7.41 MySQL Community Server (GPL)<br><br>Copyright (c) 2000, 2023, Oracle and/or its affiliates.<br><br>Oracle is a registered trademark of Oracle Corporation and/or its<br>affiliates. Other names may be trademarks of their respective<br>owners.<br><br>Type &#x27;help;&#x27; or &#x27;\h&#x27; for help. Type &#x27;\c&#x27; to clear the current input statement.<br><span class="hljs-meta"></span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> show databases;</span><br>+--------------------+<br>| Database           |<br>+--------------------+<br>| information_schema |<br>| mysql              |<br>| nacos_config       |<br>| performance_schema |<br>| sys                |<br>+--------------------+<br>5 rows in set (0.00 sec)<br><span class="hljs-meta"></span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> use nacos_config</span><br>Reading table information for completion of table and column names<br>You can turn off this feature to get a quicker startup with -A<br><br>Database changed<br><span class="hljs-meta">mysql&gt;</span><span class="bash"> show tables;</span><br>+------------------------+<br>| Tables_in_nacos_config |<br>+------------------------+<br>| config_info            |<br>| config_info_aggr       |<br>| config_info_beta       |<br>| config_info_tag        |<br>| config_tags_relation   |<br>| group_capacity         |<br>| his_config_info        |<br>| permissions            |<br>| roles                  |<br>| tenant_capacity        |<br>| tenant_info            |<br>| users                  |<br>+------------------------+<br>12 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h2 id="修改nacos配置文件"><a href="#修改nacos配置文件" class="headerlink" title="修改nacos配置文件"></a>修改nacos配置文件</h2><p>所有节点都修改</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 conf]# cp cluster.conf.example cluster.conf<br>[root@mufengrow7 conf]# vim cluster.conf<br><span class="hljs-meta">#</span><span class="bash"></span><br><span class="bash"><span class="hljs-comment"># Copyright 1999-2021 Alibaba Group Holding Ltd.</span></span><br><span class="hljs-meta">#</span><span class="bash"></span><br><span class="bash"><span class="hljs-comment"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span></span><br><span class="hljs-meta">#</span><span class="bash"> you may not use this file except <span class="hljs-keyword">in</span> compliance with the License.</span><br><span class="hljs-meta">#</span><span class="bash"> You may obtain a copy of the License at</span><br><span class="hljs-meta">#</span><span class="bash"></span><br><span class="bash"><span class="hljs-comment">#      http://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="hljs-meta">#</span><span class="bash"></span><br><span class="bash"><span class="hljs-comment"># Unless required by applicable law or agreed to in writing, software</span></span><br><span class="hljs-meta">#</span><span class="bash"> distributed under the License is distributed on an <span class="hljs-string">&quot;AS IS&quot;</span> BASIS,</span><br><span class="hljs-meta">#</span><span class="bash"> WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span><br><span class="hljs-meta">#</span><span class="bash"> See the License <span class="hljs-keyword">for</span> the specific language governing permissions and</span><br><span class="hljs-meta">#</span><span class="bash"> limitations under the License.</span><br><span class="hljs-meta">#</span><span class="bash"></span><br><span class="bash"></span><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">it is ip</span><br><span class="hljs-meta">#</span><span class="bash">example</span><br><span class="hljs-meta">#</span><span class="bash">修改为以下内容</span><br>10.0.0.7:8847<br>10.0.0.17:8847<br>10.0.0.27:8847<br><br>[root@CentOS7 conf]# vim application.properties<br>......<br><span class="hljs-meta">#</span><span class="bash">*************** Config Module Related Configurations ***************<span class="hljs-comment">#</span></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment">## If use MySQL as datasource:</span></span><br>spring.datasource.platform=mysql<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment">## Count of DB:</span></span><br>db.num=1<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"><span class="hljs-comment">## Connect URL of DB:</span></span><br><span class="hljs-meta">#</span><span class="bash">设置数据库的rul有两个注意点：</span><br><span class="hljs-meta">#</span><span class="bash">1.如果是连接 MySQL 8.0+ 版本需要添加 serverTimezone=Asia/Shanghai</span><br><span class="hljs-meta">#</span><span class="bash">2.mysql地址后面的“nacos_config”指的是数据名称，创建了什么数据库，名称就该为相应的名称</span><br>db.url.0=jdbc:mysql://10.0.0.7:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTC <br>db.user.0=root<br>db.password.0=Admin123456@<br>.......<br></code></pre></td></tr></table></figure>
+
+<h2 id="启动nacos"><a href="#启动nacos" class="headerlink" title="启动nacos"></a>启动nacos</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">测试环境需要修改启动文件</span><br>[root@mufengrow7 bin]# vim startup.sh<br>......<br><span class="hljs-meta">#</span><span class="bash">===========================================================================================</span><br><span class="hljs-meta">#</span><span class="bash"> JVM Configuration</span><br><span class="hljs-meta">#</span><span class="bash">===========================================================================================</span><br>if [[ &quot;$&#123;MODE&#125;&quot; == &quot;standalone&quot; ]]; then<br>    JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -Xms512m -Xmx512m -Xmn256m&quot;<br>    JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -Dnacos.standalone=true&quot;<br>else<br>    if [[ &quot;$&#123;EMBEDDED_STORAGE&#125;&quot; == &quot;embedded&quot; ]]; then<br>        JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -DembeddedStorage=true&quot;<br>    fi<br>    #JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -server -Xms512m -Xmx512m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&quot;<br>    JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -server -Xms512m -Xmx512m -Xmn128m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&quot;<br>    JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -XX:-OmitStackTraceInFastThrow -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$&#123;BASE_DIR&#125;/logs/java_heapdump.hprof&quot;<br>    JAVA_OPT=&quot;$&#123;JAVA_OPT&#125; -XX:-UseLargePages&quot;<br><br>fi<br>......<br><span class="hljs-meta">#</span><span class="bash">启动nacos</span><br>[root@mufengrow7 bin]# sh startup.sh <br>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.362.b08-1.el7_9.x86_64/bin/java -Djava.ext.dirs=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.362.b08-1.el7_9.x86_64/jre/lib/ext:/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.362.b08-1.el7_9.x86_64/lib/ext  -server -Xms512m -Xmx512m -Xmn256m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m -XX:-OmitStackTraceInFastThrow -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/root/nacos/nacos/logs/java_heapdump.hprof -XX:-UseLargePages -Dnacos.member.list= -Xloggc:/root/nacos/nacos/logs/nacos_gc.log -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=100M -Dloader.path=/root/nacos/nacos/plugins,/root/nacos/nacos/plugins/health,/root/nacos/nacos/plugins/cmdb,/root/nacos/nacos/plugins/selector -Dnacos.home=/root/nacos/nacos -jar /root/nacos/nacos/target/nacos-server.jar  --spring.config.additional-location=file:/root/nacos/nacos/conf/ --logging.config=/root/nacos/nacos/conf/nacos-logback.xml --server.max-http-header-size=524288<br>nacos is starting with cluster<br>nacos is starting，you can check the /root/nacos/nacos/logs/start.out<br><span class="hljs-meta">#</span><span class="bash">查看nacos的pid</span><br>[root@mufengrow7 bin]# jps<br>6752 Jps<br>6738 nacos-server.jar<br><span class="hljs-meta">#</span><span class="bash">查看nacos日志</span><br>[root@CentOS7 bin]# tail -f /root/nacos/logs/start.out<br>2023-03-07 22:19:08,168 INFO Nacos is starting...<br><br>2023-03-07 22:19:09,182 INFO Nacos is starting...<br><br>2023-03-07 22:19:10,229 INFO Nacos is starting...<br><br>2023-03-07 22:19:11,236 INFO Nacos is starting...<br><br>2023-03-07 22:19:11,305 INFO Nacos started successfully in cluster mode. use external storage<br></code></pre></td></tr></table></figure>
+
+<h2 id="登录网页验证"><a href="#登录网页验证" class="headerlink" title="登录网页验证"></a>登录网页验证</h2><p>浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">10.0.0.17:8848/nacos<br></code></pre></td></tr></table></figure>
+
+<p>用户名：nacos</p>
+<p>密码：nacos</p>
+<p>点击集群管理–&gt;点击节点列表可以查看集群</p>
+<h2 id="nacos在线修改密码"><a href="#nacos在线修改密码" class="headerlink" title="nacos在线修改密码"></a>nacos在线修改密码</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/HaHa_Sir/article/details/122284868">https://blog.csdn.net/HaHa_Sir/article/details/122284868</a></p>
+<h2 id="nacos部署总结"><a href="#nacos部署总结" class="headerlink" title="nacos部署总结"></a>nacos部署总结</h2><ol>
+<li>安装mysql和jdk1.8</li>
+<li>创建nacos用的数据库和用户，并导入nacos的表结构</li>
+<li>nacos集群启动需要修改cluster和application这两个配置文件。（修改application文件是需要注意连接数据库的地址，账号，密码和数据版本）</li>
+<li>如果nacos启动失败，先使用“jps”命令查看nacos的pid，然后用“kill-9 PID”命令观点nacos</li>
+<li>登录nacos网页时，默认的账号为nacos，密码为：nacos</li>
+<li>可以通过网页来修改网页登录用户naocs的密码</li>
+</ol>
+<h1 id="Sentinel部署"><a href="#Sentinel部署" class="headerlink" title="Sentinel部署"></a>Sentinel部署</h1><p>sentinel的github网站：<a target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel">https://github.com/alibaba/Sentinel</a></p>
+<p>下载jar包</p>
+<p>过程略</p>
+<p>启动jar包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">java -Dserver.port=8080  -Dsentinel.dashboard.auth.username=sentinel -Dsentinel.dashboard.auth.password=123456 -jar sentinel-dashboard.jar<br></code></pre></td></tr></table></figure>
+
+<p>代码注释：</p>
+<p><code>-Dserver.port</code>：指定sentinel控制台端口</p>
+<p><code>-Dsentinel.dashboard.auth.username</code>：登录sentinel的账号（默认是sentinel）</p>
+<p><code>-Dsentinel.dashboard.auth.password</code>：登录sentinel的密码（默认是sentinel）</p>
+<p>工作内容：</p>
+<blockquote>
+<ol>
+<li>负责公司服务器应用的实施、日常维护和保障业务正常运行；</li>
+<li>熟练的使用shell，负责对服务器和应用作日常巡检；</li>
+<li>负责对Web服务、数据库、中间件等服务进行监控，保证服务的正常运行；</li>
+<li>参与设计公司高可用，高并发系统应用结构；</li>
+<li>负责Web服务、数据库等重要业务数据进行日常备份</li>
+<li>负责分布式系统、微服务架构部署；</li>
+<li></li>
+</ol>
+<p>2．Linux  操作系统管理、软件编译；<br>3．参考官方文档独立安装开源工具；<br>4．独立分析、排查故障、解决问题；<br>5．<br>6．<br>7．负责公司服务器容器的技术的发展及后期的实施及维护；<br>8．用 ELK  对日志数据或访问数据进行分析；</p>
+</blockquote>
+<p>工作业绩：</p>
+<ol>
+<li></li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/02/21/Kafka/">
+                        <span class="hidden-mobile">Kafka</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

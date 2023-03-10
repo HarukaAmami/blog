@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>MySQL之数据库备份与恢复 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MySQL之数据库备份与恢复">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-02-18 17:11" pubdate>
+        2023年2月18日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      10.2k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      119
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL之数据库备份与恢复</h1>
+            
+            <div class="markdown-body">
+              <h1 id="MySQL之数据库备份与恢复"><a href="#MySQL之数据库备份与恢复" class="headerlink" title="MySQL之数据库备份与恢复"></a>MySQL之数据库备份与恢复</h1><p>在任何数据库环境中，总会有<font color=orange><code>不确定的意外</code></font>情况发生，比如例外的停电、计算机系统中的各种软硬件故障、人为破坏、管理员误操作等是不可避免的，这些情况可能会导致<font color=orange><code>数据的丢失</code></font>、<font color=orange><code>服务器瘫痪</code></font>等严重的后果。存在多个服务器时，会出现主从服务器之间的<font color=orange><code>数据同步</code></font>问题。</p>
+<p>为了有效防止数据丢失，并将损失降到最低，应<font color=orange><code>定期</code></font>对MySQL数据库服务器做<font color=orange><code>备份</code></font>。如果数据库中的数据丢失或者出现错误，可以使用备份的数据<font color=orange><code>进行恢复</code></font>。主从服务器之间的数据同步问题可以通过复制功能实现。</p>
+<h1 id="一、物理备份与逻辑备份"><a href="#一、物理备份与逻辑备份" class="headerlink" title="一、物理备份与逻辑备份"></a>一、物理备份与逻辑备份</h1><p><font color=Crimson><strong>物理备份</strong></font>：备份数据文件，转储数据库物理文件到某一目录。物理备份恢复速度比较快，但占用空间比较大，MySQL中可以用 <font color=orange><code>xtrabackup</code></font> 工具来进行物理备份。</p>
+<p><font color=Crimson><strong>逻辑备份</strong></font>：对数据库对象利用工具进行导出工作，汇总入备份文件内。逻辑备份恢复速度慢，但占用空间小，更灵活。MySQL 中常用的逻辑备份工具为 <font color=orange><code>mysqldump</code></font> 。逻辑备份就是 <font color=orange><code>备份sql语句</code></font> ，在恢复的时候执行备份的sql语句实现数据库数据的重现。</p>
+<h1 id="二、mysqldump实现逻辑备份"><a href="#二、mysqldump实现逻辑备份" class="headerlink" title="二、mysqldump实现逻辑备份"></a>二、mysqldump实现逻辑备份</h1><p>mysqldump是MySQL提供的一个非常有用的数据库备份工具。</p>
+<h2 id="2-1-备份一个数据库"><a href="#2-1-备份一个数据库" class="headerlink" title="2.1 备份一个数据库"></a>2.1 备份一个数据库</h2><p>mysqldump命令执行时，可以将数据库备份成一个<font color=orange><code>文本文件</code></font>，该文件中实际上包含多个<font color=orange><code>CREATE</code></font>和<font color=orange><code>INSERT</code></font>语句，使用这些语句可以重新创建表和插入数据。</p>
+<ul>
+<li><p>查出需要备份的表的结构，在文本文件中生成一个CREATE语句</p>
+</li>
+<li><p>将表中的所有记录转换成一条INSERT语句。</p>
+</li>
+</ul>
+<p>基本语法：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump –u 用户名称 –h 主机名称 –p密码 待备份的数据库名称[tbname, [tbname...]]&gt; 备份文件名称.sql<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>说明： </p>
+<p>备份的文件并非一定要求后缀名为.sql，例如后缀名为.txt的文件也是可以的。</p>
+</blockquote>
+<p>举例：使用root用户备份data数据库：</p>
+<p>备份文件存储在当前目录下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p data &gt; data.sql<br></code></pre></td></tr></table></figure>
+
+<p>备份文件存储在指定目录下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p data &gt; /var/lib/mysql/data.sql<br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>备份文件剖析：</strong></font></p>
+<ul>
+<li><p><font color=orange><code>--</code></font>开头的都是SQL语句的注释;</p>
+</li>
+<li><p>以<font color=orange><code>/*!</code></font>开头、<font color=orange><code>*/</code></font>结尾的语句为可执行的MySQL注释，这些语句可以被MySQL执行，但在其他数据库管理系统中被作为注释忽略，这可以提高数据库的可移植性；</p>
+</li>
+</ul>
+<p>文件开头指明了备份文件使用的MySQLdump.工具的版本号；接下来是备份账户的名称和主机信息，以及备份的数据库的名称；最后是MySQL服务器的版本号，在这里为8.0.26。</p>
+<p>备份文件接下来的部分是一些$T语句，这些语句将一些系统变量值赋给用户定义变量，以确保被恢复的数据库的系统变量和原来备份时的变量相同，例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">该SET语句将当前系统变量character_set_client的值赋给用户定义变量@old_character_set_client,其他变量与此类似。</span><br><br>/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>备份文件的最后几行MySQL使用SET语句恢复服务器系统变量原来的值，例如：</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">该语句将用户定义的变量@old_character_set_client中保存的值武给实际的系统变量character_set_client。</span><br><br>/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>后面的DROP语句、CREATET语句和INSERT语句都是还原时使用的。例如，“DROP TABLE IF EXISTS’student’”语句用来判断数据库中是否还有名为student的表，如果存在，就删除这个表；CREATE语句用来创建student的表；INSERTi语句用来还原数据。</p>
+</li>
+<li><p>备份文件开始的一些语句以数字开头。这些数字代表了MySQL版本号，告诉我们这些语句只有在制定的MySQL版本或者比该版本高的情况下才能执行。例如，40101表明这些语句只有在MySQL版本号为4.01.01或者更高的条件下才可以被执行。文件的最后记录了备份的时间。</p>
+</li>
+</ul>
+<h2 id="2-2-备份全部数据库"><a href="#2-2-备份全部数据库" class="headerlink" title="2.2 备份全部数据库"></a>2.2 备份全部数据库</h2><p>若想用mysqldump备份整个实例，可以使用 <font color=orange><code>--all-databases</code></font> 或 <font color=orange><code>-A</code></font> 参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -pxxxxxx --all-databases &gt; all_database.sql<br>mysqldump -uroot -pxxxxxx -A &gt; all_database.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-3-备份部分数据库"><a href="#2-3-备份部分数据库" class="headerlink" title="2.3 备份部分数据库"></a>2.3 备份部分数据库</h2><p>使用 <font color=orange><code>--databases</code></font> 或 <font color=orange><code>-B</code></font> 参数了，该参数后面跟数据库名称，多个数据库间用空格隔开。如果指定databases参数，备份文件中会存在创建数据库的语句，如果不指定参数，则不存在。语法如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump –u user –h host –p --databases [数据库的名称1 [数据库的名称2...]] &gt; 备份文件名称.sql<br></code></pre></td></tr></table></figure>
+
+<p>举例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p --databases data1 data2 &gt; data_two.sql<br></code></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p -B data1 data2 &gt; data_two.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-4-备份部分表"><a href="#2-4-备份部分表" class="headerlink" title="2.4 备份部分表"></a>2.4 备份部分表</h2><p>比如，在表变更前做个备份。语法如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump –u user –h host –p 数据库的名称 [表名1 [表名2...]] &gt; 备份文件名称.sql<br></code></pre></td></tr></table></figure>
+
+<p>举例：备份data数据库下的student表</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p data student &gt; data_student.sql<br></code></pre></td></tr></table></figure>
+
+<p>data_student.sql文件内容如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">vim data_student.sql<br></code></pre></td></tr></table></figure>
+
+<p>可以看到，data_student文件和备份的data库文件类似。不同的是，data_student文件只包含student表的DROP、CREATE和INSERT语句。</p>
+<p>备份多张表使用下面的命令，比如备份book和account表：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">备份多张表</span><br>mysqldump -uroot -p data student class &gt; data_student_class.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-5-备份单表的部分数据"><a href="#2-5-备份单表的部分数据" class="headerlink" title="2.5 备份单表的部分数据"></a>2.5 备份单表的部分数据</h2><p>有些时候一张表的数据量很大，我们只需要部分数据。这时就可以使用  <font color=orange><code>--where</code></font> 选项了。where后面附带需要满足的条件。</p>
+<p>举例：备份student表中id小于10的数据：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p student student --where=&quot;id &lt; 10 &quot; &gt; student_part_id10_low_bak.sql<br></code></pre></td></tr></table></figure>
+
+<p>内容如下所示，insert语句只有id小于10的部分：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><br></code></pre></td></tr></table></figure>
+
+<h2 id="2-6-排除某些表的备份"><a href="#2-6-排除某些表的备份" class="headerlink" title="2.6 排除某些表的备份"></a>2.6 排除某些表的备份</h2><p>如果我们想备份某个库，但是某些表数据量很大或者与业务关联不大，这个时候可以考虑排除掉这些表，同样的，选项 <font color=orange><code>--ignore-table</code></font> 可以完成这个功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p student --ignore-table=student.student &gt; no_stu_bak.sql<br></code></pre></td></tr></table></figure>
+
+<p>通过如下指定判定文件中没有student表结构：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">grep &quot;student&quot; no_stu_bak.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-7-只备份结构或只备份数据"><a href="#2-7-只备份结构或只备份数据" class="headerlink" title="2.7 只备份结构或只备份数据"></a>2.7 只备份结构或只备份数据</h2><p>只备份结构的话可以使用 <font color=orange><code>--no-data</code></font> 简写为 <font color=orange><code>-d</code></font> 选项；只备份数据可以使用 <font color=orange><code>--no-create-info</code></font> 简写为<font color=orange><code>-t </code></font>选项。</p>
+<ul>
+<li>只备份结构</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p student --no-data &gt; student_no_data_bak.sql<br><span class="hljs-meta">#</span><span class="bash">使用grep命令，没有找到insert相关语句，表示没有数据备份。</span><br>[root@node1 ~]# grep &quot;INSERT&quot; student_no_data_bak.sql<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>只备份数据</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p student --no-create-info &gt; student_no_create_info_bak.sql<br><span class="hljs-meta">#</span><span class="bash">使用grep命令，没有找到create相关语句，表示没有数据结构。</span><br>[root@node1 ~]# grep &quot;CREATE&quot; student_no_create_info_bak.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-8-备份中包含存储过程、函数、事件"><a href="#2-8-备份中包含存储过程、函数、事件" class="headerlink" title="2.8 备份中包含存储过程、函数、事件"></a>2.8 备份中包含存储过程、函数、事件</h2><p>mysqldump备份默认是不包含存储过程，自定义函数及事件的。可以使用 <font color=orange><code>--routines</code></font> 或 <font color=orange><code>-R</code></font> 选项来备份存储过程及函数，使用 <font color=orange><code>--events</code></font> 或 <font color=orange><code>-E</code></font> 参数来备份事件。</p>
+<p>举例：备份整个student库，包含存储过程及事件：</p>
+<ul>
+<li>使用下面的SQL可以查看当前库有哪些存储过程或者函数</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT SPECIFIC_NAME,ROUTINE_TYPE ,ROUTINE_SCHEMA  FROM<br>information_schema.Routines WHERE ROUTINE_SCHEMA=&quot;atguigu&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>下面备份atguigu库的数据，函数以及存储过程。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p -R -E --databases atguigu &gt; fun_atguigu_bak.sql<br></code></pre></td></tr></table></figure>
+
+<p>查询备份文件中是否存在函数，如下所示，可以看到确实包含了函数。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">grep -C 5 &quot;rand_num&quot; fun_atguigu_bak.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-9-mysqldump常用选项"><a href="#2-9-mysqldump常用选项" class="headerlink" title="2.9 mysqldump常用选项"></a>2.9 mysqldump常用选项</h2><p>mysqldump其他常用选项如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs shell">--add-drop-database：在每个CREATE DATABASE语句前添加DROP DATABASE语句。<br><br>--add-drop-tables：在每个CREATE TABLE语句前添加DROP TABLE语句。<br><br>--add-locking：用LOCK TABLES和UNLOCK TABLES语句引用每个表转储。重载转储文件时插入得更快。<br><br>--all-database, -A：转储所有数据库中的所有表。与使用--database选项相同，在命令行中命名所有数据库。<br><br>--comment[=0|1]：如果设置为0，禁止转储文件中的其他信息，例如程序版本、服务器版本和主机。--skip-comments与--comments=0的结果相同。默认值为1，即包括额外信息。<br><br>--compact：产生少量输出。该选项禁用注释并启用--skip-add-drop-tables、--no-set-names、--skip-disable-keys和--skip-add-locking选项。<br><br>--compatible=name：产生与其他数据库系统或旧的MySQL服务器更兼容的输出，值可以为ansi、MySQL323、MySQL40、postgresql、oracle、mssql、db2、maxdb、no_key_options、no_table_options或者no_field_options。<br><br>--complete_insert, -c：使用包括列名的完整的INSERT语句。<br><br>--debug[=debug_options], -#[debug_options]：写调试日志。<br><br>--delete，-D：导入文本文件前清空表。<br><br>--default-character-set=charset：使用charsets默认字符集。如果没有指定，就使用utf8。<br><br>--delete--master-logs：在主复制服务器上，完成转储操作后删除二进制日志。该选项自动启用-master-data。<br><br>--extended-insert，-e：使用包括几个VALUES列表的多行INSERT语法。这样使得转储文件更小，重载文件时可以加速插入。<br><br>--flush-logs，-F：开始转储前刷新MySQL服务器日志文件。该选项要求RELOAD权限。<br><br>--force，-f：在表转储过程中，即使出现SQL错误也继续。<br><br>--lock-all-tables，-x：对所有数据库中的所有表加锁。在整体转储过程中通过全局锁定来实现。该选项自动关闭--single-transaction和--lock-tables。<br><br>--lock-tables，-l：开始转储前锁定所有表。用READ LOCAL锁定表以允许并行插入MyISAM表。对于事务表（例如InnoDB和BDB），--single-transaction是一个更好的选项，因为它根本不需要锁定表。<br><br>--no-create-db，-n：该选项禁用CREATE DATABASE /*!32312 IF NOT EXIST*/db_name语句，如果给出--database或--all-database选项，就包含到输出中。<br><br>--no-create-info，-t：只导出数据，而不添加CREATE TABLE语句。<br><br>--no-data，-d：不写表的任何行信息，只转储表的结构。<br><br>--opt：该选项是速记，它可以快速进行转储操作并产生一个能很快装入MySQL服务器的转储文件。该选项默认开启，但可以用--skip-opt禁用。<br><br>--password[=password]，-p[password]：当连接服务器时使用的密码。<br><br>-port=port_num，-P port_num：用于连接的TCP/IP端口号。<br><br>--protocol=&#123;TCP|SOCKET|PIPE|MEMORY&#125;：使用的连接协议。<br><br>--replace，-r –replace和--ignore：控制替换或复制唯一键值已有记录的输入记录的处理。如果指定--replace，新行替换有相同的唯一键值的已有行；如果指定--ignore，复制已有的唯一键值的输入行被跳过。如果不指定这两个选项，当发现一个复制键值时会出现一个错误，并且忽视文本文件的剩余部分。<br><br>--silent，-s：沉默模式。只有出现错误时才输出。<br><br>--socket=path，-S path：当连接localhost时使用的套接字文件（为默认主机）。<br><br>--user=user_name，-u user_name：当连接服务器时MySQL使用的用户名。<br><br>--verbose，-v：冗长模式，打印出程序操作的详细信息。<br><br>--xml，-X：产生XML输出。<br></code></pre></td></tr></table></figure>
+
+<p>运行帮助命令 <font color=orange><code>mysqldump --help</code></font> ，可以获得特定版本的完整选项列表。</p>
+<blockquote>
+<p>提示 如果运行mysqldump没有–quick或–opt选项，mysqldump在转储结果前将整个结果集装入内存。如果转储大数据库可能会出现问题，该选项默认启用，但可以用–skip-opt禁用。如果使用最新版本的mysqldump程序备份数据，并用于恢复到比较旧版本的MySQL服务器中，则不要使用–opt或-e选项。</p>
+</blockquote>
+<h1 id="三、mysql命令恢复数据"><a href="#三、mysql命令恢复数据" class="headerlink" title="三、mysql命令恢复数据"></a>三、mysql命令恢复数据</h1><p>基本语法：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql –u root –p [dbname] &lt; backup.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-1-单库备份中恢复单库"><a href="#3-1-单库备份中恢复单库" class="headerlink" title="3.1 单库备份中恢复单库"></a>3.1 单库备份中恢复单库</h2><p>使用root用户，将之前练习中备份的atguigu.sql文件中的备份导入数据库中，命令如下：</p>
+<p>如果备份文件中包含了创建数据库的语句，则恢复的时候不需要指定数据库名称，如下所示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -p &lt; atguigu.sql<br></code></pre></td></tr></table></figure>
+
+<p>否则需要指定数据库名称（也就是说在备份的时候可能有<code>--add-drop-database</code>选项），如下所示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -p atguigu4&lt; atguigu.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-2-全量备份恢复"><a href="#3-2-全量备份恢复" class="headerlink" title="3.2 全量备份恢复"></a>3.2 全量备份恢复</h2><p>如果我们现在有昨天的全量备份，现在想整个恢复，则可以这样操作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql –u root –p &lt; all.sql<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -pxxxxxx &lt; all.sql<br></code></pre></td></tr></table></figure>
+
+<p>执行完后，MySQL数据库中就已经恢复了all.sql文件中的所有数据库。</p>
+<h2 id="3-3-从全量备份中恢复单库"><a href="#3-3-从全量备份中恢复单库" class="headerlink" title="3.3 从全量备份中恢复单库"></a>3.3 从全量备份中恢复单库</h2><p>可能有这样的需求，比如说我们只想恢复某一个库，但是我们有的是整个实例的备份，这个时候我们可以从全量备份中分离出单个库的备份。</p>
+<p>举例：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sh">sed -n <span class="hljs-string">&#x27;/^-- Current Database: `atguigu`/,/^-- Current Database: `/p&#x27;</span> all_database.sql &gt; atguigu.sql <br><br><span class="hljs-comment">#分离完成后我们再导入atguigu.sql即可恢复单个库</span><br></code></pre></td></tr></table></figure>
+
+<p>当然我们在另一个数据库上恢复导入全量备份，然后再把需要的库导出来，最后再导入到我们需要的数据库上。</p>
+<h2 id="3-4-从单库备份中恢复单表"><a href="#3-4-从单库备份中恢复单表" class="headerlink" title="3.4 从单库备份中恢复单表"></a>3.4 从单库备份中恢复单表</h2><p>这个需求还是比较常见的。比如说我们知道哪个表误操作了，那么就可以用单表恢复的方式来恢复。</p>
+<p>举例：我们有atguigu整库的备份，但是由于class表误操作，需要单独恢复出这张表。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat atguigu.sql | sed -e &#x27;/./&#123;H;$!d;&#125;&#x27; -e &#x27;x;/CREATE TABLE `class`/!d;q&#x27; &gt;<br>class_structure.sql<br><br>cat atguigu.sql | grep --ignore-case  &#x27;insert into `class`&#x27; &gt; class_data.sql<br><span class="hljs-meta">#</span><span class="bash">用shell语法分离出创建表的语句及插入数据的语句后 再依次导出即可完成恢复</span><br><br>use atguigu;<br><span class="hljs-meta">mysql&gt;</span><span class="bash"> <span class="hljs-built_in">source</span> class_structure.sql;</span><br>Query OK, 0 rows affected, 1 warning (0.00 sec)<br><span class="hljs-meta"></span><br><span class="hljs-meta">mysql&gt;</span><span class="bash"> <span class="hljs-built_in">source</span> class_data.sql;</span><br>Query OK, 1 row affected (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、物理备份：直接复制整个数据库"><a href="#四、物理备份：直接复制整个数据库" class="headerlink" title="四、物理备份：直接复制整个数据库"></a>四、物理备份：直接复制整个数据库</h1><p>直接将MySQL中的数据库文件复制出来。这种方法最简单，速度也最快。MySQL的数据库目录位置不一定相同：</p>
+<ul>
+<li><p>在Windows平台下，MySQL 8.0存放数据库的目录通常默认为 “ <font color=orange><code>C:\ProgramData\MySQL\MySQL Server 8.0\Data</code></font> ”或者其他用户自定义目录；</p>
+</li>
+<li><p>在Linux平台下，数据库目录位置通常为/var/lib/mysql/；</p>
+</li>
+<li><p>在MAC OSX平台下，数据库目录位置通常为“/usr/local/mysql/data”</p>
+</li>
+</ul>
+<p>但为了保证备份的一致性。需要保证：</p>
+<ul>
+<li><p>方式1：备份前，将服务器停止。</p>
+</li>
+<li><p>方式2：备份前，对相关表执行 <font color=orange><code>FLUSH TABLES WITH READ LOCK</code></font> 操作。这样当复制数据库目录中的文件时，允许其他客户继续查询表。同时，FLUSH TABLES语句来确保开始备份前将所有激活的索引页写入硬盘。</p>
+</li>
+</ul>
+<p>这种方式方便、快速，但不是最好的备份方法，因为实际情况可能 <font color=orange><code>不允许停止MySQL服务器</code></font> 或者 <font color=orange><code>锁住表</code></font> ，而且这种方法 <font color=orange><code>对InnoDB存储引擎</code></font> 的表不适用。对于MyISAM存储引擎的表，这样备份和还原很方便，但是还原时最好是相同版本的MySQL数据库，否则可能会存在文件类型不同的情况。</p>
+<p>注意，物理备份完毕后，执行 <font color=orange><code>UNLOCK TABLES</code></font> 来结算其他客户对表的修改行为。</p>
+<blockquote>
+<p>说明： 在MySQL版本号中，第一个数字表示主版本号，主版本号相同的MySQL数据库文件格式相同。</p>
+</blockquote>
+<p>此外，还可以考虑使用相关工具实现备份。比如， <font color=orange><code>MySQLhotcopy</code></font> 工具。MySQLhotcopy是一个Perl脚本，它使用LOCK TABLES、FLUSH TABLES和cp或scp来快速备份数据库。它是备份数据库或单个表最快的途径，但它只能运行在数据库目录所在的机器上，并且只能备份MyISAM类型的表。多用于mysql5.5之前。</p>
+<h1 id="五、物理恢复：直接复制到数据库目录"><a href="#五、物理恢复：直接复制到数据库目录" class="headerlink" title="五、物理恢复：直接复制到数据库目录"></a>五、物理恢复：直接复制到数据库目录</h1><p><font color=Crimson><strong>步骤：</strong></font></p>
+<p>1）演示删除备份的数据库中指定表的数据</p>
+<p>2）将备份的数据库数据拷贝到数据目录下，并重启MySQL服务器</p>
+<p>3）查询相关表的数据是否恢复。需要使用下面的 <font color=orange><code>chown</code></font> 操作。</p>
+<p><font color=Crimson><strong>要求：</strong></font></p>
+<ul>
+<li><p>必须确保备份数据的数据库和待恢复的数据库服务器的主版本号相同。</p>
+<ul>
+<li>因为只有MySQL数据库主版本号相同时，才能保证这两个MySQL数据库文件类型是相同的。</li>
+</ul>
+</li>
+<li><p>这种方式对 <font color=orange><code>MyISAM类型的表比较有效</code></font> ，对于InnoDB类型的表则不可用。</p>
+<ul>
+<li>因为InnoDB表的表空间不能直接复制。</li>
+</ul>
+</li>
+<li><p>在Linux操作系统下，复制到数据库目录后，一定要将数据库的用户和组变成mysql，命令如下：</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">chown -R mysql.mysql /var/lib/mysql/dbname<br></code></pre></td></tr></table></figure>
+
+<p>其中，两个mysql分别表示组和用户；“-R”参数可以改变文件夹下的所有子文件的用户和组；“dbname”参数表示数据库目录。</p>
+<blockquote>
+<p>提示 Linux操作系统下的权限设置非常严格。通常情况下，MySQL数据库只有root用户和mysql用户组下的mysql用户才可以访问，因此将数据库目录复制到指定文件夹后，一定要使用chown命令将文件夹的用户组变为mysql，将用户变为mysql。</p>
+</blockquote>
+<h1 id="六、表的导出与导入"><a href="#六、表的导出与导入" class="headerlink" title="六、表的导出与导入"></a>六、表的导出与导入</h1><h2 id="6-1-表的导出"><a href="#6-1-表的导出" class="headerlink" title="6.1 表的导出"></a>6.1 表的导出</h2><h3 id="6-1-1-使用SELECT…INTO-OUTFILE导出文本文件"><a href="#6-1-1-使用SELECT…INTO-OUTFILE导出文本文件" class="headerlink" title="6.1.1 使用SELECT…INTO OUTFILE导出文本文件"></a>6.1.1 使用SELECT…INTO OUTFILE导出文本文件</h3><p>在MySQL中，可以使用SELECT…INTO OUTFILE语句将表的内容导出成一个文本文件。</p>
+<p><font color=Crimson><strong>举例：</strong></font>使用SELECT…INTO OUTFILE将atguigu数据库中account表中的记录导出到文本文件。 </p>
+<p>（1）选择数据库atguigu，并查询account表，执行结果如下所示。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mysql">use atguigu;<br>select * from account;<br>mysql&gt; select * from account;<br>+----+--------+---------+<br>| id | name  | balance |<br>+----+--------+---------+<br>|  1 | 张三  |    90 |<br>|  2 | 李四  |   100 |<br>|  3 | 王五  |    0 |<br>+----+--------+---------+<br>3 rows in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<p>（2）mysql默认对导出的目录有权限限制，也就是说使用命令行进行导出的时候，需要指定目录进行操作。</p>
+<p>查询secure_file_priv值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW GLOBAL VARIABLES LIKE &#x27;%secure%&#x27;;<br>+--------------------------+-----------------------+<br>| Variable_name      | Value         |<br>+--------------------------+-----------------------+<br>| require_secure_transport | OFF          |<br>| secure_file_priv     | /var/lib/mysql-files/ |<br>+--------------------------+-----------------------+<br>2 rows in set (0.02 sec)<br></code></pre></td></tr></table></figure>
+
+<p>参数secure_file_priv的可选值和作用分别是：</p>
+<ul>
+<li>如果设置为empty，表示不限制文件生成的位置，这是不安全的设置；</li>
+<li>如果设置为一个表示路径的字符串，就要求生成的文件只能放在这个指定的目录，或者它的子目录：</li>
+<li>如果设置为NULL，就表示禁止在这个MySQL实例上执行select..into outfile操作。</li>
+</ul>
+<p>（3）上面结果中显示，secure_file_priv变量的值为/var/lib/mysql-files/，导出目录设置为该目录，SQL语句如下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT * FROM account INTO OUTFILE &quot;/var/lib/mysql-files/account.txt&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>（4）查看 /var/lib/mysql-files/account.txt文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat /var/lib/mysql-files/account.txt<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-1-2-使用mysqldump命令导出文本文件"><a href="#6-1-2-使用mysqldump命令导出文本文件" class="headerlink" title="6.1.2 使用mysqldump命令导出文本文件"></a>6.1.2 使用mysqldump命令导出文本文件</h3><p><font color=Crimson><strong>举例1：</strong></font>使用mysqldump命令将将atguigu数据库中account表中的记录导出到文本文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p -T &quot;/var/lib/mysql-files/&quot; atguigu account<br></code></pre></td></tr></table></figure>
+
+<p>mysqldump命令执行完毕后，在指定的目录/var/lib/mysql-files/下生成了account.sql和account.txt文件。</p>
+<p>打开account.sql文件，其内容包含创建account表的CREATE语句。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account.sql<br></code></pre></td></tr></table></figure>
+
+<p>打开account.txt文件，其内容只包含account表中的数据。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account.txt<br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>举例2：</strong></font>使用mysqldump将atguigu数据库中的account表导出到文本文件，使用FIELDS选项，要求字段之间使用逗号“，”间隔，所有字符类型字段值用双引号括起来：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump -uroot -p -T &quot;/var/lib/mysql-files/&quot; atguigu account --fields-terminated-by=&#x27;,&#x27; --fields-optionally-enclosed-by=&#x27;\&quot;&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>语句mysqldump语句执行成功之后，指定目录下会出现两个文件account.sql和account.txt。</p>
+<p>打开account.sql文件，其内容包含创建account表的CREATE语句。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account.sql<br></code></pre></td></tr></table></figure>
+
+<p>打开account.txt文件，其内容包含创建account表的数据。从文件中可以看出，字段之间用逗号隔开，字符类型的值被双引号括起来。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account.txt<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-1-3-使用mysql命令导出文本文件"><a href="#6-1-3-使用mysql命令导出文本文件" class="headerlink" title="6.1.3 使用mysql命令导出文本文件"></a>6.1.3 使用mysql命令导出文本文件</h3><p><font color=Crimson><strong>举例1：</strong></font>使用mysql语句导出atguigu数据中account表中的记录到文本文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -p --execute=&quot;SELECT * FROM account;&quot; atguigu&gt; &quot;/var/lib/mysql-<br>files/account.txt&quot;<br></code></pre></td></tr></table></figure>
+
+<p>打开account.txt文件，其内容包含创建account表的数据。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account.txt<br>id   name  balance<br>1    张三   90<br>2    李四   100<br>3    王五   0<br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>举例2：</strong></font>将atguigu数据库account表中的记录导出到文本文件，使用–veritcal参数将该条件记录分为多行显示：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -p --vertical --execute=&quot;SELECT * FROM account;&quot; atguigu &gt;<br> &quot;/var/lib/mysql-files/account_1.txt&quot;<br></code></pre></td></tr></table></figure>
+
+<p>打开account_1.txt文件，其内容包含创建account表的数据。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account_1.txt<br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>举例3：</strong></font>将atguigu数据库account表中的记录导出到xml文件，使用–xml参数，具体语句如下。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysql -uroot -p --xml --execute=&quot;SELECT * FROM account;&quot; atguigu&gt;&quot;/var/lib/mysql-files/account_3.xml&quot;<br></code></pre></td></tr></table></figure>
+
+<p>查看xml文件文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat account_3.xml<br></code></pre></td></tr></table></figure>
+
+<p>说明：如果要将表数据导出到html文件中，可以使用 –html 选项。然后可以使用浏览器打开。</p>
+<h2 id="6-2-表的导入"><a href="#6-2-表的导入" class="headerlink" title="6.2 表的导入"></a>6.2 表的导入</h2><h3 id="6-2-1-使用LOAD-DATA-INFILE方式导入文本文件"><a href="#6-2-1-使用LOAD-DATA-INFILE方式导入文本文件" class="headerlink" title="6.2.1  使用LOAD DATA INFILE方式导入文本文件"></a>6.2.1  使用LOAD DATA INFILE方式导入文本文件</h3><p><font color=Crimson><strong>举例1：</strong></font></p>
+<p>使用SELECT…INTO OUTFILE将atguigu数据库中account表的记录导出到文本文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT * FROM atguigu.account INTO OUTFILE &#x27;/var/lib/mysql-files/account_0.txt&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>删除account表中的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">DELETE FROM atguigu.account;<br></code></pre></td></tr></table></figure>
+
+<p>从文本文件account.txt中恢复数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">LOAD DATA INFILE &#x27;/var/lib/mysql-files/account_0.txt&#x27; INTO TABLE atguigu.account;<br></code></pre></td></tr></table></figure>
+
+<p>查询account表中的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; select * from account;<br>+----+--------+---------+<br>| id | name  | balance |<br>+----+--------+---------+<br>|  1 | 张三  |    90 |<br>|  2 | 李四  |   100 |<br>|  3 | 王五  |    0 |<br>+----+--------+---------+<br>3 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>举例2：</strong></font></p>
+<p>选择数据库atguigu，使用SELECT…INTO OUTFILE将atguigu数据库account表中的记录导出到文本文件，使用FIELDS选项和LINES选项，要求字段之间使用逗号”，”间隔，所有字段值用双引号括起来：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT * FROM atguigu.account INTO OUTFILE &#x27;/var/lib/mysql-files/account_1.txt&#x27; FIELDS TERMINATED BY &#x27;,&#x27; ENCLOSED BY &#x27;\&quot;&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>删除account表中的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">DELETE FROM atguigu.account;<br></code></pre></td></tr></table></figure>
+
+<p>从/var/lib/mysql-files/account.txt中导入数据到account表中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">LOAD DATA INFILE &#x27;/var/lib/mysql-files/account_1.txt&#x27; INTO TABLE atguigu.account FIELDS TERMINATED BY &#x27;,&#x27; ENCLOSED BY &#x27;\&quot;&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>查询account表中的数据，具体SQL如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mysql">select * from account;<br>mysql&gt; select * from account;<br>+----+--------+---------+<br>| id | name  | balance |<br>+----+--------+---------+<br>|  1 | 张三  |    90 |<br>|  2 | 李四  |   100 |<br>|  3 | 王五  |    0 |<br>+----+--------+---------+<br>3 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<h3 id="6-2-2-使用mysqlimport方式导入文本文件"><a href="#6-2-2-使用mysqlimport方式导入文本文件" class="headerlink" title="6.2.2 使用mysqlimport方式导入文本文件"></a>6.2.2 使用mysqlimport方式导入文本文件</h3><p><font color=Crimson><strong>举例2：</strong></font></p>
+<p>导出文件account.txt，字段之间使用逗号”，”间隔，字段值用双引号括起来：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT * FROM atguigu.account INTO OUTFILE &#x27;/var/lib/mysql-files/account.txt&#x27; FIELDS TERMINATED BY &#x27;,&#x27; ENCLOSED BY &#x27;\&quot;&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>删除account表中的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">DELETE FROM atguigu.account;<br></code></pre></td></tr></table></figure>
+
+<p>使用mysqlimport命令将account.txt文件内容导入到数据库atguigu的account表中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlimport -uroot -p atguigu &#x27;/var/lib/mysql-files/account.txt&#x27; --fields-terminated-by=&#x27;,&#x27; --fields-optionally-enclosed-by=&#x27;\&quot;&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>查询account表中的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mysql">select * from account;<br>mysql&gt; select * from account;<br>+----+--------+---------+<br>| id | name  | balance |<br>+----+--------+---------+<br>|  1 | 张三  |    90 |<br>|  2 | 李四  |   100 |<br>|  3 | 王五  |    0 |<br>+----+--------+---------+<br>3 rows in set (0.00 sec)<br></code></pre></td></tr></table></figure>
+
+<p>除了前面介绍的几个选项之外，mysqlimport支持需要选项，常见的选项有：</p>
+<ul>
+<li>–columns=column_list，-c column_list：该选项采用逗号分隔的列名作为其值。列名的顺序只是如何匹配数据文件列和表列。</li>
+<li>–compress，-C：压缩在客户端和服务器之间发送的所有信息（如果二者均支持压缩）。</li>
+<li>-d，-delete：导入文本文件前请空表。</li>
+<li>–force,f：忽视错误。例如，如果某个文本文件的表不存在，就继续处理其他文件。不使用-force,若表不存在，则mysqlimporti退出。</li>
+<li>–host=host_hame，-h host host_name：将数据导入给定主机上的MySQL服务器，默认主机是localhost。</li>
+<li>–ignore，-i:参见–replacej选项的描述。</li>
+<li>–ignore-lines=n：忽视数据文件的前n行。</li>
+<li>–local，-L：从本地客户端读入输入文件。</li>
+<li>–lock-tables，-l：处理文本文件前锁定所有表，以便写入。这样可以确保所有表在服务器上保持同步。</li>
+<li>–password[=password]，-p[password]：当连接服务器时使用的密码。如果使用短选项形式(-p)，选项和密码之间不能有空格。如果在命令中–password或-p选项后面没有密码值，机提示输入一个密码。</li>
+<li>–port=port_num，-P port_num：用户连接的TCP/IP端口号。</li>
+<li>–protocol={TCPISOCKETPIPEMEMORY}：使用的连接协议。</li>
+<li>–replace，-r –replace和–ignore选项控制复制唯一键值已有记录的输入记录的处理。如果指定–replace，新行替换有相同唯一键值的已有行；如果指定–ignore，复制已有唯一键值的输入行被跳过；如果不指定这两个选项，当发现一个复制键值时会出现一个错误，并且忽视文本文件的剩余部分。</li>
+<li>–silent，-s：沉默模式。只有出现错误时才输出信息。</li>
+<li>–use=username，-u user_name：当连接服务器时MySQL使用的用户名。</li>
+<li>–verbose，v：冗长模式。打印出程序操作的详细信息。</li>
+<li>–version，V：显示版本信息并退出。</li>
+</ul>
+<h1 id="七、数据库迁移"><a href="#七、数据库迁移" class="headerlink" title="七、数据库迁移"></a>七、数据库迁移</h1><h2 id="7-1-概述"><a href="#7-1-概述" class="headerlink" title="7.1 概述"></a>7.1 概述</h2><p>数据迁移（data migration）是指选择、准备、提取和转换数据，并<font color=Crimson><strong>将数据从一个计算机存储系统永久地传输到另一个计算机存储系统的过程。</strong></font>此外，  <font color=orange><code>验证迁移数据的完整性</code></font> 和  <font color=orange><code>退役原来旧的数据存储</code></font> ，也被认为是整个数据迁移过程的一部分。</p>
+<p>数据库迁移的原因是多样的，包括服务器或存储设备更换、维护或升级，应用程序迁移，网站集成，灾难恢复和数据中心迁移。</p>
+<p>根据不同的需求可能要采取不同的迁移方案，但总体来讲，MySQL 数据迁移方案大致可以分为  <font color=orange><code>物理迁移</code></font>和  <font color=orange><code>逻辑迁移</code></font> 两类。通常以尽可能  <font color=orange><code>自动化</code></font> 的方式执行，从而将人力资源从繁琐的任务中解放出来。</p>
+<h2 id="7-2-迁移方案"><a href="#7-2-迁移方案" class="headerlink" title="7.2 迁移方案"></a>7.2 迁移方案</h2><ul>
+<li>物理迁移</li>
+</ul>
+<p>物理迁移适用于大数据量下的整体迁移。使用物理迁移方案的优点是比较快速，但需要停机迁移并且要求 MySQL 版本及配置必须和原服务器相同，也可能引起未知问题。</p>
+<p>物理迁移包括拷贝数据文件和使用 XtraBackup 备份工具两种。</p>
+<p>不同服务器之间可以采用物理迁移，我们可以在新的服务器上安装好同版本的数据库软件，创建好相同、目录，建议配置文件也要和原数据库相同，然后从原数据库方拷贝来数据文件及日志文件，配置好文件组权限，之后在新服务器这边使用 mysqld 命令启动数据库。</p>
+<ul>
+<li>逻辑迁移</li>
+</ul>
+<p>逻辑迁移适用范围更广，无论是 <font color=orange><code>部分迁移</code></font> 还是 <font color=orange><code>全量迁移</code></font> ，都可以使用逻辑迁移。逻辑迁移中使用最多的就是通过 mysqldump 等备份工具。</p>
+<h2 id="7-3-迁移注意点"><a href="#7-3-迁移注意点" class="headerlink" title="7.3 迁移注意点"></a>7.3 迁移注意点</h2><h3 id="7-3-1-相同版本的数据库之间迁移注意点"><a href="#7-3-1-相同版本的数据库之间迁移注意点" class="headerlink" title="7.3.1 相同版本的数据库之间迁移注意点"></a>7.3.1 相同版本的数据库之间迁移注意点</h3><p>指的是在主版本号相同的MySQL数据库之间进行数据库移动。</p>
+<p> <font color=orange><code>方式1：</code></font> 因为迁移前后MySQL数据库的  <font color=orange><code>主版本号相同</code></font> ，所以可以通过复制数据库目录来实现数据库迁移，但是物理迁移方式只适用于MyISAM引擎的表。对于InnoDB表，不能用直接复制文件的方式备份数据库。</p>
+<p> <font color=orange><code>方式2：</code></font>最常见和最安全的方式是使用 <font color=orange><code>mysqldump命令</code></font> 导出数据，然后在目标数据库服务器中使用MySQL命令导入。</p>
+<p>举例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">host1的机器中备份所有数据库,并将数据库迁移到名为host2的机器上</span><br>mysqldump –h host1 –uroot –p –-all-databases| mysql –h host2 –uroot –p<br></code></pre></td></tr></table></figure>
+
+<p>在上述语句中，“|”符号表示管道，其作用是将mysqldump备份的文件给mysql命令；“–all-databases”表示要迁移所有的数据库。通过这种方式可以直接实现迁移。</p>
+<h3 id="7-3-2-不同版本的数据库之间迁移注意点"><a href="#7-3-2-不同版本的数据库之间迁移注意点" class="headerlink" title="7.3.2 不同版本的数据库之间迁移注意点"></a>7.3.2 不同版本的数据库之间迁移注意点</h3><p>例如，原来很多服务器使用5.7版本的MySQL数据库，在8.0版本推出来以后，改进了5.7版本的很多缺陷，因此需要把数据库升级到8.0版本</p>
+<p>旧版本与新版本的MySQL可能使用不同的默认字符集，例如有的旧版本中使用latin1作为默认字符集，而最新版本的MySQL默认字符集为utf8mb4。如果数据库中有中文数据，那么迁移过程中需要对 <font color=orange><code>默认字符集进行修改</code></font> ，不然可能无法正常显示数据。</p>
+<p>高版本的MySQL数据库通常都会 <font color=orange><code>兼容低版本</code></font> ，因此可以从低版本的MySQL数据库迁移到高版本的MySQL数据库。</p>
+<h3 id="7-3-3-不同数据库之间迁移注意点"><a href="#7-3-3-不同数据库之间迁移注意点" class="headerlink" title="7.3.3 不同数据库之间迁移注意点"></a>7.3.3 不同数据库之间迁移注意点</h3><p>不同数据库之间迁移是指从其他类型的数据库迁移到MySQL数据库，或者从MySQL数据库迁移到其他类型的数据库。这种迁移没有普适的解决方法。</p>
+<p>迁移之前，需要了解不同数据库的架构，<font color=orange><code> 比较它们之间的差异</code></font> 。不同数据库中定义相同类型的数据的 <font color=orange><code>关键字可能会不同</code></font> 。例如，MySQL中日期字段分为DATE和TIME两种，而ORACLE日期字段只有DATE；SQL Server数据库中有ntext、Image等数据类型，MySQL数据库没有这些数据类型；MySQL支持的ENUM和SET类型，这些SQL Server数据库不支持。</p>
+<p>另外，数据库厂商并没有完全按照SQL标准来设计数据库系统，导致不同的数据库系统的 <font color=orange><code>SQL语句</code></font> 有差别。例如，微软的SQL Server软件使用的是T-SQL语句，T-SQL中包含了非标准的SQL语句，不能和MySQL的SQL语句兼容。</p>
+<p>不同类型数据库之间的差异造成了互相 <font color=orange><code>迁移的困难</code></font> ，这些差异其实是商业公司故意造成的技术壁垒。但是不同类型的数据库之间的迁移并 <font color=orange><code>不是完全不可能</code></font> 。例如，可以使用 <font color=orange><code>MyODBC</code></font> 实现MySQL和SQL Server之间的迁移。MySQL官方提供的工具 <font color=orange><code>MySQL Migration Toolkit</code></font> 也可以在不同数据之间进行数据迁移。MySQL迁移到Oracle时，需要使用mysqldump命令导出sql文件，然后， <font color=orange><code>手动更改</code></font> sql文件中的CREATE语句。</p>
+<h2 id="7-4-迁移小结"><a href="#7-4-迁移小结" class="headerlink" title="7.4 迁移小结"></a>7.4 迁移小结</h2><p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-46.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="八、删库了不敢跑，能干点啥？"><a href="#八、删库了不敢跑，能干点啥？" class="headerlink" title="八、删库了不敢跑，能干点啥？"></a>八、删库了不敢跑，能干点啥？</h1><p>传统的高可用架构是不能预防误删数据的，因为主库的一个drop table命令，会通过binlog传给所有从<br>库和级联从库，进而导致整个集群的实例都会执行这个命令。</p>
+<p>为了找到解决误删数据的更高效的方法，我们需要先对和MySQL相关的误删数据，做下分类：</p>
+<ol>
+<li>使用delete语句误删数据行，</li>
+<li>使用drop table或者truncate table语句误删数据表；</li>
+<li>使用drop database语句误删数据库；</li>
+<li>使用rm命令误删整个MySQL实例。</li>
+</ol>
+<h2 id="8-1-delete：误删行"><a href="#8-1-delete：误删行" class="headerlink" title="8.1 delete：误删行"></a>8.1 delete：误删行</h2><p><font color=Crimson><strong>处理措施1：数据恢复</strong></font></p>
+<p>使用 <font color=orange><code>Flashback</code></font>工具恢复数据。</p>
+<p>原理： <font color=orange><code>修改binlog</code></font>内容，拿回原库重放。如果误删数据涉及到了多个事务的话，需要将事务的顺序调过来再执行。</p>
+<p>使用前提：binlog_format=row 和 binlog_row_image=FULL。</p>
+<p><font color=Crimson><strong>处理措施2：预防</strong></font></p>
+<ul>
+<li>代码上线前，必须 <font color=orange><code>SQL审查、审计</code></font>。</li>
+<li>建议可以打开 <font color=orange><code>安全模式</code></font>，把 <font color=orange><code>sql_safe_updates</code></font>参数设置为 <font color=orange><code>on</code></font>。强制要求加where条件且where后需要是索引字段，否则必须使用limit。否则就会报错。</li>
+</ul>
+<p><font color=Crimson><strong>经验之谈：</strong></font></p>
+<ol>
+<li><p>恢复数据比较安全的做法，是 <font color=orange><code>恢复出一个备份</code></font> ，或者找一个从库作为 <font color=orange><code>临时库</code></font> ，在这个临时库上执行这些操作，然后再将确认过的临时库的数据，恢复回主库。如果直接修改主库，可能导致对数据的 <font color=orange><code>二次破坏</code></font> 。</p>
+</li>
+<li><p>当然，针对预防误删数据的问题，建议如下：</p>
+<ol>
+<li><p>把 <font color=orange><code>sql_safe_updates</code></font> 参数设置为 <font color=orange><code>on</code></font> 。这样一来，如果我们忘记在delete或者update语句<br>中写where条件，或者where条件里面没有包含索引字段的话，这条语句的执行就会报错。</p>
+<blockquote>
+<p>如果确定要把一个小表的数据全部删掉，在设置了sql_safe_updates=on情况下，可以<br>在delete语句中加上where条件，比如where id&gt;=0。</p>
+</blockquote>
+</li>
+<li><p>代码上线前，必须经过 <font color=orange><code>SQL审计</code></font> 。</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="8-2-truncate-drop-：误删库-表"><a href="#8-2-truncate-drop-：误删库-表" class="headerlink" title="8.2 truncate/drop ：误删库/表"></a>8.2 truncate/drop ：误删库/表</h2><p><font color=Crimson><strong>背景：</strong></font><br>delete全表是很慢的，需要生成回滚日志、写redo、写binlog。所以，从性能角度考虑，优先考虑使用truncate table或者drop table命令。</p>
+<p>使用delete命令删除的数据，你还可以用Flashback来恢复。而使用truncate/drop table和drop database命令删除的数据，就没办法通过Flashback来恢复了。因为，即使我们配置了binlog_format=row，执行这三个命令时，记录的binlog还是statement格式。binlog里面就只有一个truncate/drop语句，这些信息是恢复不出数据的。</p>
+<p><font color=Crimson><strong>方案：</strong></font></p>
+<p>这种情况下，要想恢复数据，就需要使用 <font color=orange><code>全量备份</code></font> 加 <font color=orange><code>增量日志</code></font> 的方式了。这个方案要求线上有定期的全量备份，并且实时备份binlog。</p>
+<p>在这两个条件都具备的情况下，假如有人中午12点误删了一个库，恢复数据的流程如下：</p>
+<ol>
+<li>取最近一次 全量备份 ，假设这个库是一天一备，上次备份是当天 <font color=orange><code>凌晨2点</code></font> ；</li>
+<li>用备份恢复出一个 <font color=orange><code>临时库</code></font> ；（注意：这里选择临时库，而不是直接操作主库）</li>
+<li>从日志备份里面，取出凌晨2点之后的binlog日志；</li>
+<li>剔除误删除数据的语句外，其他语句全部应用到临时库。</li>
+<li>最后回复到主库</li>
+</ol>
+<h2 id="8-3-延迟复制备库"><a href="#8-3-延迟复制备库" class="headerlink" title="8.3 延迟复制备库"></a>8.3 延迟复制备库</h2><p>如果有 <font color=orange><code>非常核心</code></font> 的业务，不允许太长的恢复时间，可以考虑<font color=Crimson><strong>搭建延迟复制的备库</strong></font>。一般的主备复制结构存在的问题是，如果主库上有个表被误删了，这个命令很快也会被发给所有从库，进而导致所有从库的数据表也都一起被误删了。</p>
+<p>延迟复制的备库是一种特殊的备库，通过 <font color=orange><code>CHANGE MASTER TO MASTER_DELAY = N</code></font> 命令，可以指定这个备库持续保持跟主库有 <font color=orange><code>N秒的延迟</code></font> 。比如你把N设置为3600，这就代表了如果主库上有数据被误删了，并且在1小时内发现了这个误操作命令，这个命令就还没有在这个延迟复制的备库执行。这时候到这个备库上执行stop slave，再通过之前介绍的方法，跳过误操作命令，就可以恢复出需要的数据。</p>
+<p>此外，延迟复制还可以用来解决以下问题：</p>
+<p>①用来做 <font color=orange><code>延迟测试</code></font> ，比如做好的数据库读写分离，把从库作为读库，那么想知道当数据产生延迟的时候到底会发生什么，就可以使用这个特性模拟延迟。</p>
+<p>②用于 <font color=orange><code>老数据的查询等需求</code></font> ，比如你经常需要查看某天前一个表或者字段的数值，你可能需要把备份恢复后进行查看，如果有延迟从库，比如延迟一周，那么就可以解决这样类似的需求。</p>
+<h2 id="8-4-预防误删库-表的方法"><a href="#8-4-预防误删库-表的方法" class="headerlink" title="8.4 预防误删库/表的方法"></a>8.4 预防误删库/表的方法</h2><ol>
+<li><font color=orange><code>权限分离</code></font> 。这样做的目的是，避免写错命令。比如：</li>
+</ol>
+<ul>
+<li>限制账户权限，核心的数据，一般都<font color=orange><code>不能随便分配写权限</code></font>，想要获取写权限需要<font color=orange><code>审批</code></font>。比如只给业务开发人员DML权限，不给truncate/drop权限。即使是DBA团队成员，日常也多规定只使用<font color=orange><code>制只读账号</code></font>，必要的时候猜使用有更新权限的账号</li>
+<li>不同的账号，不同的数据之间要进行<font color=orange><code>权限分离</code></font>，避免一个账号可以删除所有库</li>
+</ul>
+<ol start="2">
+<li><font color=orange><code>指定操作规范</code></font> 。比如：</li>
+</ol>
+<p>比如在删除数据表之前，必须先对表做改名操作（比如加 <font color=orange><code>_to_be_deleted</code></font> )。然后，观察一段时间，确保对业务无影响以后再删除这张表。</p>
+<ol start="3">
+<li><font color=orange><code>设置延迟复制备库</code></font> </li>
+</ol>
+<p>详细看上一节</p>
+<h2 id="8-5-rm：误删MySQL实例"><a href="#8-5-rm：误删MySQL实例" class="headerlink" title="8.5 rm：误删MySQL实例"></a>8.5 rm：误删MySQL实例</h2><p>对于一个有高可用机制的MySQL集群来说，不用担心 <font color=orange><code>rm删除数据</code></font> 了。只是删掉了其中某一个节点的数据的话，HA系统就会开始工作，选出一个新的主库，从而保证整个集群的正常工作。我们要做的就是在这个节点上把数据恢复回来，再接入整个集群。</p>
+<p>如果是恶意地把整个集群删除，那就需要考虑跨机房备份，跨城市备份。</p>
+<h1 id="九、附录：MySQL常用命令"><a href="#九、附录：MySQL常用命令" class="headerlink" title="九、附录：MySQL常用命令"></a>九、附录：MySQL常用命令</h1><h2 id="9-1-mysql"><a href="#9-1-mysql" class="headerlink" title="9.1 mysql"></a>9.1 mysql</h2><p>该mysql不是指mysql服务，而是指mysql的客户端工具。</p>
+<p>语法 ：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs css">mysql <span class="hljs-selector-attr">[options]</span> <span class="hljs-selector-attr">[database]</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>mysql选项</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">参数 ：</span><br>-u, --user=name          指定用户名<br>-p, --password[=name]    指定密码<br>-h, --host=name          指定服务器IP或域名<br>-P, --port=#             指定连接端口<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">示例 ：</span><br>mysql -h 127.0.0.1 -P 3306 -u root -p<br><br>mysql -h127.0.0.1 -P3306 -uroot -p密码<br></code></pre></td></tr></table></figure>
+
+<p><strong>执行选项</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">-e, --execute=name 执行SQL语句并退出<br></code></pre></td></tr></table></figure>
+
+<p>此选项可以在Mysql客户端执行SQL语句，而不用连接到MySQL数据库再执行，对于一些批处理脚本，这种方式尤其方便。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">示例：</span><br>mysql -uroot -p db01 -e &quot;select * from tb_book&quot;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-2-mysqladmin"><a href="#9-2-mysqladmin" class="headerlink" title="9.2 mysqladmin"></a>9.2 mysqladmin</h2><p>mysqladmin 是一个执行管理操作的客户端程序。可以用它来检查服务器的配置和当前状态、创建并删除数据库等。</p>
+<p>可以通过 ： mysqladmin –help 指令查看帮助文档</p>
+<p>" srcset="/blog/img/loading.gif<img src=""></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">示例 ：</span><br>mysqladmin -uroot -p create &#x27;test01&#x27;; <br>mysqladmin -uroot -p drop &#x27;test01&#x27;;<br>mysqladmin -uroot -p version;<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-3-mysqlbinlog"><a href="#9-3-mysqlbinlog" class="headerlink" title="9.3 mysqlbinlog"></a>9.3 mysqlbinlog</h2><p>由于服务器生成的二进制日志文件以二进制格式保存，所以如果想要检查这些文本的文本格式，就会使用到mysqlbinlog 日志管理工具。</p>
+<p>语法 ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlbinlog [options] log-files1 log-files2 ...<br><span class="hljs-meta">#</span><span class="bash">选项：</span><br>-d, --database=name : 指定数据库名称，只列出指定的数据库相关操作。<br><br>-o, --offset=# : 忽略掉日志中的前n行命令。<br><br>-r,--result-file=name : 将输出的文本格式日志输出到指定文件。<br><br>-s, --short-form : 显示简单格式， 省略掉一些信息。<br><br>--start-datatime=date1 --stop-datetime=date2 : 指定日期间隔内的所有日志。<br><br>--start-position=pos1 --stop-position=pos2 : 指定位置间隔内的所有日志<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-4-mysqldump"><a href="#9-4-mysqldump" class="headerlink" title="9.4 mysqldump"></a>9.4 mysqldump</h2><p>mysqldump 客户端工具用来备份数据库或在不同数据库之间进行数据迁移。备份内容包含创建表，及插入表的SQL语句。</p>
+<p>语法 ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqldump [options] db_name [tables]<br>mysqldump [options] --database/-B db1 [db2 db3...]<br>mysqldump [options] --all-databases/-A<br></code></pre></td></tr></table></figure>
+
+<p><strong>连接选项</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><br></code></pre></td></tr></table></figure>
+
+<p><strong>输出内容选项</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">参数：</span><br>--add-drop-database 在每个数据库创建语句前加上 Drop database 语句<br><br>--add-drop-table 在每个表创建语句前加上 Drop table 语句 , 默认开启 ; 不开启 (--skip-add-drop-table)<br><br>-n, --no-create-db 不包含数据库的创建语句<br><br>-t, --no-create-info 不包含数据表的创建语句<br><br>-d --no-data 不包含数据<br><br>-T, --tab=name 自动生成两个文件：一个.sql文件，创建表结构的语句；一个.txt文件，数据文件，相当于select into outfile <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">示例 ：</span><br>mysqldump -uroot -p db01 tb_book --add-drop-database --add-drop-table &gt; a<br><br>mysqldump -uroot -p -T /tmp test city<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-5-mysqlimport-source"><a href="#9-5-mysqlimport-source" class="headerlink" title="9.5 mysqlimport/source"></a>9.5 mysqlimport/source</h2><p>mysqlimport 是客户端数据导入工具，用来导入mysqldump 加 -T 参数后导出的文本文件。</p>
+<p>语法：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlimport [options] db_name textfile1 [textfile2...]<br></code></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlimport -uroot -p test /tmp/city.txt<br></code></pre></td></tr></table></figure>
+
+<p>如果需要导入sql文件,可以使用mysql中的source 指令 :</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">source /root/tb_book.sql<br></code></pre></td></tr></table></figure>
+
+<h2 id="9-6-mysqlshow"><a href="#9-6-mysqlshow" class="headerlink" title="9.6 mysqlshow"></a>9.6 mysqlshow</h2><p>mysqlshow 客户端对象查找工具，用来很快地查找存在哪些数据库、数据库中的表、表中的列或者索<br>引。</p>
+<p>语法：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlshow [options] [db_name [table_name [col_name]]]<br></code></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">--count 显示数据库及表的统计信息（数据库，表 均可以不指定）<br><br>-i 显示指定数据库或者指定表的状态信息<br></code></pre></td></tr></table></figure>
+
+<p>示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">查询每个数据库的表的数量及表中记录的数量</span><br>mysqlshow -uroot -p --count<br>[root@node1 atguigu2]# mysqlshow -uroot -p --count<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查询<span class="hljs-built_in">test</span>库中每个表中的字段书，及行数</span><br>mysqlshow -uroot -p atguigu --count<br>[root@node1 atguigu2]# mysqlshow -uroot -p atguigu --count<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">查询<span class="hljs-built_in">test</span>库中book表的详细情况</span><br>mysqlshow -uroot -p atguigu book --count<br>[root@node1 atguigu2]# mysqlshow -uroot -p atguigu book --count<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/02/21/Kafka/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Kafka</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/02/17/MySQL%E4%B9%8B%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">
+                        <span class="hidden-mobile">MySQL之主从复制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

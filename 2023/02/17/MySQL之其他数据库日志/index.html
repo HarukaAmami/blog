@@ -1,0 +1,810 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>MySQL之其他数据库日志 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MySQL之其他数据库日志">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-02-17 08:33" pubdate>
+        2023年2月17日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.1k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      110
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL之其他数据库日志</h1>
+            
+            <div class="markdown-body">
+              <h1 id="其他数据库日志"><a href="#其他数据库日志" class="headerlink" title="其他数据库日志"></a>其他数据库日志</h1><p>我们在讲解数据库事务时，讲过两种日志：重做日志、回滚日志。</p>
+<p>对于线上数据库应用系统，突然遭遇<font color=orange><code>数据库宕机</code></font>怎么办？在这种情况下，<font color=orange><code>定位宕机的原因</code></font>就非常关键。我们可以查看数据库的<font color=orange><code>错误日志</code></font>。因为日志中记录了数据库运行中的诊断信息，包括了错误、警告和注释等信息。比如：从日志中发现某个连接中的SQL操作发生了死循环，导致内存不足，被系统强行终止了。明确了原因，处理起来也就轻松了，系统很快就恢复了运行。</p>
+<p>除了发现错误，日志在数据复制、数据恢复、操作审计，以及确保数据的永久性和一致性等方面，都有着不可替代的作用。</p>
+<p><font color=Crimson><strong>干万不要小看日志</strong></font>。很多看似奇怪的问题，答案往往就藏在日志里。很多情况下，只有通过查看日志才能发现问题的原因，真正解决问题。所以，一定要学会查看日志，养成检查日志的习惯，对提升你的数据库应用开发能力至关重要。</p>
+<p>MySQL8.0 官网日志地址：“<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/server-logs.html%E2%80%9D">https://dev.mysql.com/doc/refman/8.0/en/server-logs.html”</a></p>
+<h1 id="一、MySQL支持的日志"><a href="#一、MySQL支持的日志" class="headerlink" title="一、MySQL支持的日志"></a>一、MySQL支持的日志</h1><h2 id="1-1-日志类型"><a href="#1-1-日志类型" class="headerlink" title="1.1 日志类型"></a>1.1 日志类型</h2><p>MySQL有不同类型的日志文件，用来存储不同类型的日志，分为 <font color=orange><code>二进制日志 </code></font>、 <font color=orange><code>错误日志</code></font> 、 <font color=orange><code>通用查询日志</code></font>和 <font color=orange><code>慢查询日志</code></font> ，这也是常用的4种。MySQL 8又新增两种支持的日志： <font color=orange><code>中继日志</code></font> 和 <font color=orange><code>数据定义语句日志</code></font> 。使用这些日志文件，可以查看MySQL内部发生的事情。</p>
+<p><font color=Crimson><strong>这6类日志分别为：</strong></font></p>
+<ul>
+<li><p><font color=Crimson><strong>慢查询日志：</strong></font>记录所有执行时间超过long_query_time的所有查询，方便我们对查询进行优化。</p>
+</li>
+<li><p><font color=Crimson><strong>通用查询日志：</strong></font>记录所有连接的起始时间和终止时间，以及连接发送给数据库服务器的所有指令，对我们复原操作的实际场景、发现问题，甚至是对数据库操作的审计都有很大的帮助。</p>
+</li>
+<li><p><font color=Crimson><strong>错误日志：</strong></font>记录MySQL服务的启动、运行或停止MySQL服务时出现的问题，方便我们了解服务器的状态，从而对服务器进行维护。</p>
+</li>
+<li><p><font color=Crimson><strong>二进制日志：</strong></font>记录所有更改数据的语句，可以用于主从服务器之间的数据同步，以及服务器遇到故障时数据的无损失恢复。</p>
+</li>
+<li><p><font color=Crimson><strong>中继日志：</strong></font>用于主从服务器架构中，从服务器用来存放主服务器二进制日志内容的一个中间文件。从服务器通过读取中继日志的内容，来同步主服务器上的操作。</p>
+</li>
+<li><p><font color=Crimson><strong>数据定义语句日志：</strong></font>记录数据定义语句执行的元数据操作。</p>
+</li>
+</ul>
+<p>除二进制日志外，其他日志都是 <font color=orange><code>文本文件</code></font> 。默认情况下，所有日志创建于 <font color=orange><code>MySQL数据目录</code></font> 中。</p>
+<h2 id="1-2-日志的弊端"><a href="#1-2-日志的弊端" class="headerlink" title="1.2 日志的弊端"></a>1.2 日志的弊端</h2><ul>
+<li>日志功能会<font color=orange><code>降低MySQL数据库的性能</code></font> 。例如，在查询非常频繁的MySQL数据库系统中，如果开启了通用查询日志和慢查询日志，MySQL数据库会花费很多时间记录日志。</li>
+<li>日志会<font color=orange><code>占用大量的磁盘空间</code></font> 。对于用户量非常大、操作非常频繁的数据库，日志文件需要的存储空间设置比数据库文件需要的存储空间还要大。</li>
+</ul>
+<h1 id="二、慢查询日志（slow-query-log）"><a href="#二、慢查询日志（slow-query-log）" class="headerlink" title="二、慢查询日志（slow query log）"></a>二、慢查询日志（slow query log）</h1><p>查看《MySQL之性能分析工具的使用》已经详细讲述。</p>
+<h1 id="三、通用查询日志（general-query-log）"><a href="#三、通用查询日志（general-query-log）" class="headerlink" title="三、通用查询日志（general query log）"></a>三、通用查询日志（general query log）</h1><p>通用查询日志用来<font color=orange><code>记录用户的所有操作</code></font>，包括启动和关闭MySQL服务、所有用户的连接开始时间和截止时间、发给MySQL数据库服务器的所有SQL指令等。当我们的数据发生异常时，<font color=Crimson><strong>查看通用查询日志，还原操作时的具体场景</strong></font>，可以帮助我们准确定位问题。</p>
+<h2 id="3-1-问题场景"><a href="#3-1-问题场景" class="headerlink" title="3.1 问题场景"></a>3.1 问题场景</h2><p>在电商系统中，购买商品并且使用微信支付完成以后，却发现支付中心的记录并没有新增，此时用户再次使用支付宝支付，就会出现<font color=orange><code>重复支付</code></font>的问题。但是当去数据库中查询数据的时候，会发现只有一条记录存在。那么此时给到的现象就是只有一条支付记录，但是用户却支付了两次。</p>
+<p>我们对系统进行了仔细检查，没有发现数据问题，因为用户编号和订单编号以及第三方流水号都是对的。可是用户确实支付了两次，这个时候，我们想到了检查通用查询日志，看看当天到底发生了什么。</p>
+<p>查看之后，发现：1月1日下午2点，用户使用微信支付完以后，但是由于网络故障，支付中心没有及时收到微信支付的回调通知，导致当时没有写入数据。1月1日下午2点30，用户又使用支付宝支付，此时记录更新到支付中心。1月1日晚上9点，微信的回调通知过来了，但是支付中心已经存在了支付宝的记录，所以只能覆盖记录了。</p>
+<p>由于网络的原因导致了重复支付。至于解决问题的方案就很多，这里略。</p>
+<p>可以看到通用查询日志可以帮助我们了解操作发生的具体时间和操作细节，对找出异常发生的原因及其关键。</p>
+<h2 id="3-2-查看当前状态"><a href="#3-2-查看当前状态" class="headerlink" title="3.2 查看当前状态"></a>3.2 查看当前状态</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW VARIABLES LIKE &#x27;%general%&#x27;;<br>+------------------+----------------------------+<br>| Variable_name    | Value                      |<br>+------------------+----------------------------+<br>| general_log      | OFF                        | #通用查询日志处于关闭状态<br>| general_log_file | /var/lib/mysql/CentOS7.log | #通用查询日志文件的名称<br>+------------------+----------------------------+<br>2 rows in set (0.07 sec)<br></code></pre></td></tr></table></figure>
+
+<p>说明1：系统变量general_log的值是OFF，即通用查询日志处于关闭状态。在MySQL中，这个参数的<font color=orange><code>默认值是关闭的</code></font>。因为一旦开启记录通用查询日志，MySQL会记录所有的连接起止和相关的SQL操作，这样会消耗系统资源并且占用磁盘空间。我们可以通过手动修改变量的值，在<font color=orange><code>需要的时候开启日志</code></font>。</p>
+<p>说明2：通用查询日志文件的名称是CentOS7.log。存储路径是/var/Iib/mysql/,默认也是数据路径。这样我们就知道在哪里可以查看通用查询日志的内容了。</p>
+<h2 id="3-3-启动日志"><a href="#3-3-启动日志" class="headerlink" title="3.3 启动日志"></a>3.3 启动日志</h2><p>方式1：永久性方式<br>修改my.cnf或者my.ini配置文件来设置。在[mysqld]组下加入log选项，并重启MySQL服务。格式如下：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-attr">general_log</span>=<span class="hljs-string">ON</span><br><span class="hljs-attr">general_log_file</span>=<span class="hljs-string">[path[filename]] #日志文件所在目录路径，filename为日志文件名</span><br></code></pre></td></tr></table></figure>
+
+<p>如果不指定目录和文件名，通用查询日志将默认存储在MySQL数据目录中的hostname.log文件中，<br>hostname表示主机名。</p>
+<p>方式2：临时性方式</p>
+<p>和上方永久性开启的流程是一样的，先是开启通用查询日志功能，然后设置日志的保存位置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET GLOBAL general_log=on;  # 开启通用查询日志<br>SET GLOBAL general_log_file=’path/filename’; # 可以自行设置日志文件保存位置和日志名称<br></code></pre></td></tr></table></figure>
+
+<p>对应的，关闭操作SQL命令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET GLOBAL general_log=off;  # 关闭通用查询日志<br></code></pre></td></tr></table></figure>
+
+<p>查看设置后情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW VARIABLES LIKE &#x27;general_log%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-4-查看日志"><a href="#3-4-查看日志" class="headerlink" title="3.4 查看日志"></a>3.4 查看日志</h2><p>通用查询日志是以 <font color=orange><code>文本文件</code></font> 的形式存储在文件系统中的，可以使用 <font color=orange><code>文本编辑器</code></font> 直接打开日志文件。每台MySQL服务器的通用查询日志内容是不同的。</p>
+<ul>
+<li>在Windows操作系统中，使用文本文件查看器；</li>
+<li>在Linux系统中，可以使用vi工具或者gedit工具查看；</li>
+<li>在Mac OSX系统中，可以使用文本文件查看器或者vi等工具查看。</li>
+</ul>
+<p>从 <font color=orange><code>SHOW VARIABLES LIKE &#39;general_log%&#39;;</code></font> 结果中可以看到通用查询日志的位置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW VARIABLES LIKE &#x27;general_log%&#x27;;<br>+------------------+----------------------------+<br>| Variable_name    | Value                      |<br>+------------------+----------------------------+<br>| general_log      | ON                         |<br>| general_log_file | /var/lib/mysql/CentOS7.log |<br>+------------------+----------------------------+<br>2 rows in set (0.01 sec)<br><br># vim /var/lib/mysql/CentOS7.log<br>/usr/sbin/mysqld, Version: 8.0.32 (MySQL Community Server - GPL). started with:<br>Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock<br>Time                 Id Command    Argument<br>2023-02-17T02:29:23.856518Z        12 Query     SHOW VARIABLES LIKE &#x27;general_log%&#x27;<br>2023-02-17T02:29:36.604028Z        12 Query     SHOW VARIABLES LIKE &#x27;general_log%&#x27;<br>2023-02-17T02:30:42.251494Z        12 Query     show databases<br>2023-02-17T02:30:48.337766Z        12 Query     SELECT DATABASE()<br>2023-02-17T02:30:48.338051Z        12 Init DB   slow_test1<br>2023-02-17T02:30:48.339270Z        12 Query     show databases<br>2023-02-17T02:30:48.340064Z        12 Query     show tables<br>2023-02-17T02:30:48.429956Z        12 Field List        student<br>2023-02-17T02:30:53.598449Z        12 Query     select count(*) from student<br>2023-02-17T02:30:59.446637Z        12 Query     SELECT * FROM student WHERE stuno = 3455655<br>2023-02-17T02:31:05.189208Z        12 Query     SELECT * FROM student WHERE stuno = 3455555<br>2023-02-17T02:32:00.767948Z        12 Query     SELECT * FROM student WHERE name = &#x27;OJdquZ&#x27;<br>2023-02-17T02:32:12.968858Z        12 Query     SELECT * FROM student WHERE name = &#x27;KPROwQ&#x27;<br>2023-02-17T02:32:54.097687Z        12 Query     SHOW VARIABLES LIKE &#x27;general_log%&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>在通用查询日志里面，我们可以清楚地看到，什么时候开启了新的客户端登陆数据库，登录之后做了什么 SQL 操作，针对的是哪个数据表等信息。</p>
+<h2 id="3-5-停止日志"><a href="#3-5-停止日志" class="headerlink" title="3.5 停止日志"></a>3.5 停止日志</h2><p>方式1：永久性方式</p>
+<p>修改 <font color=orange><code>my.cnf</code></font> 或者 <font color=orange><code>my.ini</code></font> 文件，把[mysqld]组下的 <font color=orange><code>general_log</code></font> 值设置为 <font color=orange><code>OFF</code></font> 或者把general_log一项注释掉。修改保存后，再 <font color=orange><code>重启MySQL服务</code></font> ，即可生效。 </p>
+<p>举例1：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-attr">general_log</span>=<span class="hljs-string">OFF</span><br></code></pre></td></tr></table></figure>
+
+<p>举例2：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-comment">#general_log=ON</span><br></code></pre></td></tr></table></figure>
+
+<p>方式2：临时性方式</p>
+<p>使用SET语句停止MySQL通用查询日志功能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET GLOBAL general_log=off;<br></code></pre></td></tr></table></figure>
+
+<p>查询通用日志功能：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW VARIABLES LIKE &#x27;general_log%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="3-6-删除-刷新日志"><a href="#3-6-删除-刷新日志" class="headerlink" title="3.6 删除\刷新日志"></a>3.6 删除\刷新日志</h2><p>如果数据的使用非常频繁，那么通用查询日志会占用服务器非常大的磁盘空间。数据管理员可以删除很长时间之前的查询日志，以保证MySQL服务器上的硬盘空间。</p>
+<p><font color=Crimson><strong>手动删除文件</strong></font></p>
+<p>使用以下命令查看日志文件的位置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW VARIABLES LIKE &#x27;general_log%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>可以看出，通用查询日志的目录默认为MySQL数据目录。在该目录下手动删除通用查询日志即可。</p>
+<p><font color=Crimson><strong>手动刷新文件</strong></font></p>
+<p>使用如下命令重新生成查询日志文件，具体命令如下。刷新MySQL数据目录，发现创建了新的日志文<br>件。前提一定要开启通用日志。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqladmin -uroot -p flush-logs<br></code></pre></td></tr></table></figure>
+
+<p>如果希望备份旧的通用查询日志，就必须先将旧的日志文件复制出来或者改名，然后执行上面的mysqladmin命令。正确流程如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd mysql-data-directory #输入自己的通用日志文件所在目录<br>mv mysql.general.log mysql.general.log.old #指名就的文件名以及新的文件名<br>mysqladmin -uroot -p flush-logs<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="四、错误日志-error-log"><a href="#四、错误日志-error-log" class="headerlink" title="四、错误日志(error log)"></a>四、错误日志(error log)</h1><p>错误日志记录了MySQL服务器启动、停止运行的时间，以及系统启动、运行和停止过程中的诊断信息，包括<font color=orange><code>错误</code></font>、<font color=orange><code>警告</code></font>和<font color=orange><code>提示</code></font>等。</p>
+<p>通过错误日志可以查看系统的运行状态，便于即时发现故障、修复故障。如果MySQL服务<font color=orange><code>出现异常</code></font>，错误日志是发现问题、解决故障的<font color=orange><code>首选</code></font>。</p>
+<h2 id="4-1-启动日志"><a href="#4-1-启动日志" class="headerlink" title="4.1 启动日志"></a>4.1 启动日志</h2><p>在MySQL数据库中，错误日志功能是 <font color=orange><code>默认开启</code></font> 的。而且，错误日志 <font color=orange><code>无法被禁止</code></font> 。</p>
+<p>默认情况下，错误日志存储在MySQL数据库的数据文件夹下，名称默认为 <font color=orange><code>mysqld.log</code></font> （Linux系统）或<font color=orange><code>hostname.err</code></font> （mac系统）。如果需要制定文件名，则需要在my.cnf或者my.ini中做如下配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-meta">log-error</span>=<span class="hljs-string">[path/[filename]] #path为日志文件所在的目录路径，filename为日志文件名</span><br></code></pre></td></tr></table></figure>
+
+<p>修改配置项后，需要重启MySQL服务以生效。</p>
+<h2 id="4-2-查看日志"><a href="#4-2-查看日志" class="headerlink" title="4.2 查看日志"></a>4.2 查看日志</h2><p>MySQL错误日志是以文本文件形式存储的，可以使用文本编辑器直接查看。</p>
+<p>查询错误日志的存储路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW VARIABLES LIKE &#x27;log_err%&#x27;;<br>+----------------------------+----------------------------------------+<br>| Variable_name              | Value                                  |<br>+----------------------------+----------------------------------------+<br>| log_error                  | /var/log/mysqld.log                    |<br>| log_error_services         | log_filter_internal; log_sink_internal |<br>| log_error_suppression_list |                                        |<br>| log_error_verbosity        | 2                                      |<br>+----------------------------+----------------------------------------+<br>4 rows in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<p>执行结果中可以看到错误日志文件是mysqld.log，位于MySQL默认的数据目录下。</p>
+<p>我们查看以下错误日志的内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> tail -f /var/<span class="hljs-built_in">log</span>/mysqld.log</span><br>2023-02-16T09:04:50.666110Z 0 [System] [MY-013172] [Server] Received SHUTDOWN from user &lt;via user signal&gt;. Shutting down mysqld (Version: 8.0.32).<br>2023-02-16T09:04:52.239760Z 0 [System] [MY-010910] [Server] /usr/sbin/mysqld: Shutdown complete (mysqld 8.0.32)  MySQL Community Server - GPL.<br>2023-02-16T09:04:52.578644Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.32) starting as process 1382<br>2023-02-16T09:04:52.583468Z 1 [System] [MY-013576] [InnoDB] InnoDB initialization has started.<br>2023-02-16T09:04:52.906654Z 1 [System] [MY-013577] [InnoDB] InnoDB initialization has ended.<br>2023-02-16T09:04:53.075616Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.<br>2023-02-16T09:04:53.075670Z 0 [System] [MY-013602] [Server] Channel mysql_main configured to support TLS. Encrypted connections are now supported for this channel.<br>2023-02-16T09:04:53.090782Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Bind-address: &#x27;::&#x27; port: 33060, socket: /var/run/mysqld/mysqlx.sock<br>2023-02-16T09:04:53.090842Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: &#x27;8.0.32&#x27;  socket: &#x27;/var/lib/mysql/mysql.sock&#x27;  port: 3306  MySQL Community Server - GPL.<br>2023-02-16T09:06:27.401383Z 9 [Warning] [MY-010055] [Server] IP address &#x27;10.0.0.1&#x27; could not be resolved: Name or service not known<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-3-删除-刷新日志"><a href="#4-3-删除-刷新日志" class="headerlink" title="4.3 删除\刷新日志"></a>4.3 删除\刷新日志</h2><p>对于很久以前的错误日志，数据库管理员查看这些错误日志的可能性不大，可以将这些错误日志删除，以保证MySQL服务器上的 <font color=orange><code>硬盘空间</code></font> 。MySQL的错误日志是以文本文件的形式存储在文件系统中的，可以、<font color=orange><code>直接删除</code></font> 。</p>
+<ul>
+<li>第1步（方式1）：删除操作</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql"># rm -f /var/log/mysqld.log<br></code></pre></td></tr></table></figure>
+
+<p>在运行状态下删除错误日志后，MySQL并不会自动创建日志文件</p>
+<ul>
+<li>第1步（方式2）：重命名文件</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql"># mv /var/log/mysqld.log /var/log/mysqld.log.old<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>第2步：重建日志，可能会报错。如果出现错误按着下面的官方提示操作一遍后在次执行此操作</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql"># mysqladmin -uroot -p flush-logs<br></code></pre></td></tr></table></figure>
+
+<p>官网提示：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-25.png" srcset="/blog/img/loading.gif"></p>
+<p>完整的操作命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mv /var/<span class="hljs-built_in">log</span>/mysqld.log /var/<span class="hljs-built_in">log</span>/mysqld.log.old</span><br><span class="hljs-meta">#</span><span class="bash"> install -omysql -gmysql -m0644 /dev/null /var/<span class="hljs-built_in">log</span>/mysqld.log</span><br><span class="hljs-meta">#</span><span class="bash"> mysqladmin -uroot -p flush-logs</span><br></code></pre></td></tr></table></figure>
+
+<p><font color=orange><code>flush-logs</code></font>指令操作：</p>
+<ul>
+<li><p>MySQL5.5.7以前的版本，flush-logs将错误日志文件重命名为filename.err_old,并创建新的日志文件。</p>
+</li>
+<li><p>从MySQL5.5.7开始，flush-logs只是重新打开日志文件，并不做日志备份和创建的操作。</p>
+</li>
+<li><p>如果日志文件不存在，MySQL启动或者执行flush-logs时会自动创建新的日志文件。重新创建错误日志，大小为0字节。</p>
+</li>
+</ul>
+<h2 id="4-4-MySQL8-0新特性"><a href="#4-4-MySQL8-0新特性" class="headerlink" title="4.4 MySQL8.0新特性"></a>4.4 MySQL8.0新特性</h2><p>MySQL8.0里对错误日志的改进。MySQL8.0的错误日志可以理解为一个全新的日志，在这个版本里，接受了来自社区的广泛批评意见，在这些意见和建议的基础上生成了新的日志。</p>
+<p>下面这些是来自社区的意见：</p>
+<ul>
+<li>默认情况下内容过于冗长</li>
+<li>遗漏了有用的信息</li>
+<li>难以过滤某些信息</li>
+<li>没有标识错误信息的子系统源</li>
+<li>没有错误代码，解析消息需要识别错误</li>
+<li>引导消息可能会丢失</li>
+<li>固定格式</li>
+</ul>
+<p>针对这些意见，MySQL做了如下改变：</p>
+<ul>
+<li>采用组件架构，通过不同的组件执行日志的写入和过滤功能</li>
+<li>写入错误日志的全部信息都具有唯一的错误代码从10000开始</li>
+<li>增加了一个新的消息分类《system》用于在错误日志中始终可见的非错误但服务器状态更改事件的消息</li>
+<li>增加了额外的附加信息，例如关机时的版本信息，谁发起的关机等等</li>
+<li>两种过滤方式，Internal和Dragnet</li>
+<li>三种写入形式，经典、JSON和syseventlog</li>
+</ul>
+<blockquote>
+<p>小结：</p>
+<p>通常情况下，管理员不需要查看错误日志。但是，MySQL服务器发生异常时，管理员可以从错误日志中找到发生异常的时间、原因，然后根据这些信息来解决异常。</p>
+</blockquote>
+<h1 id="五、二进制日志-bin-log"><a href="#五、二进制日志-bin-log" class="headerlink" title="五、二进制日志(bin log)"></a>五、二进制日志(bin log)</h1><p>binlog可以说是MySQL中比较 <font color=orange><code>重要</code></font> 的日志了，在日常开发及运维过程中，经常会遇到。</p>
+<p>binlog即binary log，二进制日志文件，也叫作变更日志（update log）。它记录了数据库所有执行的<br><font color=orange><code>DDL</code></font> 和 <font color=orange><code>DML</code></font> 等数据库更新事件的语句，但是不包含没有修改任何数据的语句（如数据查询语句select、show等）。</p>
+<p>它以事件形式记录并保存在二进制文件中。通过这些信息，我们可以再现数据更新操作的全过程。</p>
+<blockquote>
+<p>如果想要记录所有语句（例如，为了识别有问题的查询），需要使用通用查询日志。</p>
+</blockquote>
+<p>binlog主要应用场景：</p>
+<ul>
+<li>一是用于<font color=orange><code>数据恢复</code></font>，如果MySQL数据库意外停止，可以通过二进制日志文件来查看用户执行了哪些操作，对数据库服务器文件做了哪些修改，然后根据二进制日志文件中的记录来恢复数据库服务器。</li>
+<li>二是用于<font color=orange><code>数据复制</code></font>，由于日志的延续性和时效性，master把它的二进制日志传递给slaves来达到naster-slave数据一致的目的。</li>
+</ul>
+<p>可以说MySQL数据库的<font color=Crimson><strong>数据备份、主备、主主、主从</strong></font>都离不开binlog，需要依靠binlog来同步数据，保证数据一致性。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-26.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="5-1-查看默认情况"><a href="#5-1-查看默认情况" class="headerlink" title="5.1 查看默认情况"></a>5.1 查看默认情况</h2><p>查看记录二进制日志是否开启：在MySQL8中默认情况下，二进制文件是开启的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show variables like &#x27;%log_bin%&#x27;;<br>+---------------------------------+-----------------------------+<br>| Variable_name                   | Value                       |<br>+---------------------------------+-----------------------------+<br>| log_bin                         | ON                          |<br>| log_bin_basename                | /var/lib/mysql/binlog       |<br>| log_bin_index                   | /var/lib/mysql/binlog.index |<br>| log_bin_trust_function_creators | ON                          |<br>| log_bin_use_v1_row_events       | OFF                         |<br>| sql_log_bin                     | ON                          |<br>+---------------------------------+-----------------------------+<br>6 rows in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<p><font color=orange><code>log_bin_basename</code></font>：是binlog日志的基本文件名，后面会追加标识来表示每一个文件</p>
+<p><font color=orange><code>log_bin_index</code></font>：是binlog文件的索引文件，这个文件管理了所有的binlog文件的目录</p>
+<p><font color=orange><code>log_bin_trust_function_creators</code></font>：限制存储过程，前面我们已经讲过了，这是因为二进制日志的一个重要功能是用于主从复制，而存储函数有可能导致主从的数据不一致。所以当开启二进制日志后，需要限制存储函数的创建、修改、调用</p>
+<p><font color=orange><code>log_bin_use_v1_row_events</code></font>：此只读系统变量已弃用。ON表示使用版本1二进制日志行，OFF表示使用版本2二进制日志行(MySQL5.6的默认值为2)。</p>
+<h2 id="5-2-日志参数设置"><a href="#5-2-日志参数设置" class="headerlink" title="5.2 日志参数设置"></a>5.2 日志参数设置</h2><p><font color=Crimson><strong>方式1：永久性方式</strong></font><br>修改MySQL的 my.cnf 或 my.ini 文件可以设置二进制日志的相关参数：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-comment">#启用二进制日志</span><br><span class="hljs-meta">log-bin</span>=<span class="hljs-string">mysql-bin</span><br><span class="hljs-attr">binlog_expire_logs_seconds</span>=<span class="hljs-string">600</span><br><span class="hljs-attr">max_binlog_size</span>=<span class="hljs-string">100M</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>提示：</p>
+<ol>
+<li>log-bin=mysql-bin #打开日志（主机需要打开），这个mysql–bin也可以自定义，这里也可以加上路径如：/home/www/mysql_bin_log/mysql-bin</li>
+<li>binlog_expire_logs_seconds：此参数控制二进制日志文件保留的时长，单位是秒，默认2592000 30天 –144004小时；86400 1天；259200 3天；</li>
+<li>max_binlog_size：控制单个二进制日志大小，当前日志文件大小超过此变量时，执行切换动作。此参数的<font color=orange><code>最大和默认值是1GB</code></font>，该设置并<font color=orange><code>不能严格控制Binlog的大小</code></font>，尤其是Binlog比较靠近最大值而又遇到一个比较大事务时，为了保证事务的完整性，可能不做切换日志的动作，只能将该事务的所有SQL都记录进当前日志，直到事务结束。一般情况下可采取默认值。</li>
+</ol>
+</blockquote>
+<p>重新启动MySQL服务，查询二进制日志的信息，执行结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show variables like &#x27;%log_bin%&#x27;;<br>+---------------------------------+--------------------------------+<br>| Variable_name                   | Value                          |<br>+---------------------------------+--------------------------------+<br>| log_bin                         | ON                             |<br>| log_bin_basename                | /var/lib/mysql/mysql-bin       |<br>| log_bin_index                   | /var/lib/mysql/mysql-bin.index |<br>| log_bin_trust_function_creators | ON                             |<br>| log_bin_use_v1_row_events       | OFF                            |<br>| sql_log_bin                     | ON                             |<br>+---------------------------------+--------------------------------+<br>6 rows in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>提示：</p>
+<p><font color=orange><code>数据库文件最好不要与日志文件放在同一磁盘上</code></font>！这样，当数据库文件所有的磁盘发生故障时，可以使用文件恢复数据。</p>
+</blockquote>
+<p><font color=Crimson><strong>设置带文件夹的bin-log日志存放目录</strong></font></p>
+<p>如果想改变日志文件的目录和名称，可以对my.cnf或my.ini中的log_bin参数修改如下：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-meta">log-bin</span>=<span class="hljs-string">&quot;/data/mysql/mysql-bin&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>注意：新建的文件夹需要使用mysql用户，使用下面的命令即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -Rmysql:mysql /data/mysql/</span><br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>方式2：临时性方式</strong></font><br>如果不希望通过修改配置文件并重启的方式设置二进制日志的话，还可以使用如下指令，需要注意的是在mysql8中只有 会话级别 的设置，没有了global级别的设置。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql"># global 级别<br>mysql&gt; set global sql_log_bin=0;<br>ERROR 1228 (HY000): Variable &#x27;sql_log_bin&#x27; is a SESSION variable and can`t be usedwith SET GLOBAL<br><br># session级别<br>mysql&gt; SET sql_log_bin=0;<br>Query OK, 0 rows affected (0.01 秒)<br></code></pre></td></tr></table></figure>
+
+<h2 id="5-3-查看日志"><a href="#5-3-查看日志" class="headerlink" title="5.3 查看日志"></a>5.3 查看日志</h2><p>当MySQL创建二进制日志文件时，先创建一个以“filename”为名称、以“.index”为后缀的文件，再创建一个以“filename”为名称、以“.000001”为后缀的文件。</p>
+<p>MySQL服务 <font color=orange><code>重新启动一次</code></font> ，以“.000001”为后缀的文件就会增加一个，并且后缀名按1递增。即日志文件的个数与MySQL服务启动的次数相同；如果日志长度超过了 <font color=orange><code>max_binlog_size</code></font> 的上限（默认是1GB），就会创建一个新的日志文件。</p>
+<p>查看当前的二进制日志文件列表及大小。指令如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW BINARY LOGS;<br>+------------------+-----------+-----------+<br>| Log_name         | File_size | Encrypted |<br>+------------------+-----------+-----------+<br>| mysql-bin.000001 |       157 | No        |<br>+------------------+-----------+-----------+<br>1 row in set (0.01 sec)<br></code></pre></td></tr></table></figure>
+
+<p>所有对数据库的修改都会记录在binglog中。但binlog是二进制文件，无法直接查看，想要更直观的观测它就要借助<font color=orange><code>mysqlbinlog</code></font>命令工具了。指令如下：在查看执行，先执行一条SQL语句，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">update student set name=&#x27;张三_back&#x27; where id=1;<br></code></pre></td></tr></table></figure>
+
+<p>开始查看binlog</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlbinlog &quot;/var/lib/mysql/mysql-bin.000002&quot;<br><span class="hljs-meta">#</span><span class="bash"> The proper term is pseudo_replica_mode, but we use this compatibility <span class="hljs-built_in">alias</span></span><br><span class="hljs-meta">#</span><span class="bash"> to make the statement usable on server versions 8.0.24 and older.</span><br>/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/;<br>/*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/;<br>DELIMITER /*!*/;<br><span class="hljs-meta">#</span><span class="bash"> at 4</span><br><span class="hljs-meta">#</span><span class="bash">230217 15:55:18 server id 1  end_log_pos 126 CRC32 0x66910116 	Start: binlog v 4, server v 8.0.32 created 230217 15:55:18</span><br><span class="hljs-meta">#</span><span class="bash"> Warning: this binlog is either <span class="hljs-keyword">in</span> use or was not closed properly.</span><br>BINLOG &#x27;<br>5jLvYw8BAAAAegAAAH4AAAABAAQAOC4wLjMyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA<br>AAAAAAAAAAAAAAAAAAAAAAAAEwANAAgAAAAABAAEAAAAYgAEGggAAAAICAgCAAAACgoKKioAEjQA<br>CigAARYBkWY=<br>&#x27;/*!*/;<br><span class="hljs-meta">#</span><span class="bash"> at 126</span><br><span class="hljs-meta">#</span><span class="bash">230217 15:55:18 server id 1  end_log_pos 157 CRC32 0xdd3e27a9 	Previous-GTIDs</span><br><span class="hljs-meta">#</span><span class="bash"> [empty]</span><br>SET @@SESSION.GTID_NEXT= &#x27;AUTOMATIC&#x27; /* added by mysqlbinlog */ /*!*/;<br>DELIMITER ;<br><span class="hljs-meta">#</span><span class="bash"> End of <span class="hljs-built_in">log</span> file</span><br>/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/;<br>/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;<br></code></pre></td></tr></table></figure>
+
+<p>执行结果可以看到，这是一个简单的日志文件，日志中记录了用户的一些操作，这里并没有出现具体的SQL语句，这是因为binlogi关键字后面的内容是经过编码后的二进制日志。</p>
+<p>这里一个update语句包含如下事件:</p>
+<ul>
+<li>Query事件负责开始一个事务(BEGIN)</li>
+<li>Table_map事件负责映射需要的表</li>
+<li>Update_rows事件负责写入数据</li>
+<li>id事件负责结束事务</li>
+</ul>
+<p>下面命令将行事件以<font color=orange><code>伪SQL的形式</code></font>表现出来</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlbinlog -v &quot;/var/lib/mysql/mysql-bin.000002&quot;<br><span class="hljs-meta">#</span><span class="bash"> The proper term is pseudo_replica_mode, but we use this compatibility <span class="hljs-built_in">alias</span></span><br><span class="hljs-meta">#</span><span class="bash"> to make the statement usable on server versions 8.0.24 and older.</span><br>/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/;<br>/*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/;<br>DELIMITER /*!*/;<br><span class="hljs-meta">#</span><span class="bash"> at 4</span><br><span class="hljs-meta">#</span><span class="bash">230217 15:55:18 server id 1  end_log_pos 126 CRC32 0x66910116 	Start: binlog v 4, server v 8.0.32 created 230217 15:55:18</span><br><span class="hljs-meta">#</span><span class="bash"> Warning: this binlog is either <span class="hljs-keyword">in</span> use or was not closed properly.</span><br>BINLOG &#x27;<br>5jLvYw8BAAAAegAAAH4AAAABAAQAOC4wLjMyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA<br>AAAAAAAAAAAAAAAAAAAAAAAAEwANAAgAAAAABAAEAAAAYgAEGggAAAAICAgCAAAACgoKKioAEjQA<br>CigAARYBkWY=<br>&#x27;/*!*/;<br><span class="hljs-meta">#</span><span class="bash"> at 126</span><br><span class="hljs-meta">#</span><span class="bash">230217 15:55:18 server id 1  end_log_pos 157 CRC32 0xdd3e27a9 	Previous-GTIDs</span><br><span class="hljs-meta">#</span><span class="bash"> [empty]</span><br>SET @@SESSION.GTID_NEXT= &#x27;AUTOMATIC&#x27; /* added by mysqlbinlog */ /*!*/;<br>DELIMITER ;<br><span class="hljs-meta">#</span><span class="bash"> End of <span class="hljs-built_in">log</span> file</span><br>/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/;<br>/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;<br></code></pre></td></tr></table></figure>
+
+<p>前面的命令同时显示binlog格式的语句，使用如下命令不显示它</p>
+<p>对比起来会少了很对看不懂的数据</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlbinlog -v --base64-output=DECODE-ROWS &quot;/var/lib/mysql/mysql-bin.000002&quot;<br><span class="hljs-meta">#</span><span class="bash"> The proper term is pseudo_replica_mode, but we use this compatibility <span class="hljs-built_in">alias</span></span><br><span class="hljs-meta">#</span><span class="bash"> to make the statement usable on server versions 8.0.24 and older.</span><br>/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=1*/;<br>/*!50003 SET @OLD_COMPLETION_TYPE=@@COMPLETION_TYPE,COMPLETION_TYPE=0*/;<br>DELIMITER /*!*/;<br><span class="hljs-meta">#</span><span class="bash"> at 4</span><br><span class="hljs-meta">#</span><span class="bash">230217 15:55:18 server id 1  end_log_pos 126 CRC32 0x66910116 	Start: binlog v 4, server v 8.0.32 created 230217 15:55:18</span><br><span class="hljs-meta">#</span><span class="bash"> Warning: this binlog is either <span class="hljs-keyword">in</span> use or was not closed properly.</span><br><span class="hljs-meta">#</span><span class="bash"> at 126</span><br><span class="hljs-meta">#</span><span class="bash">230217 15:55:18 server id 1  end_log_pos 157 CRC32 0xdd3e27a9 	Previous-GTIDs</span><br><span class="hljs-meta">#</span><span class="bash"> [empty]</span><br>SET @@SESSION.GTID_NEXT= &#x27;AUTOMATIC&#x27; /* added by mysqlbinlog */ /*!*/;<br>DELIMITER ;<br><span class="hljs-meta">#</span><span class="bash"> End of <span class="hljs-built_in">log</span> file</span><br>/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/;<br>/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/;<br></code></pre></td></tr></table></figure>
+
+<p>关于mysqlbinlog工具的使用技巧还有很多，例如只解析对某个库的操作或者某个时间段内的操作等。简单分享几个常用的语句，更多操作可以参考官方文档。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 可查看参数帮助</span><br>mysqlbinlog --no-defaults --help<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 查看最后100行</span><br>mysqlbinlog --no-defaults --base64-output=decode-rows -vv mysql-bin.000002 |tail -100<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> 根据position查找</span><br>mysqlbinlog --no-defaults --base64-output=decode-rows -vv mysql-bin.000002 |grep -A 20 &#x27;4939002&#x27;<br></code></pre></td></tr></table></figure>
+
+<p>上面这种办法读取出binlog日志的全文内容比较多，不容易分辨查看到pos点信息，下面介绍一种更为方便的查询命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show binlog events [IN &#x27;log_name&#x27;] [FROM pos] [LIMIT [offset,] row_count];<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><font color=orange><code>IN &#39;log_name&#39;</code></font> ：指定要查询的binlog文件名（不指定就是第一个binlog文件）</li>
+<li><font color=orange><code>FROM pos</code></font> ：指定从哪个pos起始点开始查起（不指定就是从整个文件首个pos点开始算）</li>
+<li><font color=orange><code>LIMIT [offset]</code></font> ：偏移量(不指定就是0)</li>
+<li><font color=orange><code>row_count</code></font> :查询总条数（不指定就是所有行）</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt;  show binlog events in &#x27;mysql-bin.000001&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>上面这条语句可以将制定的binlog日志文件，分成有效时间行的方式返回，并可使用limit制定pos点的起始便宜查询条数。</p>
+<p>其他举例</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#a、查询第一个最早的pinlog志：<br>show binlog events\G;<br><br>#b、指定查询mysq1-bin.800802这个文件<br>show binlog events in &#x27;mysql-bin.000001&#x27;\G;<br><br>#c、指定查询mysq1-bin.000002这个文件，从pos点：391开始查起：<br>show binlog events in &#x27;mysql-bin.000001&#x27; from 391\G;<br><br>#d、指定查询mysq1-b1n.00002这个文件，从pos点：391开始查起，查询5条（即5条语句）<br>show binlog events in &#x27;mysql-bin.000001&#x27; from 391 limit 5\G;<br></code></pre></td></tr></table></figure>
+
+<p>上面我们讲了这么多都是基于binlog的默认格式，binlog格式查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show variables like &#x27;binlog_format&#x27;;<br>+---------------+-------+<br>| Variable_name | Value |<br>+---------------+-------+<br>| binlog_format | ROW   |<br>+---------------+-------+<br>1 row in set (0.76 sec)<br></code></pre></td></tr></table></figure>
+
+<p>除此之外，binlog还有2种格式，分别是Statement和Mixed</p>
+<ul>
+<li>Statement</li>
+</ul>
+<p>每一条会修改数据的sql都会记录在binlog中。</p>
+<p>优点：不需要记录每一行的变化，减少了binlog日志量，节约了IO，提高性能。</p>
+<ul>
+<li>Row</li>
+</ul>
+<p>5.1.5版本的MySQL才开始支持row level 的复制，它不记录sql语句上下文相关信息，仅保存哪条记录被修改。</p>
+<p>优点：row level 的日志内容会非常清楚的记录下每一行数据修改的细节。而且不会出现某些特定情况下的存储过程，或function，以及trigger的调用和触发无法被正确复制的问题。</p>
+<ul>
+<li>Mixed</li>
+</ul>
+<p>从5.1.8版本开始，MySQL提供了Mixed格式，实际上就是Statement与Row的结合。</p>
+<h2 id="5-4-使用日志恢复数据"><a href="#5-4-使用日志恢复数据" class="headerlink" title="5.4 使用日志恢复数据"></a>5.4 使用日志恢复数据</h2><p>如果MySQL服务器启用了二进制日志，在数据库出现意外丢失数据时，可以使用MySQLbinlog工具从指定的时间点开始（例如，最后一次备份）直到现在或另一个指定的时间点的日志中恢复数据。</p>
+<p>mysqlbinlog恢复数据的语法如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlbinlog [option] filename|mysql –uuser -ppass;<br></code></pre></td></tr></table></figure>
+
+<p>这个命令可以这样理解：使用mysqlbinlog命令来读取filename中的内容，然后使用mysql命令将这些内容恢复到数据库中。</p>
+<ul>
+<li>filename ：是日志文件名。</li>
+<li>option ：可选项，比较重要的两对option参数是–start-date、–stop-date 和 –start-position、–<br>stop-position。<ul>
+<li>–start-date 和 –stop-date ：可以指定恢复数据库的起始时间点和结束时间点。</li>
+<li>–start-position和–stop-position ：可以指定恢复数据的开始位置和结束位置。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>注意：使用mysqlbinlog命令进行恢复操作时，必须是编号小的先恢复，例如mysql-bin.000001必须在mysql-bin.000002之前恢复。</p>
+</blockquote>
+<p>mysqlbinlog命令对于意外操作非常有效，比如因操作不当误删了数据表。</p>
+<h2 id="5-5-删除二进制日志"><a href="#5-5-删除二进制日志" class="headerlink" title="5.5 删除二进制日志"></a>5.5 删除二进制日志</h2><p>MySQL的二进制文件可以配置自动删除，同时MySQL也提供了安全的手动删除二进制文件的方法。<br>PURGE MASTER LOGS 只删除指定部分的二进制日志文件， RESET MASTER 删除所有的二进制日志文件。具体如下：</p>
+<ol>
+<li>PURGE MASTER LOGS：删除指定日志文件</li>
+</ol>
+<p>PURGE MASTER LOGS语法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">PURGE &#123;MASTER | BINARY&#125; LOGS TO ‘指定日志文件名’<br>PURGE &#123;MASTER | BINARY&#125; LOGS BEFORE ‘指定日期’<br></code></pre></td></tr></table></figure>
+
+<p>举例：使用PURGE MASTER LOGS语句删除创建时间比binlog.000005早的所有日志</p>
+<p>(1)多次重新启动MySQL服务，便于生成多个日志文件。然后用SHOW语句显示二进制日志文件列表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW BINARY LOGS;<br></code></pre></td></tr></table></figure>
+
+<p>(2)执行PURGE MASTER LOGST语句删除创建时间比binlog.000005早的所有日志</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">PURGE MASTER LOGS TO &quot;binlog.000005&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>(3)显示二进制日志文件列表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW BINARY LOGS;<br></code></pre></td></tr></table></figure>
+
+<p>比binlog.000005早的所有日志文件都已经被删除了。</p>
+<p>举例：使用PURGE MASTER LOGS语句删除2020年10月25号前创建的所有日志文件。具体步骤如下：</p>
+<p>(1)显示二进制日志文件列表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW BINARY LOGS;<br></code></pre></td></tr></table></figure>
+
+<p>(2)执行mysqlbinlog命令查看二进制日志文件binlog.000005的内容</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqlbinlog --no-defaults &quot;/var/lib/mysql/mysql-bin.000005&quot;<br></code></pre></td></tr></table></figure>
+
+<p>结果可以看出20220105为日志创建的时间，即2022年1月05日。</p>
+<p>(3)使用PURGE MASTER LOGS语句删除2022年1月05日前创建的所有日志文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">PURGE MASTER LOGS before &quot;20220105&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>(4)显示二进制日志文件列表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW BINARY LOGS;<br></code></pre></td></tr></table></figure>
+
+<p>2022年01月05号之前的二进制日志文件都已经被删除，最后一个没有删除，是因为当前在用，还未记录最后的时间，所以未被删除。</p>
+<ol start="2">
+<li>RESET MASTER:删除所有二进制日志文件</li>
+</ol>
+<p>使用<font color=orange><code>RESET MASTER</code></font>语句，清空所有的binlog日志。MySQL会重新创建二进制文件，新的日志文件扩展名将重新从000001开始编号。<font color=orange><code>慎用</code></font>！</p>
+<p>举例：使用RESET MASTER语句删除所有日志文件。</p>
+<p>(1)重启MySQL服务若干次，执行SHOW语句显示二进制日志文件列表。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW BINARY LOGS;<br></code></pre></td></tr></table></figure>
+
+<p>(2)执行RESET MASTER语句，删除所有日志文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">RESET MASTER;<br></code></pre></td></tr></table></figure>
+
+<p>执行完该语句后，原来的所有二进制日志已经全部被删除。</p>
+<h2 id="5-6-其它场景"><a href="#5-6-其它场景" class="headerlink" title="5.6 其它场景"></a>5.6 其它场景</h2><p>二进制日志可以通过数据库的 <font color=orange><code>全量备份</code></font> 和二进制日志中保存的 <font color=orange><code>增量信息</code></font> ，完成数据库的 无损失恢复 。但是，如果遇到数据量大、数据库和数据表很多（比如分库分表的应用）的场景，用二进制日志进行数据恢复，是很有挑战性的，因为起止位置不容易管理。</p>
+<p>在这种情况下，一个有效的解决办法是 <font color=orange><code>配置主从数据库服务器</code></font> ，甚至是 <font color=orange><code>一主多从</code></font> 的架构，把二进制日志文件的内容通过中继日志，同步到从数据库服务器中，这样就可以有效避免数据库故障导致的数据异常等问题。</p>
+<h1 id="六、再谈二进制日志-binlog"><a href="#六、再谈二进制日志-binlog" class="headerlink" title="六、再谈二进制日志(binlog)"></a>六、再谈二进制日志(binlog)</h1><h2 id="6-1-写入机制"><a href="#6-1-写入机制" class="headerlink" title="6.1 写入机制"></a>6.1 写入机制</h2><p>binlog的写入时机也非常简单，事务执行过程中，先把日志写到 <font color=orange><code>binlog cache</code></font>  ，事务提交的时候，再把binlog cache写到binlog文件中。因为一个事务的binlog不能被拆开，无论这个事务多大，也要确保一次性写入，所以系统会给每个线程分配一个块内存作为binlog cache。</p>
+<p>我们可以通过<font color=orange><code>binlog_cache_size</code></font>参数控制单个线程binlog cache大小，如果存储内容超过了这个参数，就要暂存到磁盘(Swap)。binlog日志刷盘流程如下：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-27.png" srcset="/blog/img/loading.gif"></p>
+<p>write和fsync的时机，可以由参数 <font color=orange><code>sync_binlog</code></font> 控制，默认是 <font color=orange><code>0</code></font> 。为0的时候，表示每次提交事务都只write，由系统自行判断什么时候执行fsync。虽然性能得到提升，但是机器宕机，page cache里面的binglog 会丢失。如下图：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-28.png" srcset="/blog/img/loading.gif"></p>
+<p>为了安全起见，可以设置为 <font color=orange><code>1</code></font> ，表示每次提交事务都会执行fsync，就如同<font color=Crimson><strong>redo log</strong></font> 刷盘流程一样。最后还有一种折中方式，可以设置为N(N&gt;1)，表示每次提交事务都write，但累积N个事务后才fsync。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-29.png" srcset="/blog/img/loading.gif"></p>
+<p>在出现IO瓶颈的场景里，将sync_binlog设置成一个比较大的值，可以提升性能。同样的，如果机器宕<br>机，会丢失最近N个事务的binlog日志。</p>
+<h2 id="6-2-binlog与redolog对比"><a href="#6-2-binlog与redolog对比" class="headerlink" title="6.2 binlog与redolog对比"></a>6.2 binlog与redolog对比</h2><ul>
+<li><p>redo log 它是 <font color=orange><code>物理日志</code></font> ，记录内容是“在某个数据页上做了什么修改”，属于 InnoDB 存储引擎层产生的。</p>
+</li>
+<li><p>而 binlog 是 <font color=orange><code>逻辑日志</code></font> ，记录内容是语句的原始逻辑，类似于“给 ID=2 这一行的 c 字段加 1”，属于MySQL Server 层。</p>
+</li>
+</ul>
+<h2 id="6-3-两阶段提交"><a href="#6-3-两阶段提交" class="headerlink" title="6.3 两阶段提交"></a>6.3 两阶段提交</h2><p>在执行更新语句过程，会记录redo log与binlog两块日志，以基本的事务为单位，redo log在事务执行过程中可以不断写入，而binlog只有在提交事务时才写入，所以redo log与binlog的 <font color=orange><code>写入时机</code></font> 不一样。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-30.png" srcset="/blog/img/loading.gif"></p>
+<p><font color=Crimson><strong>redo log与binlog两份日志之间的逻辑不一致，会出现什么问题？</strong></font></p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-31.png" srcset="/blog/img/loading.gif"></p>
+<p>由于binlog没写完就异常，这时候binlog里面没有对应的修改记录。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-32.png" srcset="/blog/img/loading.gif"></p>
+<p>为了解决两份日志之间的逻辑一致问题，InnoDB存储引擎使用<font color=Crimson><strong>两阶段提交</strong></font>方案。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-33.png" srcset="/blog/img/loading.gif"></p>
+<p>使用<font color=Crimson><strong>两阶段提交</strong></font>后，写入binlog时发生异常也不会有影响</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-34.png" srcset="/blog/img/loading.gif"></p>
+<p>另一个场景，redo log设置commit阶段发生异常，那会不会回滚事务呢？</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-35.png" srcset="/blog/img/loading.gif"></p>
+<p>并不会回滚事务，它会执行上图框住的逻辑，虽然redo log是处于prepare阶段，但是能通过事务id找到对应的binlog日志，所以MySQL认为是完整的，就会提交事务恢复数据。</p>
+<h1 id="七、中继日志-relay-log"><a href="#七、中继日志-relay-log" class="headerlink" title="七、中继日志(relay log)"></a>七、中继日志(relay log)</h1><h2 id="7-1-介绍"><a href="#7-1-介绍" class="headerlink" title="7.1 介绍"></a>7.1 介绍</h2><p><font color=Crimson><strong>中继日志只在主从服务器架构的从服务器上存在</strong></font>。从服务器为了与主服务器保持一致，要从主服务器读取二进制日志的内容，并且把读取到的信息写入 <font color=orange><code>本地的日志文件</code></font> 中，这个从服务器本地的日志文件就叫<font color=orange><code>中继日志</code></font> 。然后，从服务器读取中继日志，并根据中继日志的内容对从服务器的数据进行更新，完成主从服务器的 <font color=orange><code>数据同步</code></font> 。</p>
+<p>搭建好主从服务器之后，中继日志默认会保存在从服务器的数据目录下。</p>
+<p>文件名的格式是：  <font color=orange><code>从服务器名 -relay-bin.序号</code></font> 。中继日志还有一个索引文件：  <font color=orange><code>从服务器名 -relay- bin.index</code></font> ，用来定位当前正在使用的中继日志。</p>
+<h2 id="7-2-查看中继日志"><a href="#7-2-查看中继日志" class="headerlink" title="7.2 查看中继日志"></a>7.2 查看中继日志</h2><p>中继日志与二进制日志的格式相同，可以用  <font color=orange><code>mysqlbinlog</code></font> 工具进行查看。下面是中继日志的一个片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SET TIMESTAMP=1618558728/*!*/;<br>BEGIN<br>/*!*/;<br># at 950<br>#210416 15:38:48 server id 1 end_log_pos 832 CRC32 0xcc16d651  Table_map:<br>`atguigu`.`test` mapped to number 91<br># at 1000<br>#210416 15:38:48 server id 1 end_log_pos 872 CRC32 0x07e4047c  Delete_rows: table id<br>91 flags: STMT_END_F  -- server id 1 是主服务器，意思是主服务器删了一行数据<br>BINLOG &#x27;<br>CD95YBMBAAAAMgAAAEADAAAAAFsAAAAAAAEABGRlbW8ABHRlc3QAAQMAAQEBAFHWFsw=<br>CD95YCABAAAAKAAAAGgDAAAAAFsAAAAAAAEAAgAB/wABAAAAfATkBw==<br>&#x27;/*!*/;<br># at 1040<br></code></pre></td></tr></table></figure>
+
+<p>这一段的意思是，主服务器（“server id 1”）对表 atguigu.test 进行了 2 步操作：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs tap">定位到表 atguigu.test 编号是<span class="hljs-number"> 91 </span>的记录，日志位置是 832；<br><br>删除编号是<span class="hljs-number"> 91 </span>的记录，日志位置是 872。<br></code></pre></td></tr></table></figure>
+
+<h2 id="7-3-恢复的典型错误"><a href="#7-3-恢复的典型错误" class="headerlink" title="7.3 恢复的典型错误"></a>7.3 恢复的典型错误</h2><p>如果从服务器宕机，有的时候为了系统恢复，要重装操作系统，这样就可能会导致你的 <font color=orange><code>服务器名称</code></font> 与之前 <font color=orange><code>不同</code></font> 。而中继日志里是 <font color=orange><code>包含从服务器名</code></font> 的。在这种情况下，就可能导致你恢复从服务器的时候，无法从宕机前的中继日志里读取数据，以为是日志文件损坏了，其实是名称不对了。</p>
+<p>解决的方法也很简单，把从服务器的名称改回之前的名称。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/02/17/MySQL%E4%B9%8B%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL之主从复制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/02/16/MySQL%E4%B9%8B%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/">
+                        <span class="hidden-mobile">MySQL之性能分析工具的使用</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

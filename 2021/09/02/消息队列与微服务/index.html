@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      17k 字
+      17.1k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      251
+      252
        分钟
     </span>
   
@@ -239,7 +239,25 @@
 </ol>
 <h2 id="1-4-MQ-分类"><a href="#1-4-MQ-分类" class="headerlink" title="1.4 MQ 分类"></a>1.4 MQ 分类</h2><p>目前主流的消息队列软件有 RabbitMQ、kafka、ActiveMQ、RocketMQ 等，还有小众的消息队列软件如 ZeroMQ、Apache Qpid 等。</p>
 <p>197728723</p>
-<h1 id="二、RabbitMQ"><a href="#二、RabbitMQ" class="headerlink" title="二、RabbitMQ"></a>二、RabbitMQ</h1><p>官方网站</p>
+<h1 id="二、RabbitMQ"><a href="#二、RabbitMQ" class="headerlink" title="二、RabbitMQ"></a>二、RabbitMQ</h1><blockquote>
+<p>RabbitMQ笔记重写</p>
+<ol>
+<li>介绍RabbitMQ</li>
+<li>安装RabbitMQ<ul>
+<li>安装单机版RabbitMQ</li>
+<li>安装集群版RabbitMQ</li>
+</ul>
+</li>
+<li>RabbitMQ插件管理<ul>
+<li>安装WEB插件</li>
+<li>安装联邦插件</li>
+</ul>
+</li>
+<li>RabbitMQ常用命令</li>
+<li>RabbitMQ集群监控</li>
+</ol>
+</blockquote>
+<p>官方网站</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.rabbitmq.com/<br></code></pre></td></tr></table></figure>
 
 <p>阿里云消息队列：</p>
@@ -272,7 +290,10 @@
 </ol>
 <h2 id="2-2-RabbitMQ-中的生产者消费者示例"><a href="#2-2-RabbitMQ-中的生产者消费者示例" class="headerlink" title="2.2 RabbitMQ 中的生产者消费者示例"></a>2.2 RabbitMQ 中的生产者消费者示例</h2><p>生产者发送消息到 broker server（RabbitMQ），在 Broker 内部，用户创建Exchange／Queue，通过 Binding 规则将两者联系在一起，Exchange 分发消息，根据类型／binding 的不同分发策略有区别，消息最后来到 Queue 中，等待消费者取走。</p>
 <p>JMS 是在 2001 年发布的 Java 消息服务（Java Message Service）应用程序接口，是一个 Java 平台中关于面向消息中间件（MOM，message oriented middleware）的 API，用于在两个应用程序之间，或分布式系统中发送消息，进行异步通信。</p>
-<h2 id="2-3-RabbitMQ-单机部署"><a href="#2-3-RabbitMQ-单机部署" class="headerlink" title="2.3 RabbitMQ 单机部署"></a>2.3 RabbitMQ 单机部署</h2><p>官网下载地址：</p>
+<h2 id="2-3-RabbitMQ-单机部署"><a href="#2-3-RabbitMQ-单机部署" class="headerlink" title="2.3 RabbitMQ 单机部署"></a>2.3 RabbitMQ 单机部署</h2><p>rabbitmq的安装方式</p>
+<p>yum/rpm安装</p>
+<p>源码编译</p>
+<p>官网下载地址：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.rabbitmq.com/download.html<br></code></pre></td></tr></table></figure>
 
 <p>github 下载地址：</p>
@@ -320,18 +341,21 @@
 <li>普通模式：创建好 RabbitMQ 集群之后的默认模式。</li>
 <li>镜像模式：把需要的队列做成镜像队列。</li>
 </ol>
+<p><a target="_blank" rel="noopener" href="https://mikechen.cc/25126.html">https://mikechen.cc/25126.html</a></p>
 <p><strong>普通集群模式</strong>：queue 创建之后，如果没有其它 policy，消息实体只存在于其中一个节点，A、B 两个 Rabbitmq 节点仅有相同的元数据，即队列结构，但队列的数据仅保存有一份，即创建该队列的 rabbitmq 节点（A 节点），当消息进入 A 节点的 Queue 中后，consumer 从 B 节点拉取时，RabbitMQ 会临时在 A、B 间进行消息传输，把 A 中的消息实体取出并经过 B 发送给 consumer，所以 consumer 可以连接每一个节点，从中取消息，该模式存在一个问题就是当 A 节点故障后，B节点无法取到 A 节点中还未消费的消息实体。</p>
-<p><strong>镜像集群模式</strong>：</p>
-<p>把需要的队列做成镜像队列，存在于多个节点，属于 RabbitMQ 的 HA 方案（镜<br>像模式是在普通模式的基础上，增加一些镜像策略）</p>
+<p><strong>镜像集群模式</strong>：把需要的队列做成镜像队列，存在于多个节点，属于 RabbitMQ 的 HA 方案（镜像模式是在普通模式的基础上，增加一些镜像策略）</p>
 <p>该模式解决了普通模式中的数据丢失问题，其实质和普通模式不同之处在于，消息实体会主动在镜像节点间同步，而不是在 consumer 取数据时临时拉取，该模式带来的副作用也很明显，除了降低系统性能外，如果镜像队列数量过多，加之大量的消息进入，集群内部的网络带宽将会被这种同步通讯大大消耗掉，所以在对可靠性要求较高的场合中适用，一个队列想做成镜像队列，需要先设置 policy，然后客户端创建队列的时候，rabbitmq 集群根据“队列名称”自动设置是普通集群模式或镜像队列。</p>
 <p>集群中有两种节点类型：</p>
 <ul>
 <li>内存节点：只将数据保存到内存</li>
 <li>磁盘节点：保存数据到内存和磁盘。</li>
 </ul>
-<p>内存节点虽然不写入磁盘，但是它执行比磁盘节点要好，集群中，只需要一个磁盘节点来保存数据就足够了如果集群中只有内存节点，那么不能全部停止它们，否则所有数据消息在服务器全部停机之后都会丢失。</p>
+<p>内存节点虽然不写入磁盘，但是它执行比磁盘节点要好，集群中，只需要一个磁盘节点来保存数据就足够了。如果集群中只有内存节点，那么不能全部停止它们，否则所有数据消息在服务器全部停机之后都会丢失。</p>
 <p>推荐设计架构：</p>
 <p>在一个 rabbitmq 集群里，有 3 台或以上机器，其中 1 台使用磁盘模式，其它节点使用内存模式，内存节点无访问速度更快，由于磁盘 IO 相对较慢，因此可作为数据备份使用。</p>
+<p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/clustering.html">群集指南 — 兔子MQ (rabbitmq.com)</a></p>
+<p>参考博客：</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012702547/article/details/121890003">https://blog.csdn.net/u012702547/article/details/121890003</a></p>
 <h3 id="2-4-1-Ubuntu-1804-安装集群版-RabbitMQ"><a href="#2-4-1-Ubuntu-1804-安装集群版-RabbitMQ" class="headerlink" title="2.4.1 Ubuntu 1804 安装集群版 RabbitMQ"></a>2.4.1 Ubuntu 1804 安装集群版 RabbitMQ</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">集群环境，三台服务器，具体 IP 如下：<br>172.31.2.105 hostname：mq-server1.rlin.net<br>172.31.2.106 hostname：mq-server2.rlin.net<br>172.31.2.107 hostname：mq-server3.rlin.net<br></code></pre></td></tr></table></figure>
 
 <h4 id="2-4-1-1-主机名解析配置"><a href="#2-4-1-1-主机名解析配置" class="headerlink" title="2.4.1.1 主机名解析配置"></a>2.4.1.1 主机名解析配置</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sh">各 MQ 服务器配置本地主机名解析：<br>172.31.2.105 mq-server1 mq-server1.rlin.net<br>172.31.2.106 mq-server2 mq-server2.rlin.net<br>172.31.2.107 mq-server3 mq-server3.rlin.net<br></code></pre></td></tr></table></figure>
@@ -353,7 +377,9 @@
 <p>在 mq-server2 作为内存节点添加到 mq-server3，并作为内存节点，在 mq-server2执行以下命令：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs sh">root@mq-server2:~<span class="hljs-comment"># rabbitmqctl stop_app</span><br>Stopping rabbit application on node rabbit@mq-server2 ...<br><br>root@mq-server2:~<span class="hljs-comment"># rabbitmqctl reset</span><br>Resetting node rabbit@mq-server2 ...<br><br>root@mq-server2:~<span class="hljs-comment"># rabbitmqctl join_cluster rabbit@mq-server3 --ram</span><br>Clustering node rabbit@mq-server2 with rabbit@mq-server3<br><br>root@mq-server2:~<span class="hljs-comment"># rabbitmqctl start_app</span><br>Starting node rabbit@mq-server2 ...<br>completed with 0 plugins.<br></code></pre></td></tr></table></figure>
 
-<h5 id="2-4-1-4-5-将集群设置为镜像模式"><a href="#2-4-1-4-5-将集群设置为镜像模式" class="headerlink" title="2.4.1.4.5 将集群设置为镜像模式"></a>2.4.1.4.5 将集群设置为镜像模式</h5><p>只要在其中一台节点执行以下命令即可：</p>
+<h5 id="2-4-1-4-5-将集群设置为镜像模式"><a href="#2-4-1-4-5-将集群设置为镜像模式" class="headerlink" title="2.4.1.4.5 将集群设置为镜像模式"></a>2.4.1.4.5 将集群设置为镜像模式</h5><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u010833154/article/details/128483642">https://blog.csdn.net/u010833154/article/details/128483642</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.rabbitmq.com/ha.html">https://www.rabbitmq.com/ha.html</a></p>
+<p>只要在其中一台节点执行以下命令即可：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sh">root@mq-server1:~<span class="hljs-comment"># rabbitmqctl set_policy ha-all &quot;#&quot; &#x27;&#123;&quot;ha-mode&quot;:&quot;all&quot;&#125;&#x27;</span><br>Setting policy <span class="hljs-string">&quot;ha-all&quot;</span> <span class="hljs-keyword">for</span> pattern <span class="hljs-string">&quot;#&quot;</span> to <span class="hljs-string">&quot;&#123;&quot;</span>ha-mode<span class="hljs-string">&quot;:&quot;</span>all<span class="hljs-string">&quot;&#125;&quot;</span> with priority <span class="hljs-string">&quot;0&quot;</span> <span class="hljs-keyword">for</span> vhost <span class="hljs-string">&quot;/&quot;</span> ...<br></code></pre></td></tr></table></figure>
 
 <h5 id="2-4-1-4-6-验证当前集群状态"><a href="#2-4-1-4-6-验证当前集群状态" class="headerlink" title="2.4.1.4.6 验证当前集群状态"></a>2.4.1.4.6 验证当前集群状态</h5><p>3.7.X 及早期版本集群状态</p>
@@ -523,6 +549,7 @@
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq24.png" srcset="/blog/img/loading.gif"></p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq25.png" srcset="/blog/img/loading.gif"></p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq26.png" srcset="/blog/img/loading.gif"></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/howeres/article/details/126647953">https://blog.csdn.net/howeres/article/details/126647953</a></p>
 <h1 id="四、kafka"><a href="#四、kafka" class="headerlink" title="四、kafka"></a>四、kafka</h1><p>官方网站：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://kafka.apache.org/<br></code></pre></td></tr></table></figure>
 

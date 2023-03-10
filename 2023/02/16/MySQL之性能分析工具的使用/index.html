@@ -1,0 +1,663 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>MySQL之性能分析工具的使用 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MySQL之性能分析工具的使用">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-02-16 11:29" pubdate>
+        2023年2月16日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.8k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      61
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL之性能分析工具的使用</h1>
+            
+            <div class="markdown-body">
+              <h1 id="MySQL之性能分析工具的使用"><a href="#MySQL之性能分析工具的使用" class="headerlink" title="MySQL之性能分析工具的使用"></a>MySQL之性能分析工具的使用</h1><p>在数据库调优中，我们的目标就是<font color=orange><code>响应时间更快</code></font>，<font color=orange><code>吞吐量更大</code></font>。利用宏观的监控工具和微观的日志分析可以帮我们快速找到调优的思路和方式。</p>
+<h1 id="一、数据库服务器的优化步骤"><a href="#一、数据库服务器的优化步骤" class="headerlink" title="一、数据库服务器的优化步骤"></a>一、数据库服务器的优化步骤</h1><p>当我们遇到数据库调优问题的时候，该如何思考呢？这里把思考的流程整理成下面这张图。</p>
+<p>整个流程划分成了<font color=orange><code>观察(Show status)</code></font>和<font color=orange><code>行动(Action)</code></font>两个部分。字母S的部分代表观察（会使用相应的分析工具)，字母A代表的部分是行动（对应分析可以采取的行动）。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-17.png" srcset="/blog/img/loading.gif"></p>
+<p>我们可以通过观察了解数据库整体的运行状态，通过性能分析工具可以让我们了解执行慢的SQL都有哪些，查看具体的SQL执行计划，甚至是SQL执行中的每一步的成本代价，这样才能定位问题所在，找到了问题，再采取相应的行动。</p>
+<p><font color=Crimson><strong>详细解释一下这张图：</strong></font></p>
+<p>首先在S1部分，我们需要观察服务器的状态是否存在周期性的波动。如果<font color=orange><code>存在周期性波动</code></font>，有可能是周期性节点的原因，比如双十一、促销活动等。这样的话，我们可以通过A1这一步骤解决，也就是加缓存，或者更改缓存失效策略。</p>
+<p>如果缓存策略没有解决，或者不是周期性波动的原因，我们就需要进一步<font color=orange><code>分析查询延迟和卡顿的原因</code></font>。接下来进入S2这一步，我们需要开启慢查询。慢查询可以帮我们位执行慢的SQL语句。我们可以通过设置long_query_time参数定义“慢”的阈值，如果SQL执行时间超过了<font color=orange><code>long_query_time</code></font>，则会认为是慢查询。当收集上来这些慢查询之后，我们就可以通过分析工具对慢查询日志进行分析。</p>
+<p>在S3这一步骤中，我们就知道了执行慢的SQL,这样就可以针对性地用<font color=orange><code>EXPLAIN</code></font>查看对应SQL语句的执行计划，或者使用<font color=orange><code>show profile</code></font>查看SQL中每一个步骤的时间成本。这样我们就可以了解SQL查询慢是因为执行时间长，还是等待时间长。</p>
+<p>如果是SQL等待时间长，我们进入A2步骤。在这一步骤中，我们可以<font color=orange><code>调优服务器的参数</code></font>，比如适当增加数据库缓冲池等。如果是SQL执行时间长，就进入A3步骤，这一步中我们需要考虑是索引设计的问题？还是查询关联的数据表过多？还是因为数据表的字段设计问题导致了这一现象。然后在这些维度上进行对应的调整。</p>
+<p>如果A2和A3都不能解决问题，我们需要考虑数据库自身的SQL查询性能是否已经达到了瓶颈，如果确认没有达到性能瓶颈，就需要重新检查，重复以上的步骤。如果已经达到了<font color=orange><code>性能瓶颈</code></font>，进入A4阶段，需要考虑<font color=orange><code>增加服务器</code></font>，采用<font color=orange><code>读写分离的架构，或者考虑对数据库进行&lt;font color=orange&gt;</code>分库分表`</font>，比如垂直分库、垂直分表和水平分表等。</p>
+<p>以上就是数据库调优的流程思路。如果我们发现执行SQL时存在不规则延迟或卡顿的时候，就可以采用分析工具帮我们定位有问题的SQL,这三种分析工具你可以理解是SQL调优的三个步骤：<font color=orange><code>慢查询</code></font>、<font color=orange><code>EXPLAIN</code></font>和<font color=orange><code>SHOW PROFILING</code></font>。</p>
+<p><font color=Crimson><strong>小结：</strong></font></p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-18.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="二、查看系统性能参数"><a href="#二、查看系统性能参数" class="headerlink" title="二、查看系统性能参数"></a>二、查看系统性能参数</h1><p>在MySQL中，可以使用 <font color=orange><code>SHOW STATUS</code></font> 语句查询一些MySQL数据库服务器的 <font color=orange><code>性能参数</code></font> 、 <font color=orange><code>执行频率</code></font> 。<br>SHOW STATUS语句语法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW [GLOBAL|SESSION] STATUS LIKE &#x27;参数&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>一些常用的性能参数如下：</p>
+<ul>
+<li>Connections：连接MySQL服务器的次数。</li>
+<li>Uptime：MySQL服务器的上线时间。</li>
+<li>Slow_queries：慢查询的次数。 </li>
+<li>Innodb_rows_read：Select查询返回的行数 </li>
+<li>Innodb_rows_inserted：执行INSERT操作插入的行数</li>
+<li>Innodb_rows_updated：执行UPDATE操作更新的行数</li>
+<li>Innodb_rows_deleted：执行DELETE操作删除的行数</li>
+<li>Com_select：查询操作的次数。</li>
+<li>Com_insert：插入操作的次数。对于批量插入的 INSERT 操作，只累加一次。</li>
+<li>Com_update：更新操作的次数。</li>
+<li>Com_delete：删除操作的次数。</li>
+</ul>
+<h1 id="三、统计SQL的查询成本：last-query-cost"><a href="#三、统计SQL的查询成本：last-query-cost" class="headerlink" title="三、统计SQL的查询成本：last_query_cost"></a>三、统计SQL的查询成本：last_query_cost</h1><p>使用student_info表为例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs mysql">CREATE TABLE `student_info` (<br>`id` INT(11) NOT NULL AUTO_INCREMENT,<br>`student_id` INT NOT NULL ,<br>`name` VARCHAR(20) DEFAULT NULL,<br>`course_id` INT NOT NULL ,<br>`class_id` INT(11) DEFAULT NULL,<br>`create_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,<br>PRIMARY KEY (`id`)<br>) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;<br></code></pre></td></tr></table></figure>
+
+<p>如果我们想要查询 id=900001 的记录，然后看下查询成本，我们可以直接在聚簇索引上进行查找：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT student_id, class_id, NAME, create_time FROM student_info<br>WHERE id = 900001;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果（1 条记录，运行时间为 <font color=orange><code>0.042s</code></font> ）</p>
+<p>然后再看下查询优化器的成本，实际上我们只需要检索一个页即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW STATUS LIKE &#x27;last_query_cost&#x27;;<br>+-----------------+----------+<br>| Variable_name   | Value    |<br>+-----------------+----------+<br>| Last_query_cost | 1.000000 |<br>+-----------------+----------+<br></code></pre></td></tr></table></figure>
+
+<p>如果我们想要查询 id 在 900001 到 9000100 之间的学生记录呢？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SELECT student_id, class_id, NAME, create_time FROM student_info<br>WHERE id BETWEEN 900001 AND 900100;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果（100 条记录，运行时间为 <font color=orange><code>0.046s</code></font> ）：</p>
+<p>然后再看下查询优化器的成本，这时我们大概需要进行 20 个页的查询。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SHOW STATUS LIKE &#x27;last_query_cost&#x27;;<br>+-----------------+-----------+<br>| Variable_name   | Value     |<br>+-----------------+-----------+<br>| Last_query_cost | 21.134453 |<br>+-----------------+-----------+<br></code></pre></td></tr></table></figure>
+
+<p>你能看到页的数量是刚才的 20 倍，但是查询的效率并没有明显的变化，实际上这两个 SQL 查询的时间基本上一样，就是因为采用了顺序读取的方式将页面一次性加载到缓冲池中，然后再进行查找。虽然 <font color=orange><code>页数量（last_query_cost）增加了不少</code></font> ，但是通过缓冲池的机制，并 <font color=orange><code>没有增加多少查询时间</code></font> 。</p>
+<p><font color=Crimson><strong>使用场景</strong></font>：它对于比较开销是非常有用的，特别是我们有好几种查询方式可选的时候。</p>
+<h1 id="四、定位执行慢的-SQL：慢查询日志"><a href="#四、定位执行慢的-SQL：慢查询日志" class="headerlink" title="四、定位执行慢的 SQL：慢查询日志"></a>四、定位执行慢的 SQL：慢查询日志</h1><p>MySQL的慢查询日志，用来记录在MySQL中 <font color=orange><code>响应时间超过阀值</code></font> 的语句，具体指运行时间超过 <font color=orange><code>long_query_time</code></font> 值的SQL,则会被记录到慢查询日志中。long_query_time的默认值为<font color=orange><code>10</code></font>，意思是运行10秒以上（不含10秒）的语句，认为是超出了我们的最大忍耐时间值。</p>
+<p>它的主要作用是，帮助我们发现那些执行时间特别长的SQL查询，并且有针对性地进行优化，从而提高系统的整体效率。当我们的数据库服务器发生阻塞、运行变慢的时候，检查一下慢查询日志，找到那些慢查询，对解决问题很有帮助。比如一条sq执行超过5秒钟，我们就算慢SQL，希望能收集超过5秒的sql,结合explain进行全面分析。</p>
+<p>默认情况下，MySQL数据库<font color=orange><code>没有开启慢查询日志</code></font>，需要我们手动来设置这个参数。<font color=Crimson><strong>如果不是调优需要的话，一般不建议启动该参数</strong></font>，因为开启慢查询日志会或多或少带来一定的性能影响。</p>
+<p>慢查询日志支持将日志记录写入文件。</p>
+<h2 id="4-1-开启慢查询日志参数"><a href="#4-1-开启慢查询日志参数" class="headerlink" title="4.1 开启慢查询日志参数"></a>4.1 开启慢查询日志参数</h2><ol>
+<li>开启slow_query_log</li>
+</ol>
+<p>在使用前，我们需要先看下慢查询是否已经开启，使用下面这条命令即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show variables like &#x27;%slow_query_log&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-19.png" srcset="/blog/img/loading.gif"></p>
+<p>我们能看到<font color=orange><code>slow_query_log=0FF</code></font>，我们可以把慢查询日志打开，注意设置变量值的时候需要使用global，否则会报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; set global slow_query_log=&#x27;ON&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>然后我们再来查看下慢插叙日志是否开启，以及慢查询日志文件的位置：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-20.png" srcset="/blog/img/loading.gif"></p>
+<p>你能看到这时慢查询分析已经开启，同时文件保存在 <font color=orange><code>/var/lib/mysql/CentOS7-slow.log</code></font> 文件<br>中。</p>
+<ol start="2">
+<li>修改long_query_time阈值</li>
+</ol>
+<p>接下来我们来看下慢查询的时间阈值设置，使用如下命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql &gt; show variables like &#x27;%long_query_time%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-21.png" srcset="/blog/img/loading.gif"></p>
+<p>这里如果我们想把时间缩短，比如设置为 1 秒，可以这样设置：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#测试发现：设置global的方式对当前session的long_query_time失效。对新连接的客户端有效。所以可以一并执行下述语句<br>mysql&gt; set global long_query_time = 1;<br>mysql&gt; show global variables like &#x27;%long_query_time%&#x27;;<br><br>mysql&gt; set long_query_time=1;<br>mysql&gt; show variables like &#x27;%long_query_time%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>补充：配置文件中一并设置参数</p>
+<p>如下的方式相较于前面的命令行方式，可以看作是永久设置的方式。</p>
+<p>修改<font color=orange><code>my.cnf</code></font>文件，<font color=orange><code>[mysqld]</code></font>下增加或修改参数<font color=orange><code>long_query_time</code></font>、<font color=orange><code>slow_query_log</code></font>和<br><font color=orange><code>slow_query_log_file</code></font>后，然后重启MySQL服务器。</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">[mysqld]</span><br><span class="hljs-attr">slow_query_log</span>=<span class="hljs-string">ON  #开启慢查询日志的开关</span><br><span class="hljs-attr">slow_query_log_file</span>=<span class="hljs-string">/var/lib/mysql/mysql8.0-slow.log #慢查询日志的目录和文件名信息，</span><br><span class="hljs-attr">long_query_time</span>=<span class="hljs-string">3 #设置慢查询的阈值为3秒，超出此设定值的SQL即被记录到慢查询日志</span><br><span class="hljs-attr">log_output</span>=<span class="hljs-string">FILE</span><br></code></pre></td></tr></table></figure>
+
+<p>如果不指定存储路径，慢查询日志将默认存储到MySQL数据库的数据文件夹下。如果不指定文件名，默认文件名为nostname-slow.log。</p>
+<p>注意：修改慢日志文件信息可能会导致mysql不能进行DNS反向解析，解决办法：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.cnblogs.com/lowmanisbusy/p/14128676.html<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="4-2-查看慢查询数目"><a href="#4-2-查看慢查询数目" class="headerlink" title="4.2 查看慢查询数目"></a>4.2 查看慢查询数目</h2><p>查询当前系统中有多少条慢查询记录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW GLOBAL STATUS LIKE &#x27;%Slow_queries%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-3-案例演示"><a href="#4-3-案例演示" class="headerlink" title="4.3 案例演示"></a>4.3 案例演示</h2><p>步骤1：建库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">create database slow_test1;<br></code></pre></td></tr></table></figure>
+
+<p>步骤2：建表</p>
+<p>在新建的表里添加student表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs mysql">CREATE TABLE `student` (<br>`id` INT(11) NOT NULL AUTO_INCREMENT,<br>`stuno` INT NOT NULL ,<br>`name` VARCHAR(20) DEFAULT NULL,<br>`age` INT(3) DEFAULT NULL,<br>`classId` INT(11) DEFAULT NULL,<br>PRIMARY KEY (`id`)<br>) ENGINE=INNODB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;<br></code></pre></td></tr></table></figure>
+
+<p>步骤3：设置参数 log_bin_trust_function_creators</p>
+<p>创建函数，假如报错：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lasso">This function has <span class="hljs-literal">none</span> of DETERMINISTIC<span class="hljs-params">...</span><span class="hljs-params">...</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>命令开启：允许创建函数设置：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">set global log_bin_trust_function_creators=1;   # 不加global只是当前窗口有效。<br></code></pre></td></tr></table></figure>
+
+<p>步骤4：创建函数</p>
+<p>随机产生字符串：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs mysql">DELIMITER //<br>CREATE FUNCTION rand_string(n INT)<br>RETURNS VARCHAR(255) #该函数会返回一个字符串<br>BEGIN<br>	DECLARE chars_str VARCHAR(100) DEFAULT &#x27;abcdefghijklmnopqrstuvwxyzABCDEFJHIJKLMNOPQRSTUVWXYZ&#x27;;<br>	DECLARE return_str VARCHAR(255) DEFAULT &#x27;&#x27;;<br>	DECLARE i INT DEFAULT 0;<br>	WHILE i &lt; n DO <br>       SET return_str =CONCAT(return_str,SUBSTRING(chars_str,FLOOR(1+RAND()*52),1));<br>       SET i = i + 1;<br>    END WHILE;<br>    RETURN return_str;<br>END //<br>DELIMITER ;<br><br>#测试<br>SELECT rand_string(10);<br></code></pre></td></tr></table></figure>
+
+<p>产生随机数值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mysql">DELIMITER //<br>CREATE FUNCTION rand_num (from_num INT ,to_num INT) RETURNS INT(11)<br>BEGIN <br>DECLARE i INT DEFAULT 0; <br>SET i = FLOOR(from_num +RAND()*(to_num - from_num+1));<br>RETURN i; <br>END //<br>DELIMITER;<br><br>#测试：<br>SELECT rand_num(10,100);<br></code></pre></td></tr></table></figure>
+
+<p>步骤5：创建存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs mysql">DELIMITER //<br>CREATE PROCEDURE insert_stu1(START INT,max_num INT )<br>BEGIN  <br>DECLARE i INT DEFAULT 0;   <br> SET autocommit = 0;    #设置手动提交事务<br> REPEAT  #循环<br> SET i = i + 1;  #赋值<br> INSERT INTO student (stuno, name ,age ,classId) VALUES ((START+i),rand_string(6),rand_num(10,100),rand_num(10,1000));  <br>UNTIL i = max_num  <br>END REPEAT;  <br>COMMIT;  #提交事务<br>END//<br>DELIMITER ;<br></code></pre></td></tr></table></figure>
+
+<p>步骤6：调用存储过程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#调用刚刚写好的函数, 4000000条记录,从100001号开始<br><br>CALL insert_stu1(100001,4000000);<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-4-测试及分析"><a href="#4-4-测试及分析" class="headerlink" title="4.4 测试及分析"></a>4.4 测试及分析</h2><p>查看创建的数据的数量是否正确，具体SQL语句如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql">select count(*) from student;<br>+----------+<br>| count(*) |<br>+----------+<br>|  4000000 |<br>+----------+<br>1 row in set (2.40 sec)<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>测试</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; SELECT * FROM student WHERE stuno = 3455655;<br>+---------+---------+--------+------+---------+<br>| id      | stuno   | name   | age  | classId |<br>+---------+---------+--------+------+---------+<br>| 3355654 | 3455655 | OJdquZ |   80 |     903 |<br>+---------+---------+--------+------+---------+<br>1 row in set (3.24 sec)<br><br>mysql&gt; SELECT * FROM student WHERE name = &#x27;OJdquZ&#x27;;<br>+---------+---------+--------+------+---------+<br>| id      | stuno   | name   | age  | classId |<br>+---------+---------+--------+------+---------+<br>|  393650 |  493651 | ojdQUZ |   33 |     362 |<br>|  890895 |  990896 | ojdQUZ |   33 |     344 |<br>| 1137896 | 1237897 | oJDQuz |   33 |     851 |<br>| 1589693 | 1689694 | oJDQuz |   33 |     839 |<br>| 1686344 | 1786345 | ojdQUZ |   35 |     433 |<br>| 2195905 | 2295906 | OJdquZ |   78 |     834 |<br>| 2874598 | 2974599 | oJDQuz |   37 |      46 |<br>| 3191356 | 3291357 | oJDQuz |   35 |     936 |<br>| 3355654 | 3455655 | OJdquZ |   80 |     903 |<br>| 3392755 | 3492756 | OjDqUz |   78 |     319 |<br>| 3537842 | 3637843 | oJDQuz |   37 |      42 |<br>+---------+---------+--------+------+---------+<br>11 rows in set (1.96 sec)<br></code></pre></td></tr></table></figure>
+
+<p>从上面的结果可以看出来，查询学生编号为“3455655”的学生信息花费时间为3.27秒。查询学生姓名为“OJdquZ”的学生信息花费时间为1.96秒。已经达到了秒的数量级，说明目前查询效率是比较低的，下面的小节我们分析一下原因。</p>
+<ol start="2">
+<li>分析</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show status like &#x27;slow_queries&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>补充说明：</p>
+<blockquote>
+<p>除了上述变量，控制慢查询日志的还有一个系统变量：<font color=orange><code>min_examined_row_limit</code></font>。这个变量的意思是，查询<font color=orange><code>扫描过的最少记录数</code></font>。这个变量和查询执行时间，共同组成了判别一个查询是否是慢查询的条件。如果查询扫描过的记录数大于等于这个变量的值，并且查询执行时间超过long_query_time的值，那么，这个查询就被记录到慢查询日志中；反之，则不被记录到慢查询日志中。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysql&gt; show variables like &#x27;min%&#x27;;<br>+------------------------+-------+<br>| Variable_name          | Value |<br>+------------------------+-------+<br>| min_examined_row_limit | 0     |<br>+------------------------+-------+<br>1 row in set (0.40 sec)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这个值默认是0。与long_query_time=10合在一起，表示只要查询的执行时间超过10秒钟，哪怕一个记录也没有扫描过，都要被记录到慢查询日志中。你也可以根据需要，通过修改“my.cnf”文件，来修改查询时长，或者通过SET指令，用SQL语句修改“min_examined_row_limit”的值。</p>
+</blockquote>
+<h2 id="4-5-慢日志分析工具-mysqldumpslow"><a href="#4-5-慢日志分析工具-mysqldumpslow" class="headerlink" title="4.5 慢日志分析工具 mysqldumpslow"></a>4.5 慢日志分析工具 mysqldumpslow</h2><p>在生产环境中，如果要手工分析日志，查找、分析SQL，显然是个体力活，MySQL提供了日志分析工具<font color=orange><code>mysqldumpslow</code></font> 。</p>
+<p>查看mysqldumpslow的帮助信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysqldumpslow --help<br>Usage: mysqldumpslow [ OPTS... ] [ LOGS... ]<br><br>Parse and summarize the MySQL slow query log. Options are<br><br>  --verbose    verbose<br>  --debug      debug<br>  --help       write this text to standard output<br><br>  -v           verbose<br>  -d           debug<br>  -s ORDER     what to sort by (al, at, ar, c, l, r, t), &#x27;at&#x27; is default<br>                al: average lock time<br>                ar: average rows sent<br>                at: average query time<br>                 c: count<br>                 l: lock time<br>                 r: rows sent<br>                 t: query time  <br>  -r           reverse the sort order (largest last instead of first)<br>  -t NUM       just show the top n queries<br>  -a           don&#x27;t abstract all numbers to N and strings to &#x27;S&#x27;<br>  -n NUM       abstract numbers with at least n digits within names<br>  -g PATTERN   grep: only consider stmts that include this string<br>  -h HOSTNAME  hostname of db server for *-slow.log filename (can be wildcard),<br>               default is &#x27;*&#x27;, i.e. match all<br>  -i NAME      name of server instance (if using mysql.server startup script)<br>  -l           don&#x27;t subtract lock time from total time<br></code></pre></td></tr></table></figure>
+
+<p>mysqldumpslow 命令的具体参数如下：</p>
+<ul>
+<li><p>-a: 不将数字抽象成N，字符串抽象成S</p>
+</li>
+<li><p><font color=Crimson>-s: 是表示按照何种方式排序：</font></p>
+<ul>
+<li>c: 访问次数</li>
+<li>l: 锁定时间</li>
+<li>r: 返回记录</li>
+<li><font color=Crimson><strong>t: 查询时间</strong></font></li>
+<li>al:平均锁定时间</li>
+<li>ar:平均返回记录数</li>
+<li>at:平均查询时间 （默认方式）</li>
+<li>ac:平均查询次数</li>
+</ul>
+</li>
+<li><p><font color=Crimson>-t: 即为返回前面多少条的数据；</font></p>
+</li>
+<li><p><font color=Crimson>-g: 后边搭配一个正则匹配模式，大小写不敏感的；</font></p>
+</li>
+</ul>
+<p>举例：我们想要按照查询时间排序，查看前五条 SQL 语句，这样写即可：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">mysqldumpslow -s t -t 5 /var/lib/mysql/CentOS7-slow.log<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs mysql"># mysqldumpslow -s t -t 5 /var/lib/mysql/CentOS7-slow.log <br><br>Reading mysql slow query log from /var/lib/mysql/CentOS7-slow.log<br>Count: 1  Time=296.09s (296s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost<br>  CALL insert_stu1(N,N)<br><br>Count: 1  Time=5.39s (5s)  Lock=0.00s (0s)  Rows=1.0 (1), root[root]@localhost<br>  select count(*) from student<br><br>Count: 1  Time=3.22s (3s)  Lock=0.00s (0s)  Rows=1.0 (1), root[root]@localhost<br>  SELECT * FROM student WHERE stuno = N<br><br>Count: 1  Time=2.00s (2s)  Lock=0.00s (0s)  Rows=11.0 (11), root[root]@localhost<br>  SELECT * FROM student WHERE name = &#x27;S&#x27;<br><br>Died at /usr/bin/mysqldumpslow line 162, &lt;&gt; chunk 4.<br><br>#上方的结果里name=‘S’等等没有显示完整，那加上‘-a’选项就可以显示完整了<br># mysqldumpslow -a -s t -t 5 /var/lib/mysql/CentOS7-slow.log <br><br>Reading mysql slow query log from /var/lib/mysql/CentOS7-slow.log<br>Count: 1  Time=296.09s (296s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost<br>  CALL insert_stu1(100001,4000000)<br><br>Count: 1  Time=5.39s (5s)  Lock=0.00s (0s)  Rows=1.0 (1), root[root]@localhost<br>  select count(*) from student<br><br>Count: 1  Time=3.22s (3s)  Lock=0.00s (0s)  Rows=1.0 (1), root[root]@localhost<br>  SELECT * FROM student WHERE stuno = 3455655<br><br>Count: 1  Time=2.00s (2s)  Lock=0.00s (0s)  Rows=11.0 (11), root[root]@localhost<br>  SELECT * FROM student WHERE name = &#x27;OJdquZ&#x27;<br><br>Died at /usr/bin/mysqldumpslow line 162, &lt;&gt; chunk 4.<br></code></pre></td></tr></table></figure>
+
+<p><font color=Crimson><strong>工作常用参考：</strong></font></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mysql">#得到返回记录集最多的10个SQL<br>mysqldumpslow -s r -t 10 /var/lib/mysql/CentOS7-slow.log<br><br>#得到访问次数最多的10个SQL<br>mysqldumpslow -s c -t 10 /var/lib/mysql/CentOS7-slow.log<br><br>#得到按照时间排序的前10条里面含有左连接的查询语句<br>mysqldumpslow -s t -t 10 -g &quot;left join&quot; /var/lib/mysql/CentOS7-slow.log<br><br>#另外建议在使用这些命令时结合 | 和more 使用 ，否则有可能出现爆屏情况<br>mysqldumpslow -s r -t 10 /var/lib/mysql/CentOS7-slow.log | more<br></code></pre></td></tr></table></figure>
+
+<h2 id="4-7-删除慢查询日志"><a href="#4-7-删除慢查询日志" class="headerlink" title="4.7 删除慢查询日志"></a>4.7 删除慢查询日志</h2><p>使用SHOW语句显示慢查询日志信息，具体SQL语句如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">SHOW VARIABLES LIKE &#x27;slow_query_log%&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>从执行结果可以看出，慢查询日志的目录默认为MySQL的数据目录，在该目录下<font color=orange><code>手动删除慢查询日志文件</code></font>即可。</p>
+<p>使用命令<font color=orange><code>mysqladmin flush-logs</code></font>来重新生成查询日志文件，具体命令如下，执行完毕会在数据目录下重新生成慢查询日志文件。</p>
+<p>具体命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mysqladmin -uroot -p flush-logs slow<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>提示：</p>
+<p>慢查询日志都是使用mysqladmin flush-log命令来删除重建的。使用时一定要注意，一旦执行了这个命令，慢查询日志都只存在新的日志文件中，如果需要旧的查询日志，就必须事先备份。</p>
+</blockquote>
+<p>五、查看SQL执行成本：SHOW PROFILE</p>
+<p>show profile是MySQL提供的可以用来分析当前会话中SQL都做了什么、执行的资源消耗情况工具，可用于sql调优的测量。<font color=orange><code>默认情况下处于关闭状态</code></font>，并保存最近15此的运行结果。</p>
+<p>我们可以在会话级别开启这个功能</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show variables like &#x27;profiling&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>通过设置<font color=orange><code>profiling=‘ON’</code></font>来开启show profile，具体执行的SQL语句如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">set profiling=&#x27;ON&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>然后执行相关的查询语句。接着看下当前会话都有哪些profiles，使用下面这条命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show profiles;<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-22.png" srcset="/blog/img/loading.gif"></p>
+<p>你能看到当前会话一共有多个查询。如果我们想要查看最近一次查询的开销可以使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show profile;<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-23.png" srcset="/blog/img/loading.gif"></p>
+<p>我们也可以查看指定的Query ID的开销，比如<font color=orange><code>show profile for query N</code></font>（N是指之前使用“show profiles”的查询得到的结果，里面的序号，下同）查询结果是一样的。在SHOW PROFILE中我们可以查看不同部分的开销，比如cpu、block.io等：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mysql">show profile cpu,block io for query 3;<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\mysql\mysql-24.png" srcset="/blog/img/loading.gif"></p>
+<p>通过上面的结果，我们可以弄清楚每一步骤的耗时，以及在不同部分，比如CPU、bock.io的执行时间，这样我门就可以判断出来SQL到底慢在哪里</p>
+<p><font color=Crimson><strong>show profile的常用查询参数：</strong></font><br>①ALL：显示所有的开销信息。</p>
+<p>②BLOCK.io：显示块1O开销。</p>
+<p>③CONTEXT SWITCHES：上下文切换开销。</p>
+<p>④CPU：显示CPU开销信息。</p>
+<p>⑤IPC：显示发送和接收开销信息。</p>
+<p>⑥MEMORY：显示内存开销信息。</p>
+<p>⑦PAGE FAULTS：显示页面错误开销信息。</p>
+<p>⑧SOURCE：显示和Source_function，Source_file，Source_line相关的开销信息。</p>
+<p>⑨SWAPS：显示交换次数开销信息</p>
+<p><font color=Crimson><strong>日常开发需注意的结论</strong></font></p>
+<p>①<font color=orange><code>converting HEAP to MyISAM</code></font>：查询结果太大，内存不够，数据往磁盘上搬了。</p>
+<p>②<font color=orange><code>Creating tmp table</code></font>：创建临时表。先拷贝数据到临时表，用完后再删除临时表。</p>
+<p>③<font color=orange><code>Copying to tmp table on disk</code></font>：把内存中l临时表复制到磁盘上，警惕！</p>
+<p>④<font color=orange><code>locked</code></font>。</p>
+<p>如果在show profile诊断结果中出现了以上4条结果中的任何一条，则sql语句需要优化。</p>
+<p><font color=Crimson><strong>注意：</strong></font></p>
+<p>不过SHOW PROFILE命令将被弃用，我们可以从information_schema中的profiling数据表进行查看。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/MySQL/">MySQL</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/02/17/MySQL%E4%B9%8B%E5%85%B6%E4%BB%96%E6%95%B0%E6%8D%AE%E5%BA%93%E6%97%A5%E5%BF%97/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL之其他数据库日志</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/02/12/MySQL%E4%B9%8B%E7%94%A8%E6%88%B7%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/">
+                        <span class="hidden-mobile">MySQL之用户与权限管理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

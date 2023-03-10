@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      3.1k 字
+      4.1k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      46
+      57
        分钟
     </span>
   
@@ -227,13 +227,44 @@
             <h1 style="display: none">Prometheus之Pushgateway介绍与使用（六）</h1>
             
             <div class="markdown-body">
-              <h1 id="Pushgateway介绍与使用"><a href="#Pushgateway介绍与使用" class="headerlink" title="Pushgateway介绍与使用"></a>Pushgateway介绍与使用</h1><h1 id="一、pushgateway介绍"><a href="#一、pushgateway介绍" class="headerlink" title="一、pushgateway介绍"></a>一、pushgateway介绍</h1><p>pushgateway是另一种采用被动推送的方式（exporter是主动获取）获取监控数据的prometheus插件。</p>
-<p><strong>pushgateway是可以单独运行在任何节点上的插件（并不一定要在被监控客户端）</strong>，通过用户自定义开发脚本把需要监控的数据发送给pushgateway，最后pushgateway再把数据推送给prometheus server。</p>
-<p>Pushgateway位于发送指标的应用程序与Prometheus服务器之间，接收指标，同时作为目标被抓取。</p>
-<p>Pushgateway只能用作有限的解决方案使用，特别是监控其他无法访问的资源。</p>
-<p>（pushgateway类似于服务员，客人需要将想吃（采集的数据）的跟服务员说（发送到gateway），再由服务员通知厨师（pushgateway发送到prometheus）</p>
+              <h1 id="Pushgateway介绍与使用"><a href="#Pushgateway介绍与使用" class="headerlink" title="Pushgateway介绍与使用"></a>Pushgateway介绍与使用</h1><h1 id="一、Pushgateway介绍"><a href="#一、Pushgateway介绍" class="headerlink" title="一、Pushgateway介绍"></a>一、Pushgateway介绍</h1><p><strong>什么是pushgateway？</strong></p>
+<p>pushgateway是一种采用被动推送的方式获取监控数据的prometheus组件，它能短期存储指标数据。主要用于临时性的任务，在各个主机上采集的数据都可以发送到pushgateway，最后由prometheus server统一拉取数据。</p>
+<p><strong>pushgateway是可以单独运行在任何节点上的插件（并不一定要在被监控的客户端）</strong>，用户通过自定义脚本把需要监控的数据发送给pushgateway，最后prometheus server到pushgateway拉取数据。</p>
+<p>总结：pushgateway是prometheus的一个组件，是通过被动的方式将数据上传至prometheus，而且pushgateway可以解决prometheus和被监控节点不在同一个网段的问题。</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-163.png" srcset="/blog/img/loading.gif"></p>
-<h1 id="二、pushgateway安装"><a href="#二、pushgateway安装" class="headerlink" title="二、pushgateway安装"></a>二、pushgateway安装</h1><p>pushgateway官方下载地址：</p>
+<p><strong>pushgateway优点</strong></p>
+<ul>
+<li>可以解决prometheus和被监控节点不在同一个子网或者有防火墙不能采集数据的问题。</li>
+<li>可以自定义采集的数据。比如有些公司需要采集某些特定的数据，但是普通的exporter不能满足的时候就可以使用pushgateway来实现。</li>
+</ul>
+<p><strong>pushgateway缺点</strong></p>
+<ul>
+<li>pushgateway单节点部署容器出现单点失败的问题。</li>
+<li>如果采集到旧的数据，我们需要手动清除pushgateway的旧数据。</li>
+</ul>
+<h1 id="二、pushgateway安装"><a href="#二、pushgateway安装" class="headerlink" title="二、pushgateway安装"></a>二、pushgateway安装</h1><p>pushgateway可以安装在任何一个节点上，只要该节点能把数据推送给pushgateway即可。</p>
+<p>本次实验环境如下表：</p>
+<table>
+<thead>
+<tr>
+<th>操作系统</th>
+<th>服务器IP</th>
+<th>安装的软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>centos7.9</td>
+<td>10.0.0.7</td>
+<td>prometheus</td>
+</tr>
+<tr>
+<td>centos7.9</td>
+<td>10.0.0.17</td>
+<td>pushgateway</td>
+</tr>
+</tbody></table>
+<p>本章的实验只需要准备两台服务器，并且在一台服务器上安装并运行prometheus即可。另外的一台服务器就是执行本章的内容安装部署pushgateway。</p>
+<p>pushgateway官方下载地址：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://prometheus.io/download/<br></code></pre></td></tr></table></figure>
 
 <h2 id="2-1-下载pushgateway"><a href="#2-1-下载pushgateway" class="headerlink" title="2.1 下载pushgateway"></a>2.1 下载pushgateway</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"><span class="hljs-built_in">cd</span> /apps</span><br><span class="hljs-meta">#</span><span class="bash"> wget https://github.com/prometheus/pushgateway/releases/download/v1.5.1/pushgateway-1.5.1.linux-amd64.tar.gz</span><br></code></pre></td></tr></table></figure>
@@ -242,73 +273,60 @@
 
 
 
-<h1 id="三、prometheus配置pushgateway"><a href="#三、prometheus配置pushgateway" class="headerlink" title="三、prometheus配置pushgateway"></a>三、prometheus配置pushgateway</h1><p>进入prometheus的安装目录，修改prometheus的配置文件<code>prometheus.yml</code>。在<code>scrape_configs</code>里添加一个job。</p>
+<h1 id="三、prometheus添加pushgateway实例"><a href="#三、prometheus添加pushgateway实例" class="headerlink" title="三、prometheus添加pushgateway实例"></a>三、prometheus添加pushgateway实例</h1><p>进入prometheus的安装目录，修改prometheus的配置文件<code>prometheus.yml</code>。在<code>scrape_configs</code>里添加一个job。</p>
 <h2 id="3-1-添加配置"><a href="#3-1-添加配置" class="headerlink" title="3.1 添加配置"></a>3.1 添加配置</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># cd /apps/prometheus</span><br><span class="hljs-comment"># vim prometheus.yml</span><br><span class="hljs-string">......</span><br><span class="hljs-attr">scrape_configs:</span><br><span class="hljs-string">......</span><br><span class="hljs-comment">#根据pushgateway部署的个数添加job和target</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&quot;prometheus-gateway&quot;</span><br>    <span class="hljs-attr">honor_labels:</span> <span class="hljs-literal">true</span><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">targets:[&quot;10.0.0.7:9091&quot;]</span><br>    <span class="hljs-attr">honor_labels:</span> <span class="hljs-literal">true</span><br></code></pre></td></tr></table></figure>
 
 <p>解释：</p>
 <p><code>honor_labels: true</code>：Prometheus使用Pushgateway上的job和instance标签，否则会在前面加上exported_前缀。</p>
+<p>注意：pushgateway默认端口为：9091。所以target里的目标端口写“9091”。</p>
 <h2 id="3-2-检查语法"><a href="#3-2-检查语法" class="headerlink" title="3.2 检查语法"></a>3.2 检查语法</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span> <br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
 
-<h2 id="3-3-重启prometheus-server"><a href="#3-3-重启prometheus-server" class="headerlink" title="3.3 重启prometheus server"></a>3.3 重启prometheus server</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+<h2 id="3-3-prometheus重新读取配置文件"><a href="#3-3-prometheus重新读取配置文件" class="headerlink" title="3.3 prometheus重新读取配置文件"></a>3.3 prometheus重新读取配置文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
 
 
 
-<h1 id="四、启动pushgateway"><a href="#四、启动pushgateway" class="headerlink" title="四、启动pushgateway"></a>四、启动pushgateway</h1><h2 id="4-1-前台启动pushgateway"><a href="#4-1-前台启动pushgateway" class="headerlink" title="4.1 前台启动pushgateway"></a>4.1 前台启动pushgateway</h2><p>进入pushgateway</p>
+<h1 id="四、启动pushgateway"><a href="#四、启动pushgateway" class="headerlink" title="四、启动pushgateway"></a>四、启动pushgateway</h1><h2 id="4-1-前台启动pushgateway"><a href="#4-1-前台启动pushgateway" class="headerlink" title="4.1 前台启动pushgateway"></a>4.1 前台启动pushgateway</h2><p>首先演示如何前台启动pushgateway。</p>
+<p>进入安装了pushgateway的目录，执行里面的<code>pushgateway</code>的二进制文件。</p>
+<p>可以通过标准输出的日志，看出pushgateway的监听端口是：9091。同时我们在上一节中prometheus添加的实例的端口也为“9091”，可以说此时prometheus已经连接上了pushgateway了。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus-pushgateway</span><br><span class="hljs-meta">#</span><span class="bash"> ./pushgateway</span><br>ts=2023-01-09T03:28:50.487Z caller=main.go:100 level=info msg=&quot;starting pushgateway&quot; version=&quot;(version=1.5.1, branch=HEAD, revision=7afc96cfc5e2b278f3b20e56968ff30eea22b70e)&quot;<br>ts=2023-01-09T03:28:50.487Z caller=main.go:101 level=info build_context=&quot;(go=go1.19.3, user=root@fc81889ee1a6, date=20221129-16:30:38)&quot;<br>ts=2023-01-09T03:28:50.491Z caller=tls_config.go:232 level=info msg=&quot;Listening on&quot; address=[::]:9091<br>ts=2023-01-09T03:28:50.491Z caller=tls_config.go:235 level=info msg=&quot;TLS is disabled.&quot; http2=false address=[::]:9091<br></code></pre></td></tr></table></figure>
 
 <p>查看端口和进程</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:3000                                     [::]:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*                  <br>LISTEN     0      128                          [::]:9091                                     [::]:*                  <br>LISTEN     0      128                          [::]:9100                                     [::]:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> ps -ef | grep pushgateway</span><br>root      22795  22503  0 11:28 pts/0    00:00:00 ./pushgateway<br>root      22817  22649  0 11:31 pts/1    00:00:00 grep --color=auto pushgateway<br></code></pre></td></tr></table></figure>
 
-<h2 id="4-2-后台启动pushgateway"><a href="#4-2-后台启动pushgateway" class="headerlink" title="4.2 后台启动pushgateway"></a>4.2 后台启动pushgateway</h2><ol>
-<li>添加pushgateway的service文件</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim usr/lib/systemd/system/prometheus-pushgateway.service</span><br>[Unit]<br>Description=Prometheus exporter for ephemereal jobs<br>Documentation=https://prometheus.io/docs/instrumenting/pushing/<br>After=network.target<br><br>[Service]<br>User=prometheus<br>ExecStart=/apps/prometheus-pushgateway/pushgateway --persistence.file=&quot;/apps/prometheus-pushgateway/data/pushgateway.data&quot;<br><br>[Install]<br>WantedBy=multi-user.target<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/prometheus-pushgateway/data/</span><br><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-pushgateway</span><br></code></pre></td></tr></table></figure>
+<h2 id="4-2-后台启动pushgateway"><a href="#4-2-后台启动pushgateway" class="headerlink" title="4.2 后台启动pushgateway"></a>4.2 后台启动pushgateway</h2><h3 id="4-2-1-添加pushgateway的service文件"><a href="#4-2-1-添加pushgateway的service文件" class="headerlink" title="4.2.1 添加pushgateway的service文件"></a>4.2.1 添加pushgateway的service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim usr/lib/systemd/system/prometheus-pushgateway.service</span><br>[Unit]<br>Description=Prometheus exporter for ephemereal jobs<br>Documentation=https://prometheus.io/docs/instrumenting/pushing/<br>After=network.target<br><br>[Service]<br>User=prometheus<br>ExecStart=/apps/prometheus-pushgateway/pushgateway --persistence.file=&quot;/apps/prometheus-pushgateway/data/pushgateway.data&quot;<br><br>[Install]<br>WantedBy=multi-user.target<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/prometheus-pushgateway/data/</span><br><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/prometheus-pushgateway</span><br></code></pre></td></tr></table></figure>
 
 <p>解释：</p>
-<p><code>--persistence.file</code>：指标持久化到路径。默认情况下，pushgateway所有指标存储在内存中，如果pushgateway停止服务或者重新启动，所有数据将会丢失。</p>
-<ol start="2">
-<li>创建prometheus用户</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
+<p><code>--persistence.file</code>：指持久化到路径。默认情况下，pushgateway所有指标存储在内存中，如果pushgateway停止服务或者重新启动，所有数据将会丢失。</p>
+<h3 id="4-2-2-创建prometheus用户"><a href="#4-2-2-创建prometheus用户" class="headerlink" title="4.2.2 创建prometheus用户"></a>4.2.2 创建prometheus用户</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin prometheus</span><br></code></pre></td></tr></table></figure>
 
-<ol start="3">
-<li>创建数据持久化文件夹</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir /apps/prometheus-pushgateway/data</span><br></code></pre></td></tr></table></figure>
+<h3 id="4-2-3-创建数据持久化文件夹"><a href="#4-2-3-创建数据持久化文件夹" class="headerlink" title="4.2.3 创建数据持久化文件夹"></a>4.2.3 创建数据持久化文件夹</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/prometheus-pushgateway/data</span><br></code></pre></td></tr></table></figure>
 
-<ol start="4">
-<li>修改pushgateway的所属主和所属组</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/pushgateway-1.5.1.linux-amd64</span><br></code></pre></td></tr></table></figure>
+<h3 id="4-2-4-修改pushgateway的所属主和所属组"><a href="#4-2-4-修改pushgateway的所属主和所属组" class="headerlink" title="4.2.4 修改pushgateway的所属主和所属组"></a>4.2.4 修改pushgateway的所属主和所属组</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R prometheus.prometheus /apps/pushgateway-1.5.1.linux-amd64</span><br></code></pre></td></tr></table></figure>
 
-<ol start="4">
-<li>启动pushgateway，并设置开机启动</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-pushgateway.service</span> <br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> prometheus-pushgateway.service</span> <br>Created symlink from /etc/systemd/system/multi-user.target.wants/prometheus-pushgateway.service to /usr/lib/systemd/system/prometheus-pushgateway.service.<br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-R</code>：递归修改目录下的文件的所属。</p>
+<h3 id="4-2-5-启动pushgateway，并设置开机启动"><a href="#4-2-5-启动pushgateway，并设置开机启动" class="headerlink" title="4.2.5 启动pushgateway，并设置开机启动"></a>4.2.5 启动pushgateway，并设置开机启动</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start prometheus-pushgateway.service</span> <br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> prometheus-pushgateway.service</span> <br>Created symlink from /etc/systemd/system/multi-user.target.wants/prometheus-pushgateway.service to /usr/lib/systemd/system/prometheus-pushgateway.service.<br></code></pre></td></tr></table></figure>
 
-<ol start="5">
-<li>查看pushgateway的状态，端口和进程</li>
-</ol>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl status prometheus-pushgateway.service</span> <br>● prometheus-pushgateway.service - Prometheus exporter for ephemereal jobs<br>   Loaded: loaded (/usr/lib/systemd/system/prometheus-pushgateway.service; enabled; vendor preset: disabled)<br>   Active: active (running) since Mon 2023-01-09 11:37:20 CST; 34s ago<br>     Docs: https://prometheus.io/docs/instrumenting/pushing/<br> Main PID: 22898 (pushgateway)<br>   CGroup: /system.slice/prometheus-pushgateway.service<br>           └─22898 /apps/prometheus-pushgateway/pushgateway --persistence.file=&quot;/apps/prometheus-pushgateway/data/pushgateway.data&quot;<br><br>Jan 09 11:37:20 prometheus-server systemd[1]: Started Prometheus exporter for ephemereal jobs.<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.283Z caller=main.go:100 level=info...0e)&quot;<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.283Z caller=main.go:101 level=info...38)&quot;<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.286Z caller=tls_config.go:232 leve...9091<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.286Z caller=tls_config.go:235 leve...9091<br>Hint: Some lines were ellipsized, use -l to show in full.<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:3000                                     [::]:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*                  <br>LISTEN     0      128                          [::]:9091                                     [::]:*                  <br>LISTEN     0      128                          [::]:9100                                     [::]:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*                  <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> ps -ef |grep pushgateway</span><br>prometh+  22898      1  0 11:37 ?        00:00:00 /apps/prometheus-pushgateway/pushgateway<br>root      22951  22503  0 11:38 pts/0    00:00:00 grep --color=auto pushgateway<br></code></pre></td></tr></table></figure>
+<h3 id="4-2-6-查看pushgateway的状态，端口和进程"><a href="#4-2-6-查看pushgateway的状态，端口和进程" class="headerlink" title="4.2.6 查看pushgateway的状态，端口和进程"></a>4.2.6 查看pushgateway的状态，端口和进程</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl status prometheus-pushgateway.service</span> <br>● prometheus-pushgateway.service - Prometheus exporter for ephemereal jobs<br>   Loaded: loaded (/usr/lib/systemd/system/prometheus-pushgateway.service; enabled; vendor preset: disabled)<br>   Active: active (running) since Mon 2023-01-09 11:37:20 CST; 34s ago<br>     Docs: https://prometheus.io/docs/instrumenting/pushing/<br> Main PID: 22898 (pushgateway)<br>   CGroup: /system.slice/prometheus-pushgateway.service<br>           └─22898 /apps/prometheus-pushgateway/pushgateway --persistence.file=&quot;/apps/prometheus-pushgateway/data/pushgateway.data&quot;<br><br>Jan 09 11:37:20 prometheus-server systemd[1]: Started Prometheus exporter for ephemereal jobs.<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.283Z caller=main.go:100 level=info...0e)&quot;<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.283Z caller=main.go:101 level=info...38)&quot;<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.286Z caller=tls_config.go:232 leve...9091<br>Jan 09 11:37:20 prometheus-server pushgateway[22898]: ts=2023-01-09T03:37:20.286Z caller=tls_config.go:235 leve...9091<br>Hint: Some lines were ellipsized, use -l to show in full.<br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> ss -tnl</span><br>State      Recv-Q Send-Q              Local Address:Port                             Peer Address:Port              <br>LISTEN     0      128                             *:22                                          *:*                  <br>LISTEN     0      128                          [::]:3000                                     [::]:*                  <br>LISTEN     0      128                          [::]:9090                                     [::]:*                  <br>LISTEN     0      128                          [::]:9091                                     [::]:*                  <br>LISTEN     0      128                          [::]:9100                                     [::]:*                  <br>LISTEN     0      128                          [::]:22                                       [::]:*                  <br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> ps -ef |grep pushgateway</span><br>prometh+  22898      1  0 11:37 ?        00:00:00 /apps/prometheus-pushgateway/pushgateway<br>root      22951  22503  0 11:38 pts/0    00:00:00 grep --color=auto pushgateway<br></code></pre></td></tr></table></figure>
 
-<ol start="6">
-<li>使用curl命令查看在还没有发送数据给pushgateway之前pushgateway手机了什么数据</li>
-</ol>
+<h3 id="2-4-7-使用curl命令查看pushgateway采集的数据"><a href="#2-4-7-使用curl命令查看pushgateway采集的数据" class="headerlink" title="2.4.7 使用curl命令查看pushgateway采集的数据"></a>2.4.7 使用curl命令查看pushgateway采集的数据</h3><p>在还没有发送数据给pushgateway之前，看看pushgateway采集了什么数据。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> curl localhost:9091/metrics</span> <br><span class="hljs-meta">#</span><span class="bash"> HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.</span><br><span class="hljs-meta">#</span><span class="bash"> TYPE go_gc_duration_seconds summary</span><br>go_gc_duration_seconds&#123;quantile=&quot;0&quot;&#125; 2.7211e-05<br>go_gc_duration_seconds&#123;quantile=&quot;0.25&quot;&#125; 0.000102569<br>go_gc_duration_seconds&#123;quantile=&quot;0.5&quot;&#125; 0.000139398<br>go_gc_duration_seconds&#123;quantile=&quot;0.75&quot;&#125; 0.000318368<br>go_gc_duration_seconds&#123;quantile=&quot;1&quot;&#125; 0.000989701<br>go_gc_duration_seconds_sum 0.029289171<br>go_gc_duration_seconds_count 116<br><span class="hljs-meta">#</span><span class="bash"> HELP go_goroutines Number of goroutines that currently exist.</span><br><span class="hljs-meta">#</span><span class="bash"> TYPE go_goroutines gauge</span><br>go_goroutines 12<br><span class="hljs-meta">#</span><span class="bash"> HELP go_info Information about the Go environment.</span><br><span class="hljs-meta">#</span><span class="bash"> TYPE go_info gauge</span><br>go_info&#123;version=&quot;go1.19.3&quot;&#125; 1<br><span class="hljs-meta">#</span><span class="bash"> HELP go_memstats_alloc_bytes Number of bytes allocated and still <span class="hljs-keyword">in</span> use.</span><br><span class="hljs-meta">#</span><span class="bash"> TYPE go_memstats_alloc_bytes gauge</span><br>go_memstats_alloc_bytes 8.136712e+06<br><span class="hljs-meta">#</span><span class="bash"> HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even <span class="hljs-keyword">if</span> freed.</span><br><span class="hljs-meta">#</span><span class="bash"> TYPE go_memstats_alloc_bytes_total counter</span><br>go_memstats_alloc_bytes_total 2.83321032e+08<br><span class="hljs-meta">#</span><span class="bash"> HELP go_memstats_buck_hash_sys_bytes Number of bytes used by the profiling bucket <span class="hljs-built_in">hash</span> table.</span><br><span class="hljs-meta">#</span><span class="bash"> TYPE go_memstats_buck_hash_sys_bytes gauge</span><br>go_memstats_buck_hash_sys_bytes 1.463179e+06<br>......<br></code></pre></td></tr></table></figure>
 
-<p>也可以通过浏览器查看，浏览器访问：</p>
+<p>当然，我们也可以通过浏览器查看，浏览器访问：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">pushgateway_ip:9091<br></code></pre></td></tr></table></figure>
 
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-87.png" srcset="/blog/img/loading.gif"></p>
-<h1 id="五、进入prometheus页面查看pushgateway状态"><a href="#五、进入prometheus页面查看pushgateway状态" class="headerlink" title="五、进入prometheus页面查看pushgateway状态"></a>五、进入prometheus页面查看pushgateway状态</h1><p>浏览器访问：</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">ip:9090<br></code></pre></td></tr></table></figure>
+<h1 id="五、进入prometheus页面查看pushgateway状态"><a href="#五、进入prometheus页面查看pushgateway状态" class="headerlink" title="五、进入prometheus页面查看pushgateway状态"></a>五、进入prometheus页面查看pushgateway状态</h1><p>我们可以通过prometheus的Tarrgets页面来查看prometheus是否有连上pushgateway，浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">prometheus_IP:9090<br></code></pre></td></tr></table></figure>
 
 <p>点击“Status”，点击“Targets”</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-85.png" srcset="/blog/img/loading.gif"></p>
-<p>可以看到我们启动的pushgateway正在运行</p>
+<p>可以从下图看到prometheus能正常连接上pushgateway。</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-86.png" srcset="/blog/img/loading.gif"></p>
-<p>同时也可以访问pushgateway的web来查看pushgateway的状态</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">pushgateway:9091<br></code></pre></td></tr></table></figure>
+<p>同时也可以访问pushgateway的web页面来查看pushgateway的状态。</p>
+<p>再次提醒：pushgateway的端口为9091。</p>
+<p>浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">pushgateway_ip:9091<br></code></pre></td></tr></table></figure>
 
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-94.png" srcset="/blog/img/loading.gif"></p>
 <h1 id="六、使用pushgateway推送数据"><a href="#六、使用pushgateway推送数据" class="headerlink" title="六、使用pushgateway推送数据"></a>六、使用pushgateway推送数据</h1><p>使用 Prometheus 文本协议，推送指标也是非常简单的，无需提供单独的 CLI。只需使用 <code>curl</code> 之类的命令行工具即可。</p>
@@ -317,9 +335,9 @@
 <p>默认的 URL 地址为：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://&lt;ip&gt;:9091/metrics/job/&lt;JOBNAME&gt;&#123;/&lt;LABEL_NAME&gt;/&lt;LABEL_VALUE&gt;&#125;<br></code></pre></td></tr></table></figure>
 
-<p>其中<JOBNAME>是必填项，为job标签值，后面可以跟任意数量的标签对，一般我们会添加一个<code>instance/&lt;INSTANCE_NAME&gt;</code>实例名称标签，来方面区分各个指标。</p>
+<p>其中<code>&lt;JOBNAME&gt;</code>是必填项，为job标签值，后面可以跟任意数量的标签对，一般我们会添加一个<code>instance/&lt;INSTANCE_NAME&gt;</code>实例名称标签，来方便区分各个指标。</p>
 <h2 id="6-1-发送数据到pushgateway"><a href="#6-1-发送数据到pushgateway" class="headerlink" title="6.1 发送数据到pushgateway"></a>6.1 发送数据到pushgateway</h2><p>举例1：</p>
-<p>将单个样本推送到由 <code>&#123;jobname=&quot;prometheus-pushgateway&quot;&#125;</code> 标识的组中：</p>
+<p>将单个样本推送到由 <code>prometheus-pushgateway</code> 标识的组中：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">echo &quot;some_metric 3.14&quot; | curl --data-binary @- http://localhost:9091/metrics/job/prometheus-pushgateway<br></code></pre></td></tr></table></figure>
 
 <p>解释：</p>
@@ -328,47 +346,71 @@
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://wenxueliu.github.io/blog/08/19/2014/curl<br></code></pre></td></tr></table></figure>
 
 <p><code>--data-binary</code>：表示发送二进制数据，注意：它是使用POST方式发送的。</p>
-<p><code>http:.../job/</code>：这里的job是必要在字段</p>
-<p><code>http:.../prometheus-pushgateway</code>：这里的“prometheus-gateway”是job的名称</p>
-<p><strong>注意：由于没有提供类型信息， 所以这里的 <code>some_metric</code> 将是 <code>UNTYPED</code> 无类型的。</strong></p>
+<p><code>/job/</code>：这里的job是必要在字段</p>
+<p><code>prometheus-pushgateway</code>：这里的“prometheus-gateway”是job的名称</p>
+<p>注意：</p>
+<ol>
+<li>由于没有提供类型信息， 所以这里的 <code>some_metric</code> 将是 <code>UNTYPED</code> 无类型的。</li>
+<li>因为是在安装了pushgateway的机器上使用curl命令，所以host写成localhost。如果不在安装了pushgateway服务器执行curl命令，那么host就要写为安装了pushgateway的服务器地址。</li>
+</ol>
 <p>从prometheus里查看推送给pushgateway的数据</p>
+<p>（对应了上方的解释，job=“prometheus-gateway”）</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-88.png" srcset="/blog/img/loading.gif"></p>
 <p>举例2：</p>
-<p>接下来我们再推送一些相对复杂的指标，推到 <code>&#123;jobname=&quot;some_job&quot;,instance=&quot;some_instance&quot;&#125;</code> 标识的分组中去。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat &lt;&lt;EOF | curl --data-binary @- http://localhost:9091/metrics/job/some_job/instance/some_instance<br><span class="hljs-meta">#</span><span class="bash"> TYPE metric counter</span><br>metric&#123;label=&quot;val1&quot;&#125; 42<br><span class="hljs-meta">#</span><span class="bash"> TYPE another_metric gauge</span><br><span class="hljs-meta">#</span><span class="bash"> HELP another_metric Just an example.</span><br>another_metric 2398.283<br>EOF<br></code></pre></td></tr></table></figure>
+<p>接下来我们再推送一些相对复杂的指标，推到 <code>job/some_job/instance/some_instance</code> 标识的分组中去。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell">cat &lt;&lt;EOF | curl --data-binary @- http://localhost:9091/metrics/job/some_job/instance/some_instance<br><span class="hljs-meta">#</span><span class="bash"> TYPE metric counter</span><br>metric&#123;label=&quot;val1&quot;&#125; 42 #给该指标添加label<br><span class="hljs-meta">#</span><span class="bash"> TYPE another_metric gauge</span><br><span class="hljs-meta">#</span><span class="bash"> HELP another_metric Just an example.</span><br>another_metric 2398.283<br>EOF<br></code></pre></td></tr></table></figure>
 
-<p>该命令会将指标推送到 <code>&#123;jobname=&quot;some_job&quot;,instance=&quot;some_instance&quot;&#125;</code> 标识的分组中去，要注意指标内容中是如何提供类型信息和帮助信息的，这里我们的指标是都具有类型了。</p>
+<p>该命令会将指标推送到 <code>job/some_job/instance/some_instance</code> 标识的分组中去，要注意指标内容中是如何提供类型信息和帮助信息的，这里我们的指标是都具有类型了。</p>
 <p>解释：</p>
-<p><code>http:.../instance</code>：这里的instnce是关键字，指实例。</p>
-<p><code>http:.../some_instance</code>：设置实例的名称。</p>
+<p><code>instance</code>：这里的instnce是关键字，指实例。</p>
+<p><code>some_instance</code>：设置实例的名称。</p>
 <p><code>&#123;label=&quot;xxx&quot;&#125;</code>：设置标签。</p>
 <p>从prometheus里查看推送给pushgateway的数据</p>
+<p><strong>metric数据</strong></p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-89.png" srcset="/blog/img/loading.gif"></p>
+<p><strong>another_metric数据</strong></p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-90.png" srcset="/blog/img/loading.gif"></p>
-<h2 id="6-2-删除推送的指标"><a href="#6-2-删除推送的指标" class="headerlink" title="6.2 删除推送的指标"></a>6.2 删除推送的指标</h2><p>删除推送的指标同样也是使用<code>curl</code>命令来实现。</p>
+<p>总结：</p>
+<ol>
+<li>推送的数据一般为“key value”的形式。</li>
+<li>建议推送数据是参考举例2可以写注释或给采集的指标添加label。</li>
+<li>推送数据的url建议按着默认url进行补全。</li>
+<li>如果要推送的数据比较多建议使用脚本和计划任务进行推送。</li>
+</ol>
+<h2 id="6-2-删除推送的指标"><a href="#6-2-删除推送的指标" class="headerlink" title="6.2 删除推送的指标"></a>6.2 删除推送的指标</h2><p>删除推送的指标同样也是使用<code>curl</code>命令来实现，下面举三个例子来说明如何使用curl命令删除推送的指标。</p>
 <p>举例1：</p>
-<p>删除<code>jobname=prometheus-pushgateway</code>的数据</p>
+<p>删除<code>jobname/prometheus-pushgateway</code>的数据</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> curl -X DELETE http://localhost:9091/metrics/job/prometheus-pushgateway</span><br></code></pre></td></tr></table></figure>
 
 <p>解释：</p>
 <p><code>-X</code>：指定使用什么命令。</p>
 <p><code>DELETE</code>：删除命令。</p>
-<p>查看prometheus</p>
+<p>注意：因为是在安装了pushgateway的机器上使用curl命令，所以host写成localhost。如果不在安装了pushgateway服务器执行curl命令，那么host就要写为安装了pushgateway的服务器地址。</p>
+<p>查看prometheus的“some_metric”指标：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-91.png" srcset="/blog/img/loading.gif"></p>
 <p>举例2：</p>
-<p>删除<code>&#123;job=&quot;some_job&quot;,instance=&quot;some_instance&quot;&#125;</code></p>
+<p>删除<code>/job/some_job/instance/some_instance</code></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> curl -X DELETE http://localhost:9091/metrics/job/some_job/instance/some_instance</span><br></code></pre></td></tr></table></figure>
 
-<p>查看prometheus</p>
+<p>查看prometheus的metric指标：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-92.png" srcset="/blog/img/loading.gif"></p>
+<p>查看prometheus的another_metric指标：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-93.png" srcset="/blog/img/loading.gif"></p>
 <p>举例3：</p>
 <p>删除所有组的所有指标。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> curl -X PUT http://localhost:9091/api/v1/admin/wipe</span><br></code></pre></td></tr></table></figure>
 
-<p>但是需要注意需要通过 Pushgateway 的命令行标志 <code>--web.enable-admin-api</code> 来启用管理 API。</p>
-<p><strong>注意：删除数据也可以在pushgateway的web页面上删除</strong></p>
-<h2 id="6-3-使用脚本推送数据"><a href="#6-3-使用脚本推送数据" class="headerlink" title="6.3 使用脚本推送数据"></a>6.3 使用脚本推送数据</h2><ol>
+<p>但是使用时需要注意，需要开启 Pushgateway 的API管理功能，开启该功能需要在启动时添加 <code>--web.enable-admin-api</code> 参数。</p>
+<p><strong>注意：</strong></p>
+<p>总结：</p>
+<ol>
+<li>删除数据时，如果url指定到job的话那么就会讲这个job里的所有数据都删除（包括该job）。</li>
+<li>删除数据时，如果rul指定到instance的话，那么就会将这个instance里的所有数据都删除（包括该instance）。</li>
+<li>删除数据时，如果是使用API来删除，那么就会删除所有的数据。</li>
+<li>删除数据也可以在pushgateway的web页面上进行删除。</li>
+</ol>
+<h2 id="6-3-使用脚本推送数据"><a href="#6-3-使用脚本推送数据" class="headerlink" title="6.3 使用脚本推送数据"></a>6.3 使用脚本推送数据</h2><p>正常情况下，我们都是通过脚本，将采集到的数据推送给pushgateway。使用脚本推送数据时，我们每次推送比较多的数据，而且使用脚本推送数据不会出现人为的错误。在写完脚本之后，我们可以通过计划任务来实现有频率的采集数据的效果。</p>
+<ol>
 <li>创建存放脚本的文件夹</li>
 </ol>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir /apps/prometheus-pushgateway/scripts</span><br></code></pre></td></tr></table></figure>
@@ -387,7 +429,7 @@
 <p><code>-n</code>：检测脚本中的语法错误。</p>
 <p><code>-x</code>：调试执行（会显示执行过程）。</p>
 <ol start="4">
-<li>查看pushgateway UI页面</li>
+<li>查看pushgateway的WEB页面</li>
 </ol>
 <p>里面有显示数据的类型，job名称，实例名称等等。</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-95.png" srcset="/blog/img/loading.gif"></p>
@@ -395,13 +437,14 @@
 <p><strong>注意：“crontab”最小的运行单位是分钟，也就是说最小的时间间隔是每一分钟执行一次。</strong></p>
 <p>如果希望时间按秒级来计算呢？</p>
 <h3 id="6-4-1-方法一：使用“sleep-time”"><a href="#6-4-1-方法一：使用“sleep-time”" class="headerlink" title="6.4.1 方法一：使用“sleep time”"></a>6.4.1 方法一：使用“sleep time”</h3><p>目的：每10秒运行一次</p>
-<p>采集脚本：pushgateway-web1.sh</p>
+<p>采集数据的脚本名称为：pushgateway-web1.sh</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">* * * * * sleep 10; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 20; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 30; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 40; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 50; /bin/bash pushgateway-web1.sh<br></code></pre></td></tr></table></figure>
 
 <p>目的：每5秒运行一次</p>
-<p>采集脚本：pushgateway-web1.sh</p>
+<p>采集数据的脚本名称为：pushgateway-web1.sh</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">* * * * * sleep 5; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 10; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 15; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 20; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 25; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 30; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 35; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 40; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 45; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 50; /bin/bash pushgateway-web1.sh<br>* * * * * sleep 55; /bin/bash pushgateway-web1.sh<br></code></pre></td></tr></table></figure>
 
+<p>可是使用这个方法很麻烦，要写很多条执行语句，那么有没有简单一点的呢？</p>
 <h3 id="6-4-2-方法二：在shell脚本里设置计时器"><a href="#6-4-2-方法二：在shell脚本里设置计时器" class="headerlink" title="6.4.2 方法二：在shell脚本里设置计时器"></a>6.4.2 方法二：在shell脚本里设置计时器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/basn</span><br>step=10<br>for ((i=0; i&lt;60; i=(i+step)));<br>do<br>    #执行内容......<br>done<br></code></pre></td></tr></table></figure>
 
 <h3 id="6-4-3-练习：使用脚本采集数据并发送到pushgateway"><a href="#6-4-3-练习：使用脚本采集数据并发送到pushgateway" class="headerlink" title="6.4.3 练习：使用脚本采集数据并发送到pushgateway"></a>6.4.3 练习：使用脚本采集数据并发送到pushgateway</h3><ol>
@@ -439,6 +482,12 @@
 <p>与Prometheus通常的拉取监控模式不同：当一个实例删除时，它的指标将自动随之消失。</p>
 <p>在使用Pushgateway时，情况并非如此，你现在必须手动删除相关指标，或者自己同步其生命周期。</p>
 </li>
+</ol>
+<h1 id="八、使用pushgateway总结"><a href="#八、使用pushgateway总结" class="headerlink" title="八、使用pushgateway总结"></a>八、使用pushgateway总结</h1><ol>
+<li>pushgateway是通过http来采集数据的，所以pushgateway和被监控的服务器部署只要连通即可。</li>
+<li>想要通过API来控制pushgateway，就必须在启动pushgateway时添加<code>--web.enable-admin-api</code>参数。</li>
+<li>采集数据可以使用脚本加计划任务，实现7*24小时的监控。</li>
+<li>删除pushgateway可以通过curl命令删除也可以在web页面进行删除。</li>
 </ol>
 
             </div>

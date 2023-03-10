@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      735 字
+      738 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      11
+      12
        分钟
     </span>
   
@@ -231,7 +231,7 @@
 
 
 
-<h1 id="二、使用二进制包安装maven"><a href="#二、使用二进制包安装maven" class="headerlink" title="二、使用二进制包安装maven"></a>二、使用二进制包安装maven</h1><h2 id="2-1-下载并安装maven"><a href="#2-1-下载并安装maven" class="headerlink" title="2.1 下载并安装maven"></a>2.1 下载并安装maven</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /usr/local/src</span><br><br><span class="hljs-comment"># wget https://mirrors.tuna.tsinghua.edu.cn/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz</span><br><br><span class="hljs-comment"># tar xf apache-maven-3.6.3-bin.tar.gz</span><br><br><span class="hljs-comment"># ln -sv /usr/local/src/apache-maven-3.6.3/ /usr/local/maven</span><br><span class="hljs-string">&#x27;/usr/local/maven&#x27;</span> -&gt; <span class="hljs-string">&#x27;/usr/local/src/apache-maven-3.6.3/&#x27;</span><br><br><span class="hljs-comment"># /usr/local/maven/bin/mvn -v</span><br>Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)<br>Maven home: /usr/<span class="hljs-built_in">local</span>/maven<br>Java version: 1.8.0_311, vendor: Oracle Corporation, runtime: /usr/<span class="hljs-built_in">local</span>/jdk1.8.0_311/jre<br>Default locale: en_US, platform encoding: UTF-8<br>OS name: <span class="hljs-string">&quot;linux&quot;</span>, version: <span class="hljs-string">&quot;3.10.0-693.el7.x86_64&quot;</span>, arch: <span class="hljs-string">&quot;amd64&quot;</span>, family: <span class="hljs-string">&quot;unix&quot;</span><br></code></pre></td></tr></table></figure>
+<h1 id="二、使用二进制包安装maven"><a href="#二、使用二进制包安装maven" class="headerlink" title="二、使用二进制包安装maven"></a>二、使用二进制包安装maven</h1><h2 id="2-1-下载并安装maven"><a href="#2-1-下载并安装maven" class="headerlink" title="2.1 下载并安装maven"></a>2.1 下载并安装maven</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># cd /usr/local/src</span><br><br><span class="hljs-comment"># wget --no-check-certificate https://mirrors.tuna.tsinghua.edu.cn/apache/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz</span><br><br><span class="hljs-comment"># tar xf apache-maven-3.6.3-bin.tar.gz</span><br><br><span class="hljs-comment"># ln -sv /usr/local/src/apache-maven-3.6.3/ /usr/local/maven</span><br><span class="hljs-string">&#x27;/usr/local/maven&#x27;</span> -&gt; <span class="hljs-string">&#x27;/usr/local/src/apache-maven-3.6.3/&#x27;</span><br><br><span class="hljs-comment"># /usr/local/maven/bin/mvn -v</span><br>Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)<br>Maven home: /usr/<span class="hljs-built_in">local</span>/maven<br>Java version: 1.8.0_311, vendor: Oracle Corporation, runtime: /usr/<span class="hljs-built_in">local</span>/jdk1.8.0_311/jre<br>Default locale: en_US, platform encoding: UTF-8<br>OS name: <span class="hljs-string">&quot;linux&quot;</span>, version: <span class="hljs-string">&quot;3.10.0-693.el7.x86_64&quot;</span>, arch: <span class="hljs-string">&quot;amd64&quot;</span>, family: <span class="hljs-string">&quot;unix&quot;</span><br></code></pre></td></tr></table></figure>
 
 <h2 id="2-2配置环境变量"><a href="#2-2配置环境变量" class="headerlink" title="2.2配置环境变量"></a>2.2配置环境变量</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># vim /etc/profile.d/maven.sh</span><br><span class="hljs-built_in">export</span> MAVEN_HOME=/usr/<span class="hljs-built_in">local</span>/maven<br><span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$JAVA_HOME</span>/bin:<span class="hljs-variable">$JAVA_HOME</span>/jre/bin:<span class="hljs-variable">$MAVEN_HOME</span>/bin:<span class="hljs-variable">$PATH</span><br><br><span class="hljs-comment"># source /etc/profile.d/maven.sh</span><br></code></pre></td></tr></table></figure>
 

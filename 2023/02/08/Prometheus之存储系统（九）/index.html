@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      4.4k 字
+      6.6k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      59
+      84
        分钟
     </span>
   
@@ -230,7 +230,7 @@
               <h1 id="Prometheus存储系统"><a href="#Prometheus存储系统" class="headerlink" title="Prometheus存储系统"></a>Prometheus存储系统</h1><h1 id="一、prometheus本地存储简介"><a href="#一、prometheus本地存储简介" class="headerlink" title="一、prometheus本地存储简介"></a>一、prometheus本地存储简介</h1><p>Prometheus有着非常高效的时间序列数据存储方法，每个采样数据仅仅占用3.5byte左右空间。假如有上百万条时间序列，30秒的采样频率，采样数据保留60天，大概会占用200多G空间。</p>
 <p>默认情况下，prometheus将采集到的数据存储在本地的TSDB数据库中，路径默认为prometheus安装目录的data目录。</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-252.png" srcset="/blog/img/loading.gif"></p>
-<p>数据写入过程为：</p>
+<p>Prometheus数据的写入过程为：</p>
 <ol>
 <li>先把数据写入wal日志并存放在内存中。</li>
 <li>两小时后将内存数据保存至一个新的block块。</li>
@@ -240,20 +240,20 @@
 <p>为了确保此期间如果Prometheus发生崩溃或者重启时能够恢复数据，Prometheus启动时会从写入日志(WAL)进行重播，从而恢复数据。此期间如果通过API删除时间序列，删除记录也会保存在单独的逻辑文件当中(tombstone)。</p>
 <h2 id="1-1-block简介"><a href="#1-1-block简介" class="headerlink" title="1.1 block简介"></a>1.1 block简介</h2><p>prometheus会为每一个block在data目录中创建以01开头的存储目录，用来存储数据。</p>
 <p>data目录如下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs shell">cd /apps/prometheus/data<br><span class="hljs-meta">#</span><span class="bash"> ll</span><br>total 20<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 25 11:56 01GQKH31H15M552E3AQARRZBDF #block文件<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 25 19:00 01GQM9BHQ977YD6Q35RRSBTGXG <br>drwxr-xr-x 3 prometheus prometheus    68 Jan 27 09:22 01GQRD2Z30Z4P9DWN8XM7X1R6M <br>drwxr-xr-x 3 prometheus prometheus    68 Jan 27 13:00 01GQRSHN6VWQF5MYEKZ697KQKP <br>drwxr-xr-x 3 prometheus prometheus    68 Jan 28 15:47 01GQVNH5DKSKS6H3DKX196KV1V<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 28 19:00 01GQW0HNCAZRKJ391TRS2H7NKA<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 30 19:00 01GR15B09M5JRYEZNFT4B4DG4R<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  1 20:30 01GR6F9N19FCF1VCNF6JFM0FEH<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  2 12:01 01GR84KGFRRZN2MVCCRD9PP4KX<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  2 12:01 01GR84KH5PSF0Y1XBK3HQSQTEG<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  3 09:41 01GRAEZNYBX9GY5ZK5ZMXE8AEA<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  3 17:00 01GRB822XQATQ4123VBR9GE8NQ<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  4 15:00 01GRDKK3M5SEHTNP3QP8A6E25M<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  6 19:00 01GRK64JVVYW3G3ZQ4TBHFZCQH<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  7 15:00 01GRNASD1F61AH6S48F3C28Z5S<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  8 14:32 01GRQVK5R75CMW6S4VAKXBAB09<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  8 17:32 01GRR5WX97N0VP8GAVYXVGMMC1<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  8 17:32 01GRR5WXCR5Y59M3PV0Z1TD6P3<br>drwxr-xr-x 2 prometheus prometheus    48 Feb  8 17:40 chunks_head<br>-rw-r--r-- 1 prometheus prometheus     0 Feb  7 11:12 lock<br>-rw-r--r-- 1 prometheus prometheus 20001 Feb  8 14:33 queries.active<br>drwxr-xr-x 3 prometheus prometheus    97 Feb  8 17:32 wal<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">进入Prometheus数据目录</span><br><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus/data</span><br><span class="hljs-meta">#</span><span class="bash">查看数据目录的文件</span><br><span class="hljs-meta">#</span><span class="bash"> ll</span><br>total 20<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 25 11:56 01GQKH31H15M552E3AQARRZBDF #block文件<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 25 19:00 01GQM9BHQ977YD6Q35RRSBTGXG <br>drwxr-xr-x 3 prometheus prometheus    68 Jan 27 09:22 01GQRD2Z30Z4P9DWN8XM7X1R6M <br>drwxr-xr-x 3 prometheus prometheus    68 Jan 27 13:00 01GQRSHN6VWQF5MYEKZ697KQKP <br>drwxr-xr-x 3 prometheus prometheus    68 Jan 28 15:47 01GQVNH5DKSKS6H3DKX196KV1V<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 28 19:00 01GQW0HNCAZRKJ391TRS2H7NKA<br>drwxr-xr-x 3 prometheus prometheus    68 Jan 30 19:00 01GR15B09M5JRYEZNFT4B4DG4R<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  1 20:30 01GR6F9N19FCF1VCNF6JFM0FEH<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  2 12:01 01GR84KGFRRZN2MVCCRD9PP4KX<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  2 12:01 01GR84KH5PSF0Y1XBK3HQSQTEG<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  3 09:41 01GRAEZNYBX9GY5ZK5ZMXE8AEA<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  3 17:00 01GRB822XQATQ4123VBR9GE8NQ<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  4 15:00 01GRDKK3M5SEHTNP3QP8A6E25M<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  6 19:00 01GRK64JVVYW3G3ZQ4TBHFZCQH<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  7 15:00 01GRNASD1F61AH6S48F3C28Z5S<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  8 14:32 01GRQVK5R75CMW6S4VAKXBAB09<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  8 17:32 01GRR5WX97N0VP8GAVYXVGMMC1<br>drwxr-xr-x 3 prometheus prometheus    68 Feb  8 17:32 01GRR5WXCR5Y59M3PV0Z1TD6P3<br>drwxr-xr-x 2 prometheus prometheus    48 Feb  8 17:40 chunks_head<br>-rw-r--r-- 1 prometheus prometheus     0 Feb  7 11:12 lock<br>-rw-r--r-- 1 prometheus prometheus 20001 Feb  8 14:33 queries.active<br>drwxr-xr-x 3 prometheus prometheus    97 Feb  8 17:32 wal<br></code></pre></td></tr></table></figure>
 
 <h2 id="1-2-block的特性"><a href="#1-2-block的特性" class="headerlink" title="1.2 block的特性"></a>1.2 block的特性</h2><p>block会压缩、合并历史数据块，以及删除过期的块。随着压缩、合并的进行，block的数量会减少。</p>
 <p>在压缩过程中会发生三件事：</p>
 <ol>
-<li>定期执行压缩</li>
-<li>合并小的block到大的block</li>
-<li>清理过期的块</li>
+<li>定期执行压缩。</li>
+<li>合并小的block到大的block。</li>
+<li>清理过期的块。</li>
 </ol>
 <p>每个block由4部分组成：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-253.png" srcset="/blog/img/loading.gif"></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> tree /apps/prometheus/data/01GQKH31H15M552E3AQARRZBDF</span><br>/apps/prometheus/data/01GQKH31H15M552E3AQARRZBDF<br>├── chunks<br>│   └── 000001 #数据目录，每个的默认大小为512MB，超过会被切分为多个<br>├── index #索引文件，记录存储的数据索引信息，通过文件内的几个表来查找时序数据<br>├── meta.json #block元数据信息，包含了样本数、采集数据的起始时间、压缩历史<br>└── tombstones #逻辑数据，主要记载删除记录和标记要删除的内容，删除标记，可在查询块是拍出样本<br><br>1 directory, 4 files<br></code></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">通过tree命令来查看文件夹里面存储的文件</span><br><span class="hljs-meta">#</span><span class="bash"> tree /apps/prometheus/data/01GQKH31H15M552E3AQARRZBDF</span><br>/apps/prometheus/data/01GQKH31H15M552E3AQARRZBDF<br>├── chunks<br>│   └── 000001 #数据目录，每个的默认大小为512MB，超过会被切分为多个<br>├── index #索引文件，记录存储的数据索引信息，通过文件内的几个表来查找时序数据<br>├── meta.json #block元数据信息，包含了样本数、采集数据的起始时间、压缩历史<br>└── tombstones #逻辑数据，主要记载删除记录和标记要删除的内容，删除标记，可在查询块是拍出样本<br><br>1 directory, 4 files<br></code></pre></td></tr></table></figure>
 
-<h2 id="1-3-本地存储配置参数"><a href="#1-3-本地存储配置参数" class="headerlink" title="1.3 本地存储配置参数"></a>1.3 本地存储配置参数</h2><p><code>--config.file=&quot;prometheus.yml&quot;</code>：指定配置文件</p>
+<h2 id="1-3-本地存储配置参数介绍"><a href="#1-3-本地存储配置参数介绍" class="headerlink" title="1.3 本地存储配置参数介绍"></a>1.3 本地存储配置参数介绍</h2><p><code>--config.file=&quot;prometheus.yml&quot;</code>：指定配置文件</p>
 <p><code>--web.listen-address=&quot;0.0.0.0:9090&quot;</code>：指定监听地址</p>
 <p><code>--storage.tsdb.path=&quot;data/&quot;</code>：指定数据存储目录</p>
 <p><code>--storage.tsdb.retention.size=</code>：指定chunk大小，默认512MB</p>
@@ -263,7 +263,7 @@
 <p><code>--web.read-timeout=5m</code>：最大空闲超时时间</p>
 <p><code>--web.max-connections=512</code>：最大并发连接数</p>
 <p><code>--web.enable-lifecycle</code>：启动API动态加载配置功能</p>
-<h2 id="1-4-估算prometheus服务器所需的存储空间"><a href="#1-4-估算prometheus服务器所需的存储空间" class="headerlink" title="1.4 估算prometheus服务器所需的存储空间"></a>1.4 估算prometheus服务器所需的存储空间</h2><p>要规划 <code>Prometheus</code> 服务器的容量，我们可以使用粗略的公式：</p>
+<h2 id="1-4-估算prometheus服务器所需的存储空间"><a href="#1-4-估算prometheus服务器所需的存储空间" class="headerlink" title="1.4 估算prometheus服务器所需的存储空间"></a>1.4 估算prometheus服务器所需的存储空间</h2><p>要规划 <code>Prometheus</code> 服务器的容量，我们可以使用官网提供的公式进行计算：</p>
 <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-attr">needed_disk_space</span> = retention_time_seconds * ingested_samples_per_second * bytes_per_sample<br></code></pre></td></tr></table></figure>
 
 <p>解释：</p>
@@ -287,7 +287,24 @@
 
 
 
-<h1 id="二、Prometheus远端存储"><a href="#二、Prometheus远端存储" class="headerlink" title="二、Prometheus远端存储"></a>二、Prometheus远端存储</h1><p>目前作为prometheus远端存储比较主流的有以下三个：</p>
+<h1 id="二、Prometheus远端存储"><a href="#二、Prometheus远端存储" class="headerlink" title="二、Prometheus远端存储"></a>二、Prometheus远端存储</h1><p>Prometheus的本地存储设计可以减少其自身运维和管理的复杂度，同时能够满足大部分用户监控规模的需求。但是本地存储也意味着Prometheus无法持久化数据，无法存储大量历史数据，同时也无法灵活扩展和迁移。</p>
+<p>为了保持Prometheus的简单性，Prometheus并没有尝试在自身中解决以上问题，而是通过定义两个标准接口(remote_write/remote_read)，让用户可以基于这两个接口对接将数据保存到任意第三方的存储服务中，这种方式在Promthues中称为Remote Storage。</p>
+<h2 id="2-1-Remote-Write简介"><a href="#2-1-Remote-Write简介" class="headerlink" title="2.1 Remote Write简介"></a>2.1 Remote Write简介</h2><p>用户可以在Prometheus配置文件中指定Remote Write(远程写)的URL地址，一旦设置了该配置项，Prometheus将采集到的样本数据通过HTTP的形式发送给适配器(Adaptor)。而用户则可以在适配器中对接外部任意的服务。外部服务可以是真正的存储系统，公有云的存储服务，也可以是消息队列等任意形式。</p>
+<p>适配器（Adaptor）会将自己的数据转换适合第三方数据库的数据然后存储在第三方数据库上。</p>
+<p>下图位Prometheus Remote Write的过程：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-276.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="2-2-Remote-Read简介"><a href="#2-2-Remote-Read简介" class="headerlink" title="2.2 Remote Read简介"></a>2.2 Remote Read简介</h2><p>Promthues的Remote Read(远程读)也通过了一个适配器实现。在远程读的流程当中，当用户发起查询请求后，Promthues将向remote_read中配置的URL发起查询请求(matchers,ranges)，Adaptor根据请求条件从第三方存储服务中获取响应的数据。同时将数据转换为Promthues的原始样本数据返回给Prometheus Server。</p>
+<p>当获取到样本数据后，Promthues在本地使用PromQL对样本数据进行二次处理。</p>
+<p>注意：启用远程读设置后，只在数据查询时有效，对于规则文件的处理，以及Metadata API的处理都只基于Prometheus本地存储完成。</p>
+<p>下图为Prometheus Remote Read的过程：</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-277.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="2-3-远端存储总结"><a href="#2-3-远端存储总结" class="headerlink" title="2.3 远端存储总结"></a>2.3 远端存储总结</h2><ol>
+<li>prometheus不能直接将数据直接写和读，需要通过中间件才能将数据才能实现写和读的效果。</li>
+<li>因为使用了“adaptor”作为中间件，所以在数据的读写上的速度会瓶颈。</li>
+<li>第三方数据库有很多，包括MySQL、PostgreSQL、Elasticsearch等等。</li>
+</ol>
+<h3 id="2-4-远端存储推荐"><a href="#2-4-远端存储推荐" class="headerlink" title="2.4 远端存储推荐"></a>2.4 远端存储推荐</h3><p>虽然某些第三方数据库需要“adaptor”，但是有些远端存储是不用“adaptor”可以直接存储Prometheus的数据的。</p>
+<p>目前作为prometheus远端存储比较主流的有以下三个：</p>
 <ol>
 <li>influxdb</li>
 <li>tanos</li>
@@ -296,8 +313,6 @@
 <p>prometheus可以直接将采集到的数据存储到以上三个远程存储上。</p>
 <p>写入数据的过程如下图：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-271.png" srcset="/blog/img/loading.gif"></p>
-<p>当然prometheus也可以将数据存储在其他存储上（如：postgresql、elasticsearch、mysql等等），不过需要通过一个“adapter”的组件才能将数据写入到其他存储上。（也就是说prometheus不能直接将数据直接写入，需要通过中间件才能将数据才能实现写入的效果）</p>
-<p>写入数据的过程如下图</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-272.png" srcset="/blog/img/loading.gif"></p>
 <h1 id="三、prometheus远端存储之victoriametrics"><a href="#三、prometheus远端存储之victoriametrics" class="headerlink" title="三、prometheus远端存储之victoriametrics"></a>三、prometheus远端存储之victoriametrics</h1><h2 id="3-1-victoriametrics简介"><a href="#3-1-victoriametrics简介" class="headerlink" title="3.1 victoriametrics简介"></a>3.1 victoriametrics简介</h2><h3 id="3-1-1-什么是victoriametrics"><a href="#3-1-1-什么是victoriametrics" class="headerlink" title="3.1.1 什么是victoriametrics"></a>3.1.1 什么是victoriametrics</h3><p>victroriametrics是一个支持高可用可扩展的时间序列数据库。可作为prometheus监控数据的长期远端存储。</p>
 <p>victoriametrics是一个可水平扩容的本地全量化持久存储。</p>
@@ -309,7 +324,7 @@
 <li>由于存储架构，它可以保护存储在非正常关机（即 OOM、硬件重置或 kill -9）时免受数据损坏</li>
 <li>可以使用 <code>vmbackup/vmrestore</code> 工具轻松快速地从实时快照备份到 S3 或 GCS 对象存储中</li>
 </ol>
-<h3 id="3-1-3-什么时候使用victoriametrics"><a href="#3-1-3-什么时候使用victoriametrics" class="headerlink" title="3.1.3 什么时候使用victoriametrics"></a>3.1.3 什么时候使用victoriametrics</h3><p><strong>什么时候才用远端存储？</strong></p>
+<h3 id="3-1-3-使用victoriametrics的场景"><a href="#3-1-3-使用victoriametrics的场景" class="headerlink" title="3.1.3 使用victoriametrics的场景"></a>3.1.3 使用victoriametrics的场景</h3><p><strong>什么时候才用远端存储？</strong></p>
 <p>建议大环境才使用远端存储（也就是得监控数百上千服务器）。</p>
 <p><strong>什么时候用单节点方案呢？</strong></p>
 <p>victoriametrics官方建议是100w/s以下的数据点抓取，使用单节方案，单节点方案可以省更多的CPU、内存、磁盘资源，简单好维护，但不支持告警。。（当然单节点会有单点失败问题）</p>
@@ -328,6 +343,7 @@
 </li>
 </ul>
 <p><strong>注意：集群版支持数据水平拆分</strong></p>
+<p>victoriametrics在数据存储方面可以存储在存储在共享存储上，也可以存储在收费或开源的分布式存储里实现数据的高可用。</p>
 <h3 id="3-1-4-victoriametrics集群版简介"><a href="#3-1-4-victoriametrics集群版简介" class="headerlink" title="3.1.4 victoriametrics集群版简介"></a>3.1.4 victoriametrics集群版简介</h3><p>下图是victoriametrics集群版官方架构图：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-254.png" srcset="/blog/img/loading.gif"></p>
 <p>从上图可以看到，victoriametrics集群主要有三部分组成，分别是“vmselect”，”vmstorage”和“vminsert”。</p>
@@ -338,39 +354,96 @@
 <p>victoriametrics官方文档：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://docs.victoriametrics.com/Single-server-VictoriaMetrics.html<br></code></pre></td></tr></table></figure>
 
-<p>victoriametrrics github地址</p>
+<p>victoriametrrics github地址：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/VictoriaMetrics/VictoriaMetrics<br></code></pre></td></tr></table></figure>
 
-<h2 id="3-2-单机版部署"><a href="#3-2-单机版部署" class="headerlink" title="3.2 单机版部署"></a>3.2 单机版部署</h2><h3 id="3-2-1-下载单机版victoriametrics"><a href="#3-2-1-下载单机版victoriametrics" class="headerlink" title="3.2.1 下载单机版victoriametrics"></a>3.2.1 下载单机版victoriametrics</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir -p /apps/victoria-metrics<br>cd /apps/victoria-metrics<br>wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.87.0/victoria-metrics-linux-amd64-v1.82.1.tar.gz<br></code></pre></td></tr></table></figure>
+<h2 id="3-2-victoriametrics单机版部署"><a href="#3-2-victoriametrics单机版部署" class="headerlink" title="3.2 victoriametrics单机版部署"></a>3.2 victoriametrics单机版部署</h2><p>本次实验是单机部署victoriametrics，规划如下：</p>
+<table>
+<thead>
+<tr>
+<th>服务器地址</th>
+<th>服务器系统</th>
+<th>hostname</th>
+<th>安装的软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10.0.0.7</td>
+<td>CentOS7.9</td>
+<td>prometheus_server</td>
+<td>prometheus、node_exporter</td>
+</tr>
+<tr>
+<td>10.0.0.17</td>
+<td>CentOS7.9</td>
+<td>victoriametrics</td>
+<td>victoriametrics</td>
+</tr>
+</tbody></table>
+<p>查看服务器地址，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# ifconfig eth0 | grep inet | awk &#x27;NR==1&#123;print $2&#125;&#x27;<br>10.0.0.7<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-2-2-解压并做软连接"><a href="#3-2-2-解压并做软连接" class="headerlink" title="3.2.2 解压并做软连接"></a>3.2.2 解压并做软连接</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/victoria-metrics</span><br><span class="hljs-meta">#</span><span class="bash"> tar xf victoria-metrics-linux-amd64-v1.82.1.tar.gz</span><br><span class="hljs-meta">#</span><span class="bash"> ln -s /apps/victoria-metrics/victoria-metrics-prod /usr/<span class="hljs-built_in">local</span>/bin/</span><br></code></pre></td></tr></table></figure>
+<p>查看服务器系统，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# cat /etc/redhat-release <br>CentOS Linux release 7.9.2009 (Core)<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-2-3-添加service文件"><a href="#3-2-3-添加service文件" class="headerlink" title="3.2.3 添加service文件"></a>3.2.3 添加service文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/victoria-metrics-pord.service</span><br>[Unit]<br>Description=For Victoria-metrics-prod Service<br>After=network.target<br><br>[Service]<br>ExecStart=/usr/local/bin/victoria-metrics-prod -httpListenAddr=0.0.0.0:8428 -storageDataPath=/apps/victoria-metrics/data -retentionPeriod=3<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+<p>修改hostname，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# hostnamectl set-hostname victoriametrics #执行命令后退出终端重新连接终端<br></code></pre></td></tr></table></figure>
+
+<p>查看hostname，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@victoriametrics ~]# hostname<br>victoriametrics<br></code></pre></td></tr></table></figure>
+
+<p>所有节点都可以根据规划修改hostname，服务器地址。</p>
+<h3 id="3-2-1-下载单机版victoriametrics"><a href="#3-2-1-下载单机版victoriametrics" class="headerlink" title="3.2.1 下载单机版victoriametrics"></a>3.2.1 下载单机版victoriametrics</h3><p>创建victoriametrics文件夹，下载victoriametrics安装包，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">创建victoriametrics安装目录</span><br>[root@victoriametrics ~]# mkdir -p /apps/victoria-metrics<br><span class="hljs-meta">#</span><span class="bash">进入安装目录</span><br>[root@victoriametrics ~]# cd /apps/victoria-metrics<br><span class="hljs-meta">#</span><span class="bash">下载victoriametrics安装包</span><br>[root@victoriametrics victoria-metrics]# wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.87.0/victoria-metrics-linux-amd64-v1.82.1.tar.gz<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-2-解压并做软连接"><a href="#3-2-2-解压并做软连接" class="headerlink" title="3.2.2 解压并做软连接"></a>3.2.2 解压并做软连接</h3><p>解压victoriametrics安装包并victoriametrics创建软连接，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">解压victoriametrics</span><br>[root@victoriametrics victoria-metrics]# tar xf victoria-metrics-linux-amd64-v1.82.1.tar.gz<br><span class="hljs-meta">#</span><span class="bash">为victoriametrics创建软连接</span><br>[root@victoriametrics victoria-metrics]# ln -s /apps/victoria-metrics/victoria-metrics-prod /usr/local/bin/<br></code></pre></td></tr></table></figure>
+
+<h3 id="3-2-3-添加service文件"><a href="#3-2-3-添加service文件" class="headerlink" title="3.2.3 添加service文件"></a>3.2.3 添加service文件</h3><p>给victoriametrics添加service，之后由systemd进行管理。service文件内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@victoriametrics victoria-metrics]# vim /usr/lib/systemd/system/victoria-metrics-pord.service<br>[Unit]<br>Description=For Victoria-metrics-prod Service<br>After=network.target<br><br>[Service]<br>ExecStart=/usr/local/bin/victoria-metrics-prod -httpListenAddr=0.0.0.0:8428 -storageDataPath=/apps/victoria-metrics/data -retentionPeriod=3<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
 
 <p>解释：</p>
 <p><code>-httpListenAddr</code>：设置监听地址及端口</p>
 <p><code>-storageDataPath</code>：设置数据保存目录，默认的数据保存目录是在 victoria-metircs-data目录中</p>
 <p><code>-retentionPeriod</code>：存户数据的保留时间。过期的数据会自动删除。默认保留1个月，默认单位m（月），还支持其他单位，如：h（时）、d（天）、w（周）、y（年）</p>
-<h3 id="3-2-4-添加存储目录"><a href="#3-2-4-添加存储目录" class="headerlink" title="3.2.4 添加存储目录"></a>3.2.4 添加存储目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/apps/victoria-metrics/data</span><br></code></pre></td></tr></table></figure>
+<h3 id="3-2-4-添加存储目录"><a href="#3-2-4-添加存储目录" class="headerlink" title="3.2.4 添加存储目录"></a>3.2.4 添加存储目录</h3><p>为victoriametrics创建存储目录，执行的命令如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/apps/victoria-metrics/data</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="3-2-5-添加启动用户"><a href="#3-2-5-添加启动用户" class="headerlink" title="3.2.5 添加启动用户"></a>3.2.5 添加启动用户</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin victoria</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-p</code>：若所要建立目录的上层目录目前尚未建立，则会一并建立上层目录。</p>
+<h3 id="3-2-5-添加启动用户"><a href="#3-2-5-添加启动用户" class="headerlink" title="3.2.5 添加启动用户"></a>3.2.5 添加启动用户</h3><p>为victoriametrics创建启动用户，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@victoriametrics victoria-metrics]# useradd -M -r -s /usr/sbin/nologin victoria<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-2-6-修改目录所属"><a href="#3-2-6-修改目录所属" class="headerlink" title="3.2.6 修改目录所属"></a>3.2.6 修改目录所属</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R victoria /apps/victoria-metrics/</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-M</code>：不创建家目录。</p>
+<p><code>-r</code>：创建的用户为系统用户。</p>
+<p><code>-s</code>：指定创建用户所使用的shell。</p>
+<h3 id="3-2-6-修改目录所属"><a href="#3-2-6-修改目录所属" class="headerlink" title="3.2.6 修改目录所属"></a>3.2.6 修改目录所属</h3><p>修改victoriametrics目录的所属，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@victoriametrics victoria-metrics]# chown -R victoria /apps/victoria-metrics/<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-2-7-启动victoriametrics并设置开机启动"><a href="#3-2-7-启动victoriametrics并设置开机启动" class="headerlink" title="3.2.7 启动victoriametrics并设置开机启动"></a>3.2.7 启动victoriametrics并设置开机启动</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start victoria-metrics-pord.service</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> victoria-metrics-pord.service</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-R</code>：递归授权。</p>
+<h3 id="3-2-7-启动victoriametrics并设置开机启动"><a href="#3-2-7-启动victoriametrics并设置开机启动" class="headerlink" title="3.2.7 启动victoriametrics并设置开机启动"></a>3.2.7 启动victoriametrics并设置开机启动</h3><p>启动victoriametrics并设置开启启动，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@victoriametrics victoria-metrics]# systemctl daemon-reload #读取所有的service文件<br>[root@victoriametrics victoria-metrics]# systemctl start victoria-metrics-pord.service #启动victoriametrics<br>[root@victoriametrics victoria-metrics]# systemctl enable victoria-metrics-pord.service #将victoriametrics设置为开机启动<br></code></pre></td></tr></table></figure>
 
 <h3 id="3-2-8-验证WEB页面"><a href="#3-2-8-验证WEB页面" class="headerlink" title="3.2.8 验证WEB页面"></a>3.2.8 验证WEB页面</h3><p>浏览器访问：</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">安装victoriametrics节点IP:8428<br></code></pre></td></tr></table></figure>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">10.0.0.17:8428<br></code></pre></td></tr></table></figure>
 
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-256.png" srcset="/blog/img/loading.gif"></p>
-<h3 id="3-2-9-prometheus添加远端存储配置"><a href="#3-2-9-prometheus添加远端存储配置" class="headerlink" title="3.2.9 prometheus添加远端存储配置"></a>3.2.9 prometheus添加远端存储配置</h3><h4 id="3-2-9-1-prometheus添加配置"><a href="#3-2-9-1-prometheus添加配置" class="headerlink" title="3.2.9.1 prometheus添加配置"></a>3.2.9.1 prometheus添加配置</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br><span class="hljs-meta">#</span><span class="bash"> my global config</span><br>global:<br>  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.<br>  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.<br><span class="hljs-meta">  #</span><span class="bash"> scrape_timeout is <span class="hljs-built_in">set</span> to the global default (10s).</span><br><br>remote_write:<br>  - url: http://10.0.0.17:8428/api/v1/write<br></code></pre></td></tr></table></figure>
+<h3 id="3-2-9-prometheus添加远端存储配置"><a href="#3-2-9-prometheus添加远端存储配置" class="headerlink" title="3.2.9 prometheus添加远端存储配置"></a>3.2.9 prometheus添加远端存储配置</h3><h4 id="3-2-9-1-prometheus修改配置"><a href="#3-2-9-1-prometheus修改配置" class="headerlink" title="3.2.9.1 prometheus修改配置"></a>3.2.9.1 prometheus修改配置</h4><p>prometheus配置文件添加远端存储的配置，配置的主要内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment">#进入prometheus安装目录</span><br>[<span class="hljs-string">root@prometheus_server</span> <span class="hljs-string">~</span>]<span class="hljs-comment"># cd /apps/prometheus</span><br><span class="hljs-comment">#修改prometheus配置文件</span><br>[<span class="hljs-string">root@prometheus_server</span> <span class="hljs-string">prometheus</span>]<span class="hljs-comment"># vim prometheus.yml</span><br><span class="hljs-comment"># my global config</span><br><span class="hljs-attr">global:</span><br>  <span class="hljs-attr">scrape_interval:</span> <span class="hljs-string">15s</span> <span class="hljs-comment"># Set the scrape interval to every 15 seconds. Default is every 1 minute.</span><br>  <span class="hljs-attr">evaluation_interval:</span> <span class="hljs-string">15s</span> <span class="hljs-comment"># Evaluate rules every 15 seconds. The default is every 1 minute.</span><br>  <span class="hljs-comment"># scrape_timeout is set to the global default (10s).</span><br><br><span class="hljs-attr">remote_write:</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">url:</span> <span class="hljs-string">http://10.0.0.17:8428/api/v1/write</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="3-2-9-2-检查语法"><a href="#3-2-9-2-检查语法" class="headerlink" title="3.2.9.2 检查语法"></a>3.2.9.2 检查语法</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span> <br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
+<p>写入的url官网已经写清楚了，详细的可以查看官网关于写入路径的解释：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://docs.victoriametrics.com/#prometheus-setup<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-2-9-3-prometheus重新读取配置文件"><a href="#3-2-9-3-prometheus重新读取配置文件" class="headerlink" title="3.2.9.3 prometheus重新读取配置文件"></a>3.2.9.3 prometheus重新读取配置文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+<h4 id="3-2-9-2-检查语法"><a href="#3-2-9-2-检查语法" class="headerlink" title="3.2.9.2 检查语法"></a>3.2.9.2 检查语法</h4><p>检查prometheus语法，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@prometheus_server prometheus]# ./promtool check config prometheus.yml <br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
+
+<h4 id="3-2-9-3-prometheus重新读取配置文件"><a href="#3-2-9-3-prometheus重新读取配置文件" class="headerlink" title="3.2.9.3 prometheus重新读取配置文件"></a>3.2.9.3 prometheus重新读取配置文件</h4><p>通过重启读取Prometheus的配置文件，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@prometheus_server prometheus]# systemctl restart prometheus<br></code></pre></td></tr></table></figure>
 
 <h3 id="3-2-10-验证victoriametric是否收到数据"><a href="#3-2-10-验证victoriametric是否收到数据" class="headerlink" title="3.2.10 验证victoriametric是否收到数据"></a>3.2.10 验证victoriametric是否收到数据</h3><p>浏览器访问：</p>
-<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">安装victoriametrics节点IP:8428/vmui<br></code></pre></td></tr></table></figure>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">10.0.0.17:8428/vmui<br></code></pre></td></tr></table></figure>
 
 <p>然后在查询栏上输入要查询的数据，如”node_load1”</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-257.png" srcset="/blog/img/loading.gif"></p>
@@ -417,14 +490,18 @@
 <li>查看结果</li>
 </ul>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-267.png" srcset="/blog/img/loading.gif"></p>
-<h2 id="3-2-12-拓展：prometheus采集victoriametrics数据"><a href="#3-2-12-拓展：prometheus采集victoriametrics数据" class="headerlink" title="3.2.12 拓展：prometheus采集victoriametrics数据"></a>3.2.12 拓展：prometheus采集victoriametrics数据</h2><h4 id="3-2-12-1-修改prometheus配置文件"><a href="#3-2-12-1-修改prometheus配置文件" class="headerlink" title="3.2.12.1 修改prometheus配置文件"></a>3.2.12.1 修改prometheus配置文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br>......<br>  - job_name: &quot;victoriametrics&quot;<br>    static_configs:<br>      - targets: [&quot;10.0.0.17:8428&quot;]<br></code></pre></td></tr></table></figure>
+<h2 id="3-2-12-拓展：prometheus采集victoriametrics数据"><a href="#3-2-12-拓展：prometheus采集victoriametrics数据" class="headerlink" title="3.2.12 拓展：prometheus采集victoriametrics数据"></a>3.2.12 拓展：prometheus采集victoriametrics数据</h2><h4 id="3-2-12-1-修改prometheus配置文件"><a href="#3-2-12-1-修改prometheus配置文件" class="headerlink" title="3.2.12.1 修改prometheus配置文件"></a>3.2.12.1 修改prometheus配置文件</h4><p>修改prometheus的配置文件，里面添加采集victoriametrics的job，内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">进入prometheus安装目录</span><br>[root@prometheus_server ~]# cd /apps/prometheus<br><span class="hljs-meta">#</span><span class="bash">修改prometheus配置文件</span><br>[root@prometheus_server prometheus]# vim prometheus.yml<br>......<br>  - job_name: &quot;victoriametrics&quot;<br>    static_configs:<br>      - targets: [&quot;10.0.0.17:8428&quot;]<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-2-12-2-检查语法"><a href="#3-2-12-2-检查语法" class="headerlink" title="3.2.12.2 检查语法"></a>3.2.12.2 检查语法</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span><br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
+<h4 id="3-2-12-2-检查语法"><a href="#3-2-12-2-检查语法" class="headerlink" title="3.2.12.2 检查语法"></a>3.2.12.2 检查语法</h4><p>检查prometheus配置文件的语法，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@prometheus_server prometheus]# ./promtool check config prometheus.yml<br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-2-12-3-prometheus重新读取配置文件"><a href="#3-2-12-3-prometheus重新读取配置文件" class="headerlink" title="3.2.12.3 prometheus重新读取配置文件"></a>3.2.12.3 prometheus重新读取配置文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart  prometheus</span><br></code></pre></td></tr></table></figure>
+<h4 id="3-2-12-3-prometheus重新读取配置文件"><a href="#3-2-12-3-prometheus重新读取配置文件" class="headerlink" title="3.2.12.3 prometheus重新读取配置文件"></a>3.2.12.3 prometheus重新读取配置文件</h4><p>通过重启读取Prometheus的配置文件，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@prometheus_server prometheus]# systemctl restart  prometheus<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-2-12-4-查看结果"><a href="#3-2-12-4-查看结果" class="headerlink" title="3.2.12.4 查看结果"></a>3.2.12.4 查看结果</h4><p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-268.png" srcset="/blog/img/loading.gif"></p>
-<h2 id="3-3-集群版本部署"><a href="#3-3-集群版本部署" class="headerlink" title="3.3 集群版本部署"></a>3.3 集群版本部署</h2><h3 id="3-3-3-1-组件介绍"><a href="#3-3-3-1-组件介绍" class="headerlink" title="3.3.3.1 组件介绍"></a>3.3.3.1 组件介绍</h3><p><strong>主要组件</strong></p>
+<h4 id="3-2-12-4-查看结果"><a href="#3-2-12-4-查看结果" class="headerlink" title="3.2.12.4 查看结果"></a>3.2.12.4 查看结果</h4><p>在prometheus的Targets页面查看是否能够采集victoriametrics的数据。</p>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-268.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="3-3-victoriametrics集群版本部署"><a href="#3-3-victoriametrics集群版本部署" class="headerlink" title="3.3 victoriametrics集群版本部署"></a>3.3 victoriametrics集群版本部署</h2><h3 id="3-3-3-1-集群组件介绍"><a href="#3-3-3-1-集群组件介绍" class="headerlink" title="3.3.3.1 集群组件介绍"></a>3.3.3.1 集群组件介绍</h3><p><strong>主要组件</strong></p>
 <p><code>vminsert</code>：写入组件，vminsert负责接收数据写入并根据对度量名称及其所有标签一致hash结果将数据分散写入不同的后端存储节点（vmstorage），vminsert默认端口：8480。</p>
 <p><code>vmstorage</code>：存储原始数据并返回给定时间范围内给定标签过滤器的查询数据，默认端口：8482。</p>
 <p><code>vmselect</code>：查询（读取）组件，连接vmstorage，默认端口：8481。</p>
@@ -434,49 +511,136 @@
 <p><code>vmalert</code>：可用作替换prometheus server，以victoriametrics为数据源，基于兼容prometheus的告警规则，判断数据是否异常，并将产生的通知发送给alertmanager。</p>
 <p><code>vmgateway</code>：读写victoriametrics数据的代理网管，可实现限速和访问控制等功能，目前为企业边组件</p>
 <p><code>vmctl</code>：victoriametrics的命令行工具，目前主要用于将prometheus、opentsdb等护具源的数据迁移到victoriametrics。</p>
-<h3 id="2-3-2-集群部署简介"><a href="#2-3-2-集群部署简介" class="headerlink" title="2.3.2 集群部署简介"></a>2.3.2 集群部署简介</h3><p>注意：我们使用的是二进制部署，二进制程序可以分开放，不一定都放在同一服务器上。</p>
-<p>比如：一个简单的集群是三台服务器，各服务器都安装“vminset”，“vmstorage”和“vmselect”。</p>
+<h3 id="2-3-2-集群部署简介"><a href="#2-3-2-集群部署简介" class="headerlink" title="2.3.2 集群部署简介"></a>2.3.2 集群部署简介</h3><p>victoriametrics集群主要是安装<code>vminset</code>、<code>vmstorage</code>、<code>vmselect</code>这三个组件，大致上有两种部署方式：</p>
+<p>第一种：一个简单的集群是三台服务器，各服务器都安装“vminset”，“vmstorage”和“vmselect”。</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-269.png" srcset="/blog/img/loading.gif"></p>
-<p>但是我们可以将这些组件分开部署，“vminsert”部署在三台服务器，“vimstorage”部署在三台服务器和“vmselect”部署在三台服务器上。（这样做比较少）</p>
+<p>第二种：我们可以将这些组件分开部署，“vminsert”分别部署在三台服务器，“vimstorage”分别部署在三台服务器和“vmselect”分别部署在三台服务器上。（这样做比较少）</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-270.png" srcset="/blog/img/loading.gif"></p>
+<p>按照第二种部署的方式，我们可以观察到victoriametrics集群在对<code>vminset</code>、<code>vmstorage</code>、<code>vmselect</code>这三个组件都可以进行比较容易的扩张和缩减，三个组件需要的数量根据公司环境所定。</p>
 <p>victoriametrics参数说明</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://www.jianshu.com/p/0095e0bdf7a6<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-3-vmstorage部署"><a href="#3-3-3-vmstorage部署" class="headerlink" title="3.3.3 vmstorage部署"></a>3.3.3 vmstorage部署</h3><p>本次实验是一台服务器安装3个组件。</p>
-<h4 id="3-3-3-1-下载集群安装包"><a href="#3-3-3-1-下载集群安装包" class="headerlink" title="3.3.3.1 下载集群安装包"></a>3.3.3.1 下载集群安装包</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir -p /apps/victoria-metrics-cluster<br>wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.82.1/victoria-metrics-linux-amd64-v1.82.1-cluster.tar.gz<br></code></pre></td></tr></table></figure>
+<h3 id="3-3-3-victoriametrics环境准备"><a href="#3-3-3-victoriametrics环境准备" class="headerlink" title="3.3.3 victoriametrics环境准备"></a>3.3.3 victoriametrics环境准备</h3><p>本次实验使用的是第一种部署方式，将三个组件都均匀的部署在三台服务器上，然后在由prometheus将采集的数据写入victoriametrics。最后grafana从victoriametrics中拉取数据进行展示。</p>
+<p>victoriametrics集群部署规划如下：</p>
+<table>
+<thead>
+<tr>
+<th>服务器地址</th>
+<th>服务器系统</th>
+<th>hostname</th>
+<th>安装的软件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10.0.0.7</td>
+<td>CentOS7.9</td>
+<td>prometheus_server</td>
+<td>prometheus、node_exporter</td>
+</tr>
+<tr>
+<td>10.0.0.17</td>
+<td>CentOS7.9</td>
+<td>victoria-node1</td>
+<td>victoriametrics</td>
+</tr>
+<tr>
+<td>10.0.0.27</td>
+<td>CentOS7.9</td>
+<td>victoria-node2</td>
+<td>victoriametrics</td>
+</tr>
+<tr>
+<td>10.0.0.37</td>
+<td>CentOS7.9</td>
+<td>victoria-node3</td>
+<td>victoriametrics</td>
+</tr>
+</tbody></table>
+<p>查看服务器地址，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# ifconfig eth0 | grep inet | awk &#x27;NR==1&#123;print $2&#125;&#x27;<br>10.0.0.7<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-3-2-解压"><a href="#3-3-3-2-解压" class="headerlink" title="3.3.3.2 解压"></a>3.3.3.2 解压</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">tar xf victoria-metrics-linux-amd64-v1.82.1-cluster.tar.gz<br></code></pre></td></tr></table></figure>
+<p>查看服务器系统，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# cat /etc/redhat-release <br>CentOS Linux release 7.9.2009 (Core)<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-3-3-创建数据存储目录"><a href="#3-3-3-3-创建数据存储目录" class="headerlink" title="3.3.3.3 创建数据存储目录"></a>3.3.3.3 创建数据存储目录</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mkdir -p /apps/victoria-metrics-cluster/data<br></code></pre></td></tr></table></figure>
+<p>修改hostname，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# hostnamectl set-hostname victoria-node1 #执行命令后退出终端重新连接终端<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-3-4-添加service文件"><a href="#3-3-3-4-添加service文件" class="headerlink" title="3.3.3.4 添加service文件"></a>3.3.3.4 添加service文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/vmstorage.service</span><br>[Unit]<br>Description=Vmstorage Server<br>After=network.tartget<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/victoria-metrics-cluster<br>ExecStart=/apps/victoria-metrics-cluster/vmstorage-prod -loggerTimezone Asia/Shanghai -storageDataPath /apps/victoria-metrics-cluster/data -httpListenAddr :8482 -vminsertAddr :8400 -vmselectAddr :8401 -retentionPeriod 1y<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+<p>查看hostname，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@victoria-node1 ~]# hostname<br>victoria-node1<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-3-5-添加启动用户"><a href="#3-3-3-5-添加启动用户" class="headerlink" title="3.3.3.5 添加启动用户"></a>3.3.3.5 添加启动用户</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin victoria</span><br></code></pre></td></tr></table></figure>
+<p>所有节点都可以根据规划修改hostname，服务器地址。</p>
+<h3 id="3-3-4-vmstorage部署"><a href="#3-3-4-vmstorage部署" class="headerlink" title="3.3.4 vmstorage部署"></a>3.3.4 vmstorage部署</h3><h4 id="3-3-4-1-下载集群安装包"><a href="#3-3-4-1-下载集群安装包" class="headerlink" title="3.3.4.1 下载集群安装包"></a>3.3.4.1 下载集群安装包</h4><p>创建安装目录和下载安装包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">创建安装目录</span><br><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/victoria-metrics-cluster</span><br><span class="hljs-meta">#</span><span class="bash">进入安装目录</span><br><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/victoria-metrics-cluster</span><br><span class="hljs-meta">#</span><span class="bash">下载victoriametrics集群安装包</span><br><span class="hljs-meta">#</span><span class="bash"> wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.82.1/victoria-metrics-linux-amd64-v1.82.1-cluster.tar.gz</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-3-5-修改目录所属"><a href="#3-3-3-5-修改目录所属" class="headerlink" title="3.3.3.5 修改目录所属"></a>3.3.3.5 修改目录所属</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R victoria.victoria /apps/victoria-metrics-cluster/</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-p</code>：若所要建立目录的上层目录目前尚未建立，则会一并建立上层目录。</p>
+<h4 id="3-3-4-2-解压"><a href="#3-3-4-2-解压" class="headerlink" title="3.3.4.2 解压"></a>3.3.4.2 解压</h4><p>对下载的安装包进行解压，执行命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> tar xf victoria-metrics-linux-amd64-v1.82.1-cluster.tar.gz</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-3-6-启动vmstorage"><a href="#3-3-3-6-启动vmstorage" class="headerlink" title="3.3.3.6 启动vmstorage"></a>3.3.3.6 启动vmstorage</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start vmstorage.service</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> vmstorage.service</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>x</code>：从归档中解出文件</p>
+<p><code>f</code>：使用归档文件或 ARCHIVE 设备</p>
+<h4 id="3-3-4-3-创建数据存储目录"><a href="#3-3-4-3-创建数据存储目录" class="headerlink" title="3.3.4.3 创建数据存储目录"></a>3.3.4.3 创建数据存储目录</h4><p>创建victoriametrics存储数据的目录，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /apps/victoria-metrics-cluster/data</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-4-vminsert部署"><a href="#3-3-4-vminsert部署" class="headerlink" title="3.3.4 vminsert部署"></a>3.3.4 vminsert部署</h3><h4 id="3-3-4-1-添加service文件"><a href="#3-3-4-1-添加service文件" class="headerlink" title="3.3.4.1 添加service文件"></a>3.3.4.1 添加service文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/vminsert.service</span><br>[Unit]<br>Description=Vmstorage Server<br>After=network.tartget<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/victoria-metrics-cluster<br>ExecStart=/apps/victoria-metrics-cluster/vminsert-prod -httpListenAddr :8480 -storageNode=10.0.0.17:8400,10.0.0.27:8400,10.0.0.37:8400<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-p</code>：若所要建立目录的上层目录目前尚未建立，则会一并建立上层目录。</p>
+<h4 id="3-3-4-4-添加vmstorage组件的service文件"><a href="#3-3-4-4-添加vmstorage组件的service文件" class="headerlink" title="3.3.4.4 添加vmstorage组件的service文件"></a>3.3.4.4 添加vmstorage组件的service文件</h4><p>创建vmstorage组件的service文件，内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/vmstorage.service</span><br>[Unit]<br>Description=Vmstorage Server<br>After=network.tartget<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/victoria-metrics-cluster<br>ExecStart=/apps/victoria-metrics-cluster/vmstorage-prod -loggerTimezone Asia/Shanghai -storageDataPath /apps/victoria-metrics-cluster/data -httpListenAddr :8482 -vminsertAddr :8400 -vmselectAddr :8401 -retentionPeriod 1y<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-4-2-启动vminsert"><a href="#3-3-4-2-启动vminsert" class="headerlink" title="3.3.4.2 启动vminsert"></a>3.3.4.2 启动vminsert</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start vminsert.service</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> vminsert.service</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-loggerTimezone</code>：设置时区。</p>
+<p><code>-storageDataPath</code>：设置存储路径。</p>
+<p><code>-httpListenAddr</code>：设置监听地址。</p>
+<p><code>-vminsertAddr</code>：设置vminsert的地址，用于vminsert对vmstorage的写入。</p>
+<p><code>-vmselectAddr</code>：设置vmselect的地址，用于vmselect对vmstorage的查询。</p>
+<p><code>-retentionPeriod</code>：设置数据保留时间。</p>
+<h4 id="3-3-4-5-添加启动用户"><a href="#3-3-4-5-添加启动用户" class="headerlink" title="3.3.4.5 添加启动用户"></a>3.3.4.5 添加启动用户</h4><p>创建victoria用户，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> useradd -M -r -s /usr/sbin/nologin victoria</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-5-vmselect部署"><a href="#3-3-5-vmselect部署" class="headerlink" title="3.3.5 vmselect部署"></a>3.3.5 vmselect部署</h3><h4 id="3-3-5-1-添加service文件"><a href="#3-3-5-1-添加service文件" class="headerlink" title="3.3.5.1 添加service文件"></a>3.3.5.1 添加service文件</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/vmselect.service</span><br>[Unit]<br>Description=Vmstorage Server<br>After=network.tartget<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/victoria-metrics-cluster<br>ExecStart=/apps/victoria-metrics-cluster/vmselect-prod -httpListenAddr :8481 -storageNode=10.0.0.17:8401,10.0.0.27:8401,10.0.0.37:8401<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-M</code>：不用创建家目录。</p>
+<p><code>-r</code>：创建的用户为系统用户。</p>
+<p><code>-s</code>：设置创建用户的shell类型。</p>
+<h4 id="3-3-4-5-修改目录所属"><a href="#3-3-4-5-修改目录所属" class="headerlink" title="3.3.4.5 修改目录所属"></a>3.3.4.5 修改目录所属</h4><p>修改victoriametrics目录的所属，执行命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> chown -R victoria.victoria /apps/victoria-metrics-cluster/</span><br></code></pre></td></tr></table></figure>
 
-<h4 id="3-3-5-2-启动vmselect"><a href="#3-3-5-2-启动vmselect" class="headerlink" title="3.3.5.2 启动vmselect"></a>3.3.5.2 启动vmselect</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start vmselect.service</span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> vmselect.service</span><br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-R</code>：递归授权</p>
+<h4 id="3-3-4-6-启动vmstorag并设置开机启动"><a href="#3-3-4-6-启动vmstorag并设置开机启动" class="headerlink" title="3.3.4.6 启动vmstorag并设置开机启动"></a>3.3.4.6 启动vmstorag并设置开机启动</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload <span class="hljs-comment">#读取所有的service文件</span></span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start vmstorage.service <span class="hljs-comment">#启动vmstorage</span></span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> vmstorage.service <span class="hljs-comment">#设置vmstorage开机启动</span></span><br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-6-验证服务端口"><a href="#3-3-6-验证服务端口" class="headerlink" title="3.3.6 验证服务端口"></a>3.3.6 验证服务端口</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">10.0.0.17</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.17:8480/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.17:8481/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.17:8482/metrics</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">10.0.0.27</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.27:8480/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.27:8481/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.27:8482/metrics</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">10.0.0.37</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.37:8480/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.37:8481/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.37:8482/metrics</span><br></code></pre></td></tr></table></figure>
+<h3 id="3-3-5-vminsert部署"><a href="#3-3-5-vminsert部署" class="headerlink" title="3.3.5 vminsert部署"></a>3.3.5 vminsert部署</h3><h4 id="3-3-5-1-添加vminsert的service文件"><a href="#3-3-5-1-添加vminsert的service文件" class="headerlink" title="3.3.5.1 添加vminsert的service文件"></a>3.3.5.1 添加vminsert的service文件</h4><p>添加vminsert的service文件，内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/vminsert.service</span><br>[Unit]<br>Description=Vmstorage Server<br>After=network.tartget<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/victoria-metrics-cluster<br>ExecStart=/apps/victoria-metrics-cluster/vminsert-prod -httpListenAddr :8480 -storageNode=10.0.0.17:8400,10.0.0.27:8400,10.0.0.37:8400<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-7-prometheus配置集群远程写入"><a href="#3-3-7-prometheus配置集群远程写入" class="headerlink" title="3.3.7 prometheus配置集群远程写入"></a>3.3.7 prometheus配置集群远程写入</h3><p>在生产环境，写入数据也是通过负载均衡来进行写数据的。当使用了负载均衡来写数据的时候，url的地址就应该改为负载均衡的地址。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br>......<br><span class="hljs-meta">#</span><span class="bash"> my global config</span><br>global:<br>  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.<br>  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.<br><span class="hljs-meta">  #</span><span class="bash"> scrape_timeout is <span class="hljs-built_in">set</span> to the global default (10s).</span><br><br>remote_write:<br>  - url: http://10.0.0.17:8480/insert/0/prometheus<br>  - url: http://10.0.0.17:8480/insert/0/prometheus<br>  - url: http://10.0.0.17:8480/insert/0/prometheus<br></code></pre></td></tr></table></figure>
+<p>解释：</p>
+<p><code>-httpListenAdd</code>：设置监听地址</p>
+<p><code>-storageNode</code>：添加vmstorage的存储节点地址信息，用于找到vmstorage节点进行写入。</p>
+<h4 id="3-3-5-2-启动vminsert并设置开机启动"><a href="#3-3-5-2-启动vminsert并设置开机启动" class="headerlink" title="3.3.5.2 启动vminsert并设置开机启动"></a>3.3.5.2 启动vminsert并设置开机启动</h4><p>启动vminsert并设置开机启动，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload <span class="hljs-comment">#读取所有的service文件</span></span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start vminsert.service <span class="hljs-comment">#启动vminsert</span></span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> vminsert.service <span class="hljs-comment">#设置vminsert为开机启动</span></span><br></code></pre></td></tr></table></figure>
 
-<p>关于集群版的远程地址解释</p>
+<h3 id="3-3-6-vmselect部署"><a href="#3-3-6-vmselect部署" class="headerlink" title="3.3.6 vmselect部署"></a>3.3.6 vmselect部署</h3><h4 id="3-3-6-1-添加vmselect的service文件"><a href="#3-3-6-1-添加vmselect的service文件" class="headerlink" title="3.3.6.1 添加vmselect的service文件"></a>3.3.6.1 添加vmselect的service文件</h4><p>添加vmselect的service文件，内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim /usr/lib/systemd/system/vmselect.service</span><br>[Unit]<br>Description=Vmstorage Server<br>After=network.tartget<br><br>[Service]<br>Restart=on-failure<br>WorkingDirectory=/apps/victoria-metrics-cluster<br>ExecStart=/apps/victoria-metrics-cluster/vmselect-prod -httpListenAddr :8481 -storageNode=10.0.0.17:8401,10.0.0.27:8401,10.0.0.37:8401<br>User=victoria<br><br>[Install]<br>WantedBy=multi-user.target<br></code></pre></td></tr></table></figure>
+
+<p>解释：</p>
+<p><code>-httpListenAddr</code>：设置监听地址</p>
+<p><code>-storageNode</code>：添加vmstorage的存储节点地址信息，用于找到vmstorage节点进行查询。</p>
+<h4 id="3-3-6-2-启动vmselect并设置开机启动"><a href="#3-3-6-2-启动vmselect并设置开机启动" class="headerlink" title="3.3.6.2 启动vmselect并设置开机启动"></a>3.3.6.2 启动vmselect并设置开机启动</h4><p>启动vmselect并设置开机启动，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl daemon-reload <span class="hljs-comment">#读取所有的service文件</span></span><br><span class="hljs-meta">#</span><span class="bash"> systemctl start vmselect.service <span class="hljs-comment">#启动vmselect</span></span><br><span class="hljs-meta">#</span><span class="bash"> systemctl <span class="hljs-built_in">enable</span> vmselect.service <span class="hljs-comment">#设置vmselect开机启动</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-7-验证服务端口"><a href="#3-3-7-验证服务端口" class="headerlink" title="3.3.7 验证服务端口"></a>3.3.7 验证服务端口</h3><p>通过curl命令来验证个组件是否有正常启动，执行的命令如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">验证10.0.0.17的victoriametrics组件</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.17:8480/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.17:8481/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.17:8482/metrics</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">验证10.0.0.27的victoriametrics组件</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.27:8480/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.27:8481/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.27:8482/metrics</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash">验证10.0.0.37的victoriametrics组件</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.37:8480/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.37:8481/metrics</span><br><span class="hljs-meta">#</span><span class="bash"> curl http://10.0.0.37:8482/metrics</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="3-3-8-prometheus配置集群远程写入"><a href="#3-3-8-prometheus配置集群远程写入" class="headerlink" title="3.3.8 prometheus配置集群远程写入"></a>3.3.8 prometheus配置集群远程写入</h3><p>在生产环境中，写入数据也是通过负载均衡来进行写数据的。当使用了负载均衡来写数据的时候，url的地址就应该改为负载均衡的地址。</p>
+<p>prometheus配置写入的内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> <span class="hljs-built_in">cd</span> /apps/prometheus</span><br><span class="hljs-meta">#</span><span class="bash"> vim prometheus.yml</span><br>......<br><span class="hljs-meta">#</span><span class="bash"> my global config</span><br>global:<br>  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.<br>  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.<br><span class="hljs-meta">  #</span><span class="bash"> scrape_timeout is <span class="hljs-built_in">set</span> to the global default (10s).</span><br><br>remote_write: #下面配置的是各个vminsert节点的url地址<br>  - url: http://10.0.0.17:8480/insert/0/prometheus <br>  - url: http://10.0.0.27:8480/insert/0/prometheus<br>  - url: http://10.0.0.37:8480/insert/0/prometheus<br></code></pre></td></tr></table></figure>
+
+<p>关于集群版的远程地址解释如下：</p>
 <p>官方文档给出的例子是</p>
-<p><code>http://&lt;vminsert&gt;:8480/insert/&lt;accountID&gt;/&lt;suffix&gt;</code></p>
+<p>“http://<vminsert>:8480/insert/<accountID>/<suffix>”</p>
 <p>而关于“http://<vminsert>:8480/insert/”这一部分是固定（中间的“vminsert”指的是安装vminsert的服务器的地址。如果是做了负载均衡的话就是负载均衡地址）</p>
 <p><code>&lt;accountID&gt;</code>：一个任意的32位整数，用于识别数据的命名空间。</p>
 <blockquote>
-<p>如果有多套prometheus并且每套prometheus的数据都需要进行隔离的话，那么就可以换成其他证书。</p>
+<p>如果有多套prometheus并且每套prometheus的数据都需要进行隔离的话，那么就可以换成其他数字。</p>
 <p>注意：如使用字符串和标点会报错。读和写的数字要相同，不然grafana会读取到别的数据。</p>
 </blockquote>
 <p><code>&lt;suffix&gt;</code>：后缀。规定了有下列的后缀：</p>
@@ -493,12 +657,13 @@
 <p>详细的URL格式可以参考官方文档：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://docs.victoriametrics.com/Cluster-VictoriaMetrics.html#url-format<br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-8-prometheus重新读取配置文件"><a href="#3-3-8-prometheus重新读取配置文件" class="headerlink" title="3.3.8 prometheus重新读取配置文件"></a>3.3.8 prometheus重新读取配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
+<h3 id="3-3-9-prometheus重新读取配置文件"><a href="#3-3-9-prometheus重新读取配置文件" class="headerlink" title="3.3.9 prometheus重新读取配置文件"></a>3.3.9 prometheus重新读取配置文件</h3><p>通过重启让prometheus读取配置文件，执行的命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> systemctl restart prometheus</span><br></code></pre></td></tr></table></figure>
 
-<h3 id="3-3-9-grafana添加数据源"><a href="#3-3-9-grafana添加数据源" class="headerlink" title="3.3.9 grafana添加数据源"></a>3.3.9 grafana添加数据源</h3><p>grafana添加数据源。在生产环境中，我们可以给读数据添加一个负载均衡，让grafana连接负载均衡的URL进行数据的查询。</p>
+<h3 id="3-3-10-grafana添加数据源"><a href="#3-3-10-grafana添加数据源" class="headerlink" title="3.3.10 grafana添加数据源"></a>3.3.10 grafana添加数据源</h3><p>grafana添加数据源。在生产环境中，我们可以给读数据添加一个负载均衡，让grafana连接负载均衡的URL进行数据的查询。</p>
 <p>注意：url地址中select后面的参数要和prometheus配置文件的设置参数一样，也就是上面说过的<code>/&lt;accountID&gt;/&lt;suffix&gt;</code>这个部分要和prometheus的配置一样。</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-273.png" srcset="/blog/img/loading.gif"></p>
-<h3 id="3-3-10-导入模板并查看结果"><a href="#3-3-10-导入模板并查看结果" class="headerlink" title="3.3.10 导入模板并查看结果"></a>3.3.10 导入模板并查看结果</h3><p>导入模板的过程略。</p>
+<h3 id="3-3-11-导入模板并查看结果"><a href="#3-3-11-导入模板并查看结果" class="headerlink" title="3.3.11 导入模板并查看结果"></a>3.3.11 导入模板并查看结果</h3><p>导入模板的过程略，下图是导入模板后的效果：</p>
 <p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-274.png" srcset="/blog/img/loading.gif"></p>
 <h2 id="3-4-开启数据复制"><a href="#3-4-开启数据复制" class="headerlink" title="3.4 开启数据复制"></a>3.4 开启数据复制</h2><p>默认情况下，数据被viminsert的组件基于hash算法分别将数据持久化到不同的vmstorage节点，可以启动vminsert组件支持的<code>-replicationFactor=N</code>复制功能，将数据分别在各个节点保存一份完整的副本以实现数据的高可用。</p>
 <p>集群数量至少2*N-1个vmstorage节点，其中N是复制因子。</p>
@@ -508,6 +673,10 @@
 
 <h2 id="3-5-备份与恢复"><a href="#3-5-备份与恢复" class="headerlink" title="3.5 备份与恢复"></a>3.5 备份与恢复</h2><p>官方文档：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://docs.victoriametrics.com/Cluster-VictoriaMetrics.html#replication-and-data-safety<br></code></pre></td></tr></table></figure>
+
+
+
+
 
 
 
@@ -530,6 +699,12 @@
                 <div class="post-prevnext">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/blog/2023/02/12/MySQL%E4%B9%8B%E7%94%A8%E6%88%B7%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL之用户与权限管理</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
