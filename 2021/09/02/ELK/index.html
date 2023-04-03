@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      19.3k 字
+      19.4k 字
     </span>
   
 
@@ -360,6 +360,11 @@
 
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk2.png" srcset="/blog/img/loading.gif"></p>
 <h3 id="2-3-7-通过浏览器访问Elasticsearch服务端口"><a href="#2-3-7-通过浏览器访问Elasticsearch服务端口" class="headerlink" title="2.3.7 通过浏览器访问Elasticsearch服务端口"></a>2.3.7 通过浏览器访问Elasticsearch服务端口</h3><p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/ELK/elk4.png" srcset="/blog/img/loading.gif" alt="浏览器访问：ip:9200"></p>
+<h3 id="2-3-8-注意"><a href="#2-3-8-注意" class="headerlink" title="2.3.8 注意"></a>2.3.8 注意</h3><p>因为超时不能启动elasticsearch，就修改service的“TimeoutStartSec”时间。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs SHELL">TimeoutStartSec=120 #设置120秒<br></code></pre></td></tr></table></figure>
+
+
+
 <h2 id="2-4-安装Elasticsearch插件之head"><a href="#2-4-安装Elasticsearch插件之head" class="headerlink" title="2.4 安装Elasticsearch插件之head"></a>2.4 安装Elasticsearch插件之head</h2><p>插件是为了完成不同的功能，官方提供了一些插件但大部分是收费的，另外也有一些开发爱好者提供的插件，可以实现对 elasticsearch 集群的状态监控与管理配置等功能。</p>
 <p>github 地址：</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">https://github.com/mobz/elasticsearch-head<br></code></pre></td></tr></table></figure>

@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      15.4k 字
+      15.5k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      244
+      245
        分钟
     </span>
   
@@ -242,6 +242,12 @@
 </ul>
 <p>下面介绍几种用的比较多的发现机制</p>
 <h1 id="一、kubernetes-sd-configures"><a href="#一、kubernetes-sd-configures" class="headerlink" title="一、kubernetes_sd_configures"></a>一、kubernetes_sd_configures</h1><p>不会kubernetes，所以暂时没有内容</p>
+<p>kube-prometheus介绍及使用：</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/deny/p/14328900.html">https://www.cnblogs.com/deny/p/14328900.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.51cto.com/liqingbiao/6066496">https://blog.51cto.com/liqingbiao/6066496</a></p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/document/product/1416/55995#pod-monitor">https://cloud.tencent.com/document/product/1416/55995#pod-monitor</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zfw_666666/article/details/126870239">https://blog.csdn.net/zfw_666666/article/details/126870239</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903908251451406">https://juejin.cn/post/6844903908251451406</a></p>
 <h1 id="二、static-sd-configs"><a href="#二、static-sd-configs" class="headerlink" title="二、static_sd_configs"></a>二、static_sd_configs</h1><p>“static_sd_configs”是prometheus的典型的发现服务方式。</p>
 <p>这种方式需要在<code>prometheus.yml</code>配置文件中添加目标或者通过prometheus的API来添加被监控的目标。</p>
 <p>在修改配置文件之后还需要重启prometheus服务或使用prometheus API加载配置文件。但是这种<strong>静态</strong>加载被监控目标的方式是非常麻烦的，因为每次有服务器上线和下载都需要运维手动修改配置文件来加载prometheus需要监控的目标，这样做就不是很灵活。同时，被监控的节点数量非常大的话，那么重启或重新加载的时间就会很长。</p>

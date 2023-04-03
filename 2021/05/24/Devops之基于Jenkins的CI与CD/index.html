@@ -184,7 +184,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      36.6k 字
+      36.8k 字
     </span>
   
 
@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      596
+      598
        分钟
     </span>
   
@@ -256,6 +256,7 @@
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/devopts/devpots-8.png" srcset="/blog/img/loading.gif"></p>
 <h3 id="1-10-2-分布式版本控制系统"><a href="#1-10-2-分布式版本控制系统" class="headerlink" title="1.10.2 分布式版本控制系统"></a>1.10.2 分布式版本控制系统</h3><p>Git 在每个用户都有一个完整的服务器，然后在有一个中央服务器，用户可以先将代码提交到本地，没有网络也可以先提交到本地，然后在有网络的时候再提交到中央服务器，这样就大大方便了开发者的代码提交和回滚，而相比 CVS 和 SVN 都是集中式的版本控制系统，工作的时候需要先从中央服务器获取最新的代码，改完之后需要提交，如果是一个比较大的文件则需要足够快的网络才能快速提交完成，而使用分布式的版本控制系统，每个用户都是一个完整的版本库，即使没有中央服务器也可以提交代码或者回滚，最终再把改好的代码提交至中央服务器进行合并即可。</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/devopts/devpots-9.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-11-多种部署方式"><a href="#1-11-多种部署方式" class="headerlink" title="1.11 多种部署方式"></a>1.11 多种部署方式</h3><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/62816028">https://zhuanlan.zhihu.com/p/62816028</a></p>
 <h1 id="二、Gitlab部署与使用"><a href="#二、Gitlab部署与使用" class="headerlink" title="二、Gitlab部署与使用"></a>二、Gitlab部署与使用</h1><p><a target="_blank" rel="noopener" href="https://about.gitlab.com/install/">https://about.gitlab.com/install/</a> # Gitlab 服务的安装文档</p>
 <p><a target="_blank" rel="noopener" href="https://docs.gitlab.com/ce/install/requirements.html">https://docs.gitlab.com/ce/install/requirements.html</a> #安装环境要求</p>
 <h2 id="2-1-下载署并部署-gitlab"><a href="#2-1-下载署并部署-gitlab" class="headerlink" title="2.1 下载署并部署 gitlab"></a>2.1 下载署并部署 gitlab</h2><p>硬件配置：</p>
@@ -729,6 +730,20 @@
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/devopts/devpots-another45.png" srcset="/blog/img/loading.gif"></p>
 <h4 id="4-5-2-5-使用Jenkins部署合并后的代码"><a href="#4-5-2-5-使用Jenkins部署合并后的代码" class="headerlink" title="4.5.2.5 使用Jenkins部署合并后的代码"></a>4.5.2.5 使用Jenkins部署合并后的代码</h4><p>在Jenkins里的开发环境立即构建，部署完成后即可到生产环境验证</p>
 <h4 id="4-5-2-6-公司代码部署流程"><a href="#4-5-2-6-公司代码部署流程" class="headerlink" title="4.5.2.6 公司代码部署流程"></a>4.5.2.6 公司代码部署流程</h4><p>" srcset="/blog/img/loading.gif<img src=""></p>
+<ol>
+<li>开发上传代码</li>
+<li>使用jenkins克隆代码</li>
+<li>使用sonarqube对代码进行质量扫描</li>
+<li>编译打包代码</li>
+<li>代码拷贝到目标服务器</li>
+<li>使用负载均衡使服务器下线（可以通过配置文件之间的替换实现服务器的下线。部署用的conf文件里些服务器被注释掉了，部署完成后用的conf文件是所有服务器没有被注释掉）</li>
+<li>目标服务器停止服务</li>
+<li>停止旧代码的服务</li>
+<li>启动新代码的服务器</li>
+<li>基于curl命令对服务进行测试（curl api）</li>
+<li>使用负载均衡对服务器进行上线</li>
+<li>最后用户就可以通过负载均衡访问新的服务</li>
+</ol>
 <h2 id="4-6-构建触发器-钩子"><a href="#4-6-构建触发器-钩子" class="headerlink" title="4.6 构建触发器(钩子)"></a>4.6 构建触发器(钩子)</h2><p><strong>只使用于测试环境</strong></p>
 <p>构建触发器(webhook)，有的人称为钩子，实际上是一个 HTTP 回调,其用于<strong>在开发人员向 gitlab 提交代码后能够触发 jenkins 自动执行代码构建操作。</strong></p>
 <p>以下为新建一个开发分支，只有在开发人员向开发(develop)分支提交代码的时候才会触发代码构建，而向主分支提交的代码不会自动构建，需要运维人员手动部署代码到生产环境。</p>
