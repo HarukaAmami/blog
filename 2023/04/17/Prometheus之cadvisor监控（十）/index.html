@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=&#34;auto&#34;>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/blog/img/favicon.png">
+  <link rel="icon" type="image/png" href="/blog/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="rlin">
+  <meta name="keywords" content="">
+  <title>Prometheus之cadvisor监控 - rlin的运维笔记</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_kmeydafke9r.css">
+
+
+<link  rel="stylesheet" href="/blog/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"rintime.gitee.io","root":"/blog/","version":"1.8.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"onlypost":false},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null}}};
+  </script>
+  <script  src="/blog/js/utils.js" ></script>
+  <script  src="/blog/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/blog/">&nbsp;<strong>rlin的运维笔记</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/blog/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;</a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" href="javascript:">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/blog/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Prometheus之cadvisor监控">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-04-17 22:38" pubdate>
+        2023年4月17日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.7k 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      46
+       分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Prometheus之cadvisor监控</h1>
+            
+            <div class="markdown-body">
+              <h1 id="cadvisor监控pod资源"><a href="#cadvisor监控pod资源" class="headerlink" title="cadvisor监控pod资源"></a>cadvisor监控pod资源</h1><h1 id="一、cadvisor部署"><a href="#一、cadvisor部署" class="headerlink" title="一、cadvisor部署"></a>一、cadvisor部署</h1><h2 id="1-1-docker部署cadvisor"><a href="#1-1-docker部署cadvisor" class="headerlink" title="1.1 docker部署cadvisor"></a>1.1 docker部署cadvisor</h2><p>使用docker部署与使用containerd部署的参数几乎一样。所以使用containerd可以参考下面的使用docker部署。</p>
+<h3 id="1-1-1-安装docker"><a href="#1-1-1-安装docker" class="headerlink" title="1.1.1 安装docker"></a>1.1.1 安装docker</h3><p>过程略</p>
+<h3 id="1-1-2-下载cadvisor镜像并上传到harbor"><a href="#1-1-2-下载cadvisor镜像并上传到harbor" class="headerlink" title="1.1.2 下载cadvisor镜像并上传到harbor"></a>1.1.2 下载cadvisor镜像并上传到harbor</h3><p>因为cadvisor在谷歌的镜像仓库里，所以需要国内需要手动下载，下载过程略</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> docker pull registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.45.0</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> docker tag registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.45.0  harbor.rlin.com/baseimages/cadvisor-amd64:v0.45.0</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-1-4-启动cadvisor镜像"><a href="#1-1-4-启动cadvisor镜像" class="headerlink" title="1.1.4 启动cadvisor镜像"></a>1.1.4 启动cadvisor镜像</h3><p>注意点：cadvisor使用的是8080端口，而下面启动cadvisor的命令也会占用宿主机8080端口。如宿主机8080端口有别的应用占用，就修改映射端口。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> docker run \</span><br><span class="bash">  --volume=/:/rootfs:ro \</span><br><span class="bash">  --volume=/var/run:/var/run:ro \</span><br><span class="bash">  --volume=/sys:/sys:ro \</span><br><span class="bash">  --volume=/var/lib/docker/:/var/lib/docker:ro \</span><br><span class="bash">  --volume=/dev/disk/:/dev/disk:ro \</span><br><span class="bash">  --publish=8080:8080 \ <span class="hljs-comment">#暂用8080端口，可修改</span></span><br>  --detach=true \<br>  --name=cadvisor \<br>  --privileged \<br>  --device=/dev/kmsg \<br>  harbor.rlin.com/baseimages/cadvisor-amd64:v0.45.0<br></code></pre></td></tr></table></figure>
+
+<p><strong>补充：containerd启动参数</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">nerdctl run -it -d  \<br>  --volume=/:/rootfs:ro \<br>  --volume=/var/run:/var/run:ro \<br>  --volume=/sys:/sys:ro \<br>  --volume=/var/lib/containerd/:/var/lib/containerd:ro \<br>  --volume=/dev/disk/:/dev/disk:ro \<br>  --publish=8080:8080 \<br>  --detach=true \<br>  --name=cadvisor \<br>  --privileged \<br>  --device=/dev/kmsg \<br>  registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.45.0<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-1-5-查看cadvisor"><a href="#1-1-5-查看cadvisor" class="headerlink" title="1.1.5 查看cadvisor"></a>1.1.5 查看cadvisor</h3><p>浏览器登录：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://10.0.0.104:8080<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-278.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="1-2-kubernetes部署cadvisor"><a href="#1-2-kubernetes部署cadvisor" class="headerlink" title="1.2 kubernetes部署cadvisor"></a>1.2 kubernetes部署cadvisor</h2><h3 id="1-2-1-下载cadvisor镜像"><a href="#1-2-1-下载cadvisor镜像" class="headerlink" title="1.2.1 下载cadvisor镜像"></a>1.2.1 下载cadvisor镜像</h3><p>因为cadvisor在谷歌的镜像仓库里，所以需要国内需要手动下载，下载过程略</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> docker pull registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.39.3</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> docker tag registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.39.3  harbor.rlin.com/baseimages/cadvisor-amd64:v0.39.3</span><br><span class="hljs-meta"></span><br><span class="hljs-meta">#</span><span class="bash"> docker push harbor.rlin.com/baseimages/cadvisor-amd64:v0.39.3</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-2-添加cadvisor的yaml文件"><a href="#1-2-2-添加cadvisor的yaml文件" class="headerlink" title="1.2.2 添加cadvisor的yaml文件"></a>1.2.2 添加cadvisor的yaml文件</h3><p>因为需要在所有节点上都部署cadvisor，所以控制器使用的是daemonset控制器和要添加容忍。并且会在宿主机中暴露端口</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># vim cadvisor-daemonset.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">DaemonSet</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">cadvisor</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">monitoring</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">cAdvisor</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">cAdvisor</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">tolerations:</span>    <span class="hljs-comment">#污点容忍,忽略master的NoSchedule</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">effect:</span> <span class="hljs-string">NoSchedule</span><br>          <span class="hljs-attr">key:</span> <span class="hljs-string">node-role.kubernetes.io/master</span><br>      <span class="hljs-attr">hostNetwork:</span> <span class="hljs-literal">true</span> <span class="hljs-comment">#在宿主机中暴露端口</span><br>      <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">Always</span>   <span class="hljs-comment"># 重启策略</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">cadvisor</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.rlin.com/baseimages/cadvisor-amd64:v0.39.3</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span>  <span class="hljs-comment"># 镜像策略</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>        <span class="hljs-attr">volumeMounts:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">root</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/rootfs</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">run</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/var/run</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">sys</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/sys</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">docker</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/var/lib/containerd</span><br>      <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">root</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">run</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/var/run</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">sys</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/sys</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">docker</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/var/lib/containerd</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-3-添加监控命名空间yaml文件"><a href="#1-2-3-添加监控命名空间yaml文件" class="headerlink" title="1.2.3 添加监控命名空间yaml文件"></a>1.2.3 添加监控命名空间yaml文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim namesapce.yaml</span><br>apiVersion: v1<br>kind: Namespace<br>metadata:<br>  name: monitoring<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-4-创建命名空间和cadvisor"><a href="#1-2-4-创建命名空间和cadvisor" class="headerlink" title="1.2.4 创建命名空间和cadvisor"></a>1.2.4 创建命名空间和cadvisor</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f namespace.yaml</span> <br>namespace/monitoring created<br><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f cadvisor-daemonset.yaml</span><br>daemonset.apps/cadvisor created<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-5-查看pod创建"><a href="#1-2-5-查看pod创建" class="headerlink" title="1.2.5 查看pod创建"></a>1.2.5 查看pod创建</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl get pod -n monitoring -o wide</span><br>NAME             READY   STATUS    RESTARTS   AGE   IP           NODE         NOMINATED NODE   READINESS GATES<br>cadvisor-2f97f   1/1     Running   0          66s   10.0.0.102   10.0.0.102   &lt;none&gt;           &lt;none&gt;<br>cadvisor-c2nnt   1/1     Running   0          66s   10.0.0.103   10.0.0.103   &lt;none&gt;           &lt;none&gt;<br>cadvisor-xslhr   1/1     Running   0          66s   10.0.0.101   10.0.0.101   &lt;none&gt;           &lt;none&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-2-6-查看结果"><a href="#1-2-6-查看结果" class="headerlink" title="1.2.6 查看结果"></a>1.2.6 查看结果</h3><p>浏览器访问任意节点</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://10.0.0.102:8080/metrics<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-279.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="1-3-prometheus添加cadvisor监控"><a href="#1-3-prometheus添加cadvisor监控" class="headerlink" title="1.3 prometheus添加cadvisor监控"></a>1.3 prometheus添加cadvisor监控</h2><h3 id="1-3-1-prometheus修改配置文件"><a href="#1-3-1-prometheus修改配置文件" class="headerlink" title="1.3.1 prometheus修改配置文件"></a>1.3.1 prometheus修改配置文件</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># vim prometheus.yml</span><br><span class="hljs-string">......</span><br><span class="hljs-attr">scrape_configs:</span><br>  <span class="hljs-comment"># The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&quot;prometheus&quot;</span><br><br>    <span class="hljs-comment"># metrics_path defaults to &#x27;/metrics&#x27;</span><br>    <span class="hljs-comment"># scheme defaults to &#x27;http&#x27;.</span><br><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">&quot;localhost:9090&quot;</span>]<br><br>  <span class="hljs-bullet">-</span> <span class="hljs-attr">job_name:</span> <span class="hljs-string">&quot;cadvisor&quot;</span><br>    <span class="hljs-attr">static_configs:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">targets:</span> [<span class="hljs-string">&quot;10.0.0.101:8080&quot;</span>,<span class="hljs-string">&quot;10.0.0.102:8080&quot;</span>,<span class="hljs-string">&quot;10.0.0.103:8080&quot;</span>]<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-3-2-检查配置文件语法"><a href="#1-3-2-检查配置文件语法" class="headerlink" title="1.3.2 检查配置文件语法"></a>1.3.2 检查配置文件语法</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> ./promtool check config prometheus.yml</span> <br>Checking prometheus.yml<br> SUCCESS: prometheus.yml is valid prometheus config file syntax<br></code></pre></td></tr></table></figure>
+
+<h3 id="1-3-3-重新读取prometheus配置文件"><a href="#1-3-3-重新读取prometheus配置文件" class="headerlink" title="1.3.3 重新读取prometheus配置文件"></a>1.3.3 重新读取prometheus配置文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> curl -XPUT http://10.0.0.7:9090/-/reload</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="1-3-4-查看prometheus的Target页面"><a href="#1-3-4-查看prometheus的Target页面" class="headerlink" title="1.3.4 查看prometheus的Target页面"></a>1.3.4 查看prometheus的Target页面</h3><p>浏览器访问</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">http://10.0.0.7:9090/targets?search=<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-280.png" srcset="/blog/img/loading.gif"></p>
+<h3 id="1-3-5-检查抓取的数据"><a href="#1-3-5-检查抓取的数据" class="headerlink" title="1.3.5 检查抓取的数据"></a>1.3.5 检查抓取的数据</h3><ul>
+<li>cadvisor_version_info</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-281.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="1-4-grafana添加dashboard"><a href="#1-4-grafana添加dashboard" class="headerlink" title="1.4 grafana添加dashboard"></a>1.4 grafana添加dashboard</h2><p>过程略。</p>
+<p>推荐模板：14282,395,893,315</p>
+<p><strong>使用14282模板注意事项</strong></p>
+<p>使用14282时，如果是用containerd作为运行时，那么在grafana里的pod的名称是name的名称，需要自行修改查询的条件。从<strong>name</strong>改为<strong>container_label_io_kubernetes_pod_name</strong></p>
+<p>例子：</p>
+<p>在CPU Usage里：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">sum(rate(container_cpu_usage_seconds_total&#123;instance=~&quot;$host&quot;,name=~&quot;$container&quot;,name=~&quot;.+&quot;&#125;[5m])) by (name) *100<br><span class="hljs-meta">#</span><span class="bash">改为</span><br>sum(rate(container_cpu_usage_seconds_total&#123;instance=~&quot;$host&quot;,name=~&quot;$container&quot;,name=~&quot;.+&quot;&#125;[5m])) by (container_label_io_kubernetes_pod_name) *100<br></code></pre></td></tr></table></figure>
+
+<p>之后还要修改variable里的“container”的“Definition”，这样做可以将左上角的“Container”的选择框的名称改为pod的名称</p>
+<p>例子：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">label_values(&#123;__name__=~&quot;container.*&quot;, instance=~&quot;$host&quot;&#125;,name)<br><span class="hljs-meta">#</span><span class="bash">改为</span><br>label_values(&#123;__name__=~&quot;container.*&quot;, instance=~&quot;$host&quot;&#125;,container_label_io_kubernetes_pod_name)<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="二、kubernetes集群部署一套prometheus监控集群"><a href="#二、kubernetes集群部署一套prometheus监控集群" class="headerlink" title="二、kubernetes集群部署一套prometheus监控集群"></a>二、kubernetes集群部署一套prometheus监控集群</h1><h2 id="2-1-部署监控项目的命名空间"><a href="#2-1-部署监控项目的命名空间" class="headerlink" title="2.1 部署监控项目的命名空间"></a>2.1 部署监控项目的命名空间</h2><h3 id="2-1-1-添加命名空间的yaml文件"><a href="#2-1-1-添加命名空间的yaml文件" class="headerlink" title="2.1.1 添加命名空间的yaml文件"></a>2.1.1 添加命名空间的yaml文件</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># vim namesapce.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">Namespace</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">monitoring</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-1-2-创建命名空间"><a href="#2-1-2-创建命名空间" class="headerlink" title="2.1.2 创建命名空间"></a>2.1.2 创建命名空间</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f namespace.yaml</span> <br>namespace/monitoring created<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-2-部署cadvisor"><a href="#2-2-部署cadvisor" class="headerlink" title="2.2 部署cadvisor"></a>2.2 部署cadvisor</h2><h3 id="2-2-1-下载cadvisor镜像并上传到harbor仓库"><a href="#2-2-1-下载cadvisor镜像并上传到harbor仓库" class="headerlink" title="2.2.1 下载cadvisor镜像并上传到harbor仓库"></a>2.2.1 下载cadvisor镜像并上传到harbor仓库</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">下载镜像</span><br><span class="hljs-meta">#</span><span class="bash"> docker pull registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.39.3</span><br><span class="hljs-meta">#</span><span class="bash">修改名称</span><br><span class="hljs-meta">#</span><span class="bash"> docker tag registry.cn-hangzhou.aliyuncs.com/zhangshijie/cadvisor-amd64:v0.39.3  harbor.rlin.com/baseimages/cadvisor-amd64:v0.39.3</span><br><span class="hljs-meta">#</span><span class="bash">上传镜像到harbor仓库</span><br><span class="hljs-meta">#</span><span class="bash"> docker push harbor.rlin.com/baseimages/cadvisor-amd64:v0.39.3</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-2-添加cadvisor的yaml文件"><a href="#2-2-2-添加cadvisor的yaml文件" class="headerlink" title="2.2.2 添加cadvisor的yaml文件"></a>2.2.2 添加cadvisor的yaml文件</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-comment"># vim cadvisor-daemonset.yaml</span><br><span class="hljs-attr">apiVersion:</span> <span class="hljs-string">apps/v1</span><br><span class="hljs-attr">kind:</span> <span class="hljs-string">DaemonSet</span><br><span class="hljs-attr">metadata:</span><br>  <span class="hljs-attr">name:</span> <span class="hljs-string">cadvisor</span><br>  <span class="hljs-attr">namespace:</span> <span class="hljs-string">monitoring</span><br><span class="hljs-attr">spec:</span><br>  <span class="hljs-attr">selector:</span><br>    <span class="hljs-attr">matchLabels:</span><br>      <span class="hljs-attr">app:</span> <span class="hljs-string">cAdvisor</span><br>  <span class="hljs-attr">template:</span><br>    <span class="hljs-attr">metadata:</span><br>      <span class="hljs-attr">labels:</span><br>        <span class="hljs-attr">app:</span> <span class="hljs-string">cAdvisor</span><br>    <span class="hljs-attr">spec:</span><br>      <span class="hljs-attr">tolerations:</span>    <span class="hljs-comment">#污点容忍,忽略master的NoSchedule</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">effect:</span> <span class="hljs-string">NoSchedule</span><br>          <span class="hljs-attr">key:</span> <span class="hljs-string">node-role.kubernetes.io/master</span><br>      <span class="hljs-attr">hostNetwork:</span> <span class="hljs-literal">true</span> <span class="hljs-comment">#在宿主机中暴露端口</span><br>      <span class="hljs-attr">restartPolicy:</span> <span class="hljs-string">Always</span>   <span class="hljs-comment"># 重启策略</span><br>      <span class="hljs-attr">containers:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">cadvisor</span><br>        <span class="hljs-attr">image:</span> <span class="hljs-string">harbor.rlin.com/baseimages/cadvisor-amd64:v0.39.3</span><br>        <span class="hljs-attr">imagePullPolicy:</span> <span class="hljs-string">IfNotPresent</span>  <span class="hljs-comment"># 镜像策略</span><br>        <span class="hljs-attr">ports:</span><br>        <span class="hljs-bullet">-</span> <span class="hljs-attr">containerPort:</span> <span class="hljs-number">8080</span><br>        <span class="hljs-attr">volumeMounts:</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">root</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/rootfs</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">run</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/var/run</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">sys</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/sys</span><br>          <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">docker</span><br>            <span class="hljs-attr">mountPath:</span> <span class="hljs-string">/var/lib/containerd</span><br>      <span class="hljs-attr">volumes:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">root</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">run</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/var/run</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">sys</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/sys</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">docker</span><br>        <span class="hljs-attr">hostPath:</span><br>          <span class="hljs-attr">path:</span> <span class="hljs-string">/var/lib/containerd</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-3-创建cadvisor"><a href="#2-2-3-创建cadvisor" class="headerlink" title="2.2.3 创建cadvisor"></a>2.2.3 创建cadvisor</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f cadvisor-daemonset.yaml</span><br>daemonset.apps/cadvisor created<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-2-4-查看cadvisor的pod信息"><a href="#2-2-4-查看cadvisor的pod信息" class="headerlink" title="2.2.4 查看cadvisor的pod信息"></a>2.2.4 查看cadvisor的pod信息</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl get pod -n monitoring -o wide</span><br>NAME             READY   STATUS    RESTARTS   AGE   IP           NODE         NOMINATED NODE   READINESS GATES<br>cadvisor-2f97f   1/1     Running   0          66s   10.0.0.102   10.0.0.102   &lt;none&gt;           &lt;none&gt;<br>cadvisor-c2nnt   1/1     Running   0          66s   10.0.0.103   10.0.0.103   &lt;none&gt;           &lt;none&gt;<br>cadvisor-xslhr   1/1     Running   0          66s   10.0.0.101   10.0.0.101   &lt;none&gt;           &lt;none&gt;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-3-部署node-exporter"><a href="#2-3-部署node-exporter" class="headerlink" title="2.3 部署node_exporter"></a>2.3 部署node_exporter</h2><h3 id="2-3-1-下载node-exporter镜像并上传到harbor"><a href="#2-3-1-下载node-exporter镜像并上传到harbor" class="headerlink" title="2.3.1 下载node_exporter镜像并上传到harbor"></a>2.3.1 下载node_exporter镜像并上传到harbor</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> docker pull prom/node-exporter:v1.3.1</span><br><span class="hljs-meta">#</span><span class="bash"> docker tag prom/node-exporter:v1.3.1 harbor.rlin.com/baseimages/node-exporter:v1.3.1</span><br><span class="hljs-meta">#</span><span class="bash"> docker push harbor.rlin.com/baseimages/node-exporter:v1.3.1</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-2-添加node-exporter的yaml文件"><a href="#2-3-2-添加node-exporter的yaml文件" class="headerlink" title="2.3.2 添加node_exporter的yaml文件"></a>2.3.2 添加node_exporter的yaml文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim node_exporter-daemonset.yaml</span><br>apiVersion: apps/v1<br>kind: DaemonSet<br>metadata:<br>  name: node-exporter<br>  namespace: monitoring <br>  labels:<br>    k8s-app: node-exporter<br>spec:<br>  selector:<br>    matchLabels:<br>        k8s-app: node-exporter<br>  template:<br>    metadata:<br>      labels:<br>        k8s-app: node-exporter<br>    spec:<br>      tolerations:<br>        - effect: NoSchedule<br>          key: node-role.kubernetes.io/master<br>      containers:<br>      - image: harbor.rlin.com/baseimages/node-exporter:v1.3.1 <br>        imagePullPolicy: IfNotPresent<br>        name: prometheus-node-exporter<br>        ports:<br>        - containerPort: 9100<br>          hostPort: 9100<br>          protocol: TCP<br>          name: metrics<br>        volumeMounts:<br>        - mountPath: /host/proc<br>          name: proc<br>        - mountPath: /host/sys<br>          name: sys<br>        - mountPath: /host<br>          name: rootfs<br>        args:<br>        - --path.procfs=/host/proc<br>        - --path.sysfs=/host/sys<br>        - --path.rootfs=/host<br>      volumes:<br>        - name: proc<br>          hostPath:<br>            path: /proc<br>        - name: sys<br>          hostPath:<br>            path: /sys<br>        - name: rootfs<br>          hostPath:<br>            path: /<br>      hostNetwork: true<br>      hostPID: true<br>--- #service内容可以省略，因为上面使用了“hostNetwork”<br>apiVersion: v1<br>kind: Service<br>metadata:<br>  annotations:<br>    prometheus.io/scrape: &quot;true&quot;<br>  labels:<br>    k8s-app: node-exporter<br>  name: node-exporter<br>  namespace: monitoring <br>spec:<br>  type: NodePort<br>  ports:<br>  - name: http<br>    port: 9100<br>    nodePort: 39100<br>    protocol: TCP<br>  selector:<br>    k8s-app: node-exporter<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-3-创建node-exporter"><a href="#2-3-3-创建node-exporter" class="headerlink" title="2.3.3 创建node_exporter"></a>2.3.3 创建node_exporter</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f node_exporter-daemonset.yaml</span><br>daemonset.apps/node-exporter created<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-4-查看node-exporter的pod信息"><a href="#2-3-4-查看node-exporter的pod信息" class="headerlink" title="2.3.4 查看node_exporter的pod信息"></a>2.3.4 查看node_exporter的pod信息</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl get pod -n monitoring -o wide</span><br>NAME                  READY   STATUS    RESTARTS   AGE    IP           NODE         NOMINATED NODE   READINESS GATES<br>cadvisor-2f97f        1/1     Running   0          85m    10.0.0.102   10.0.0.102   &lt;none&gt;           &lt;none&gt;<br>cadvisor-c2nnt        1/1     Running   0          85m    10.0.0.103   10.0.0.103   &lt;none&gt;           &lt;none&gt;<br>cadvisor-xslhr        1/1     Running   0          85m    10.0.0.101   10.0.0.101   &lt;none&gt;           &lt;none&gt;<br>node-exporter-f6qjf   1/1     Running   0          104s   10.0.0.103   10.0.0.103   &lt;none&gt;           &lt;none&gt;<br>node-exporter-gtqws   1/1     Running   0          104s   10.0.0.101   10.0.0.101   &lt;none&gt;           &lt;none&gt;<br>node-exporter-qdrr2   1/1     Running   0          104s   10.0.0.102   10.0.0.102   &lt;none&gt;           &lt;none&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-3-5-浏览器查看node-exporter采集的数据"><a href="#2-3-5-浏览器查看node-exporter采集的数据" class="headerlink" title="2.3.5 浏览器查看node_exporter采集的数据"></a>2.3.5 浏览器查看node_exporter采集的数据</h3><p>浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">10.0.0.102:9100/metrics<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-282.png" srcset="/blog/img/loading.gif"></p>
+<h2 id="2-4-部署prometheus-server"><a href="#2-4-部署prometheus-server" class="headerlink" title="2.4 部署prometheus_server"></a>2.4 部署prometheus_server</h2><p>这里有两个重点：</p>
+<ol>
+<li>prometheus需要访问api-server，需要创建一个账号进行认证</li>
+<li>prometheus需要将数据写到存储里，需要修改该存储的所属</li>
+</ol>
+<h3 id="2-4-1-创建prometheus-server的configmap的yaml文件"><a href="#2-4-1-创建prometheus-server的configmap的yaml文件" class="headerlink" title="2.4.1 创建prometheus_server的configmap的yaml文件"></a>2.4.1 创建prometheus_server的configmap的yaml文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim prometheus_server-configMap.yaml</span><br>---<br>kind: ConfigMap<br>apiVersion: v1<br>metadata:<br>  labels:<br>    app: prometheus<br>  name: prometheus-config<br>  namespace: monitoring <br>data:<br>  prometheus.yml: |<br>    global:<br>      scrape_interval: 15s<br>      scrape_timeout: 10s<br>      evaluation_interval: 1m<br>    scrape_configs:<br>    - job_name: &#x27;kubernetes-node&#x27;<br>      kubernetes_sd_configs:<br>      - role: node<br>      relabel_configs:<br>      - source_labels: [__address__]<br>        regex: &#x27;(.*):10250&#x27;<br>        replacement: &#x27;$&#123;1&#125;:9100&#x27;<br>        target_label: __address__<br>        action: replace<br>      - action: labelmap<br>        regex: __meta_kubernetes_node_label_(.+)<br>    - job_name: &#x27;kubernetes-node-cadvisor&#x27;<br>      kubernetes_sd_configs:<br>      - role:  node<br>      scheme: https<br>      tls_config:<br>        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt<br>      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token<br>      relabel_configs:<br>      - action: labelmap<br>        regex: __meta_kubernetes_node_label_(.+)<br>      - target_label: __address__<br>        replacement: kubernetes.default.svc:443<br>      - source_labels: [__meta_kubernetes_node_name]<br>        regex: (.+)<br>        target_label: __metrics_path__<br>        replacement: /api/v1/nodes/$&#123;1&#125;/proxy/metrics/cadvisor<br>    - job_name: &#x27;kubernetes-apiserver&#x27;<br>      kubernetes_sd_configs:<br>      - role: endpoints<br>      scheme: https<br>      tls_config:<br>        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt<br>      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token<br>      relabel_configs:<br>      - source_labels: [__meta_kubernetes_namespace, __meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]<br>        action: keep<br>        regex: default;kubernetes;https<br>    - job_name: &#x27;kubernetes-service-endpoints&#x27;<br>      kubernetes_sd_configs:<br>      - role: endpoints<br>      relabel_configs:<br>      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]<br>        action: keep<br>        regex: true<br>      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]<br>        action: replace<br>        target_label: __scheme__<br>        regex: (https?)<br>      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]<br>        action: replace<br>        target_label: __metrics_path__<br>        regex: (.+)<br>      - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]<br>        action: replace<br>        target_label: __address__<br>        regex: ([^:]+)(?::\d+)?;(\d+)<br>        replacement: $1:$2<br>      - action: labelmap<br>        regex: __meta_kubernetes_service_label_(.+)<br>      - source_labels: [__meta_kubernetes_namespace]<br>        action: replace<br>        target_label: kubernetes_namespace<br>      - source_labels: [__meta_kubernetes_service_name]<br>        action: replace<br>        target_label: kubernetes_service_name<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-2-创建prometheus-server的service的yaml文件"><a href="#2-4-2-创建prometheus-server的service的yaml文件" class="headerlink" title="2.4.2 创建prometheus_server的service的yaml文件"></a>2.4.2 创建prometheus_server的service的yaml文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim prometheus_server-svc.yaml</span><br>---<br>apiVersion: v1<br>kind: Service<br>metadata:<br>  name: prometheus<br>  namespace: monitoring<br>  labels:<br>    app: prometheus<br>spec:<br>  type: NodePort<br>  ports:<br>    - port: 9090<br>      targetPort: 9090<br>      nodePort: 39090<br>      protocol: TCP<br>  selector:<br>    app: prometheus<br>    component: server<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-3-下载prometheus-server的镜像并上传到harbor"><a href="#2-4-3-下载prometheus-server的镜像并上传到harbor" class="headerlink" title="2.4.3 下载prometheus_server的镜像并上传到harbor"></a>2.4.3 下载prometheus_server的镜像并上传到harbor</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> docker pull prom/prometheus:v2.31.2</span><br><span class="hljs-meta">#</span><span class="bash"> docker tag prom/prometheus:v2.31.2 harbor.rlin.com/baseimages/prometheus:v2.31.2</span><br><span class="hljs-meta">#</span><span class="bash"> docker push harbor.rlin.com/baseimages/prometheus:v2.31.2</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-4-创建prometheus-server的yaml文件"><a href="#2-4-4-创建prometheus-server的yaml文件" class="headerlink" title="2.4.4 创建prometheus_server的yaml文件"></a>2.4.4 创建prometheus_server的yaml文件</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> vim prometheus_server-deployment.yaml</span><br>---<br>apiVersion: apps/v1<br>kind: Deployment<br>metadata:<br>  name: prometheus-server<br>  namespace: monitoring<br>  labels:<br>    app: prometheus<br>spec:<br>  replicas: 1<br>  selector:<br>    matchLabels:<br>      app: prometheus<br>      component: server<br>    #matchExpressions:<br>    #- &#123;key: app, operator: In, values: [prometheus]&#125;<br>    #- &#123;key: component, operator: In, values: [server]&#125;<br>  template:<br>    metadata:<br>      labels:<br>        app: prometheus<br>        component: server<br>      annotations:<br>        prometheus.io/scrape: &#x27;false&#x27;<br>    spec:<br>      nodeName: 10.0.0.102 #这里绑定了将prometheus_server在哪个节点上创建<br>      serviceAccountName: monitor<br>      containers:<br>      - name: prometheus<br>        image: harbor.rlin.com/baseimages/prometheus:v2.31.2<br>        imagePullPolicy: IfNotPresent<br>        command:<br>          - prometheus<br>          - --config.file=/etc/prometheus/prometheus.yml<br>          - --storage.tsdb.path=/prometheus<br>          - --storage.tsdb.retention=720h<br>          - --web.enable-lifecycle<br>        ports:<br>        - containerPort: 9090<br>          protocol: TCP<br>        volumeMounts:<br>        - mountPath: /etc/prometheus/prometheus.yml<br>          name: prometheus-config<br>          subPath: prometheus.yml<br>        - mountPath: /prometheus/<br>          name: prometheus-storage-volume<br>      volumes:<br>        - name: prometheus-config<br>          configMap:<br>            name: prometheus-config<br>            items:<br>              - key: prometheus.yml<br>                path: prometheus.yml<br>                mode: 0644<br>        - name: prometheus-storage-volume #挂载可以使用nfs，这里只使用hostpath讲数据放到物理机上<br>          hostPath:<br>           path: /data/prometheusdata<br>           type: Directory<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-5-创建数据目录并授权"><a href="#2-4-5-创建数据目录并授权" class="headerlink" title="2.4.5 创建数据目录并授权"></a>2.4.5 创建数据目录并授权</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> mkdir -p /data/prometheusdata</span><br><span class="hljs-meta">#</span><span class="bash"> chown 65534.65534 /data/prometheusdata</span><br><span class="hljs-meta">#</span><span class="bash"> chmod 777 /data/prometheusdata</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-6-创建监控账号并授权"><a href="#2-4-6-创建监控账号并授权" class="headerlink" title="2.4.6 创建监控账号并授权"></a>2.4.6 创建监控账号并授权</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">创建账号</span><br><span class="hljs-meta">#</span><span class="bash"> kubectl create serviceaccount monitor -n monitoring</span><br><span class="hljs-meta">#</span><span class="bash">授权</span><br><span class="hljs-meta">#</span><span class="bash"> kubectl create clusterrolebinding monitor-clusterrolebinding -n monitoring --clusterrole=cluster-admin --serviceaccount=monitoring:monitor</span><br>clusterrolebinding.rbac.authorization.k8s.io/monitor-clusterrolebinding created<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-7-创建configMap，service和pod"><a href="#2-4-7-创建configMap，service和pod" class="headerlink" title="2.4.7 创建configMap，service和pod"></a>2.4.7 创建configMap，service和pod</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f prometheus_server-configMap.yaml</span><br>configmap/prometheus-config created<br><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f prometheus_server-deployment.yaml</span><br>deployment.apps/prometheus-server created<br><span class="hljs-meta">#</span><span class="bash"> kubectl apply -f prometheus_server-svc.yaml</span><br>service/prometheus created<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-8-检查prometheus资源信息信息"><a href="#2-4-8-检查prometheus资源信息信息" class="headerlink" title="2.4.8 检查prometheus资源信息信息"></a>2.4.8 检查prometheus资源信息信息</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">svc</span><br><span class="hljs-meta">#</span><span class="bash"> kubectl get svc -n monitoring</span><br>NAME         TYPE       CLUSTER-IP    EXTERNAL-IP   PORT(S)          AGE<br>prometheus   NodePort   10.100.98.0   &lt;none&gt;        9090:39090/TCP   2m4s<br><span class="hljs-meta">#</span><span class="bash">configmap</span><br><span class="hljs-meta">#</span><span class="bash"> kubectl get configmaps -n monitoring</span><br>NAME                DATA   AGE<br>kube-root-ca.crt    1      8h<br>prometheus-config   1      3m38s<br><span class="hljs-meta">#</span><span class="bash">clusterrolebinding</span><br><span class="hljs-meta">#</span><span class="bash"> kubectl get clusterrolebindings.rbac.authorization.k8s.io | grep monitor-clusterrolebinding</span><br>monitor-clusterrolebinding                             ClusterRole/cluster-admin<br><span class="hljs-meta">#</span><span class="bash">serviceaccount</span><br><span class="hljs-meta">#</span><span class="bash"> kubectl get serviceaccount -n monitoring</span><br>NAME      SECRETS   AGE<br>default   0         8h<br>monitor   0         2m17s<br><span class="hljs-meta">#</span><span class="bash"> kubectl get pod -n monitoring</span><br>NAME                                 READY   STATUS    RESTARTS   AGE<br>cadvisor-2f97f                       1/1     Running   0          8h<br>cadvisor-c2nnt                       1/1     Running   0          8h<br>cadvisor-xslhr                       1/1     Running   0          8h<br>node-exporter-f6qjf                  1/1     Running   0          7h2m<br>node-exporter-gtqws                  1/1     Running   0          7h2m<br>node-exporter-qdrr2                  1/1     Running   0          7h2m<br>prometheus-server-65cd657ff6-gxczc   1/1     Running   0          2m14s<br></code></pre></td></tr></table></figure>
+
+<h3 id="2-4-7-检查prometheus-server的网页端查看目标"><a href="#2-4-7-检查prometheus-server的网页端查看目标" class="headerlink" title="2.4.7 检查prometheus_server的网页端查看目标"></a>2.4.7 检查prometheus_server的网页端查看目标</h3><p>浏览器访问：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">10.0.0.102:39090/targets<br></code></pre></td></tr></table></figure>
+
+<p><img src="C:\Users\kinci\Desktop\blog-picture\prometheus\prometheus-283.png" srcset="/blog/img/loading.gif"></p>
+<h1 id="三、cadvisor指标数据"><a href="#三、cadvisor指标数据" class="headerlink" title="三、cadvisor指标数据"></a>三、cadvisor指标数据</h1>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/prometheus-cadvisor-kubernetes/">prometheus cadvisor kubernetes</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/blog/2023/04/20/Prometheus%E4%B9%8Bkube-state-metrics%E7%BB%84%E4%BB%B6%E7%9B%91%E6%8E%A7%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Prometheus之kube-state-metrics组件监控（十一）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/03/07/java%E5%BE%AE%E6%9C%8D%E5%8A%A1/">
+                        <span class="hidden-mobile">java微服务</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+<!-- SCRIPTS -->
+
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" ></script>
+<script  src="/blog/js/debouncer.js" ></script>
+<script  src="/blog/js/events.js" ></script>
+<script  src="/blog/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/blog/js/lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js" ></script>
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+      typing(title)
+      
+    })(window, document);
+  </script>
+
+
+
+  <script  src="/blog/js/local-search.js" ></script>
+  <script>
+    (function () {
+      var path = "/blog/local-search.xml";
+      var inputArea = document.querySelector("#local-search-input");
+      inputArea.onclick = function () {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+        this.onclick = null
+      }
+    })()
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/blog/js/boot.js" ></script>
+
+
+
+</body>
+</html>

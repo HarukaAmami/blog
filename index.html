@@ -181,6 +181,84 @@
     <article class="col-12 col-md-12 mx-auto index-info">
       <h1 class="index-header">
         
+        <a href="/blog/2023/04/20/Prometheus%E4%B9%8Bkube-state-metrics%E7%BB%84%E4%BB%B6%E7%9B%91%E6%8E%A7%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89/">Prometheus之kube-state-metrics组件监控（十一）</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2023/04/20/Prometheus%E4%B9%8Bkube-state-metrics%E7%BB%84%E4%BB%B6%E7%9B%91%E6%8E%A7%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89/">
+          
+          
+            
+          
+          kube-state-metrics 组件介绍Kube-state-metrics：通过监听API Server生成有关资源对象的状态指标，比如Deployment、Node、Pod。需要注意的是kube-state-metrics的使用场景不是用于监控对方是否存活，而是用于周期性获取目标对象的metrics指标数据并在web界面进行显示或被prometheus抓取（如pod的状态是running
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-04-20 16:04" pubdate>
+              2023-04-20
+            </time>
+          </div>
+        
+        
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/blog/2023/04/17/Prometheus%E4%B9%8Bcadvisor%E7%9B%91%E6%8E%A7%EF%BC%88%E5%8D%81%EF%BC%89/">Prometheus之cadvisor监控</a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/blog/2023/04/17/Prometheus%E4%B9%8Bcadvisor%E7%9B%91%E6%8E%A7%EF%BC%88%E5%8D%81%EF%BC%89/">
+          
+          
+            
+          
+          cadvisor监控pod资源一、cadvisor部署1.1 docker部署cadvisor使用docker部署与使用containerd部署的参数几乎一样。所以使用containerd可以参考下面的使用docker部署。
+1.1.1 安装docker过程略
+1.1.2 下载cadvisor镜像并上传到harbor因为cadvisor在谷歌的镜像仓库里，所以需要国内需要手动下载，下载过程略
+12
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2023-04-17 22:38" pubdate>
+              2023-04-17
+            </time>
+          </div>
+        
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/blog/tags/prometheus-cadvisor-kubernetes/">prometheus cadvisor kubernetes</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
         <a href="/blog/2023/03/07/java%E5%BE%AE%E6%9C%8D%E5%8A%A1/">java微服务</a>
       </h1>
 
@@ -509,97 +587,11 @@ Promet
     </article>
   </div>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2023/02/06/Prometheus%E4%B9%8B%E8%81%94%E9%82%A6%EF%BC%88%E5%85%AB%EF%BC%89/">Prometheus之联邦（八）</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2023/02/06/Prometheus%E4%B9%8B%E8%81%94%E9%82%A6%EF%BC%88%E5%85%AB%EF%BC%89/">
-          
-          
-            
-          
-          Prometheus之联邦一、prometheus联邦简介1.1 什么是联邦集群一个prometheus server联邦下面有多个prometheus server的联邦节点，这些联邦节点下有多个exproter。从exporter采集到的数据最终都会汇总到prometheus server联邦上。
-
-
-一个prometheus server（简称A）下有多个prometheus server（
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-02-06 14:14" pubdate>
-              2023-02-06
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/prometheus/">prometheus</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <article class="col-12 col-md-12 mx-auto index-info">
-      <h1 class="index-header">
-        
-        <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%8E%A2%E7%B4%A2PromQL%EF%BC%88%E4%B8%89%EF%BC%89/">Prometheus之探索PromQL（三）</a>
-      </h1>
-
-      <p class="index-excerpt">
-        <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%8E%A2%E7%B4%A2PromQL%EF%BC%88%E4%B8%89%EF%BC%89/">
-          
-          
-            
-          
-          探索PromQL通过PromQL用户可以非常方便地对监控样本数据进行统计分析，PromQL支持常见的运算操作符，同时PromQL中还提供了大量的内置函数可以实现对数据的高级处理。当然在学习PromQL之前，还需要了解Prometheus的样本数据模型。PromQL作为Prometheus的核心能力除了实现数据的对外查询和展现，同时告警监控也是依赖PromQL实现的。
-Prometheu提供一个函数
-        </a>
-      </p>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>
-            <time datetime="2023-01-10 10:58" pubdate>
-              2023-01-10
-            </time>
-          </div>
-        
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/blog/tags/prometheus/">prometheus</a>
-            
-          </div>
-        
-      </div>
-    </article>
-  </div>
-
 
 
   <nav aria-label="navigation">
     <span class="pagination" id="pagination">
-      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/10/">10</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
+      <span class="page-number current">1</span><a class="page-number" href="/blog/page/2/">2</a><a class="page-number" href="/blog/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/blog/page/11/">11</a><a class="extend next" rel="next" href="/blog/page/2/"><i class="iconfont icon-arrowright"></i></a>
     </span>
   </nav>
   
