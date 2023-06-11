@@ -17,9 +17,25 @@
   <meta name="description" content="">
   <meta name="author" content="rlin">
   <meta name="keywords" content="">
-  <title>归档 - rlin的运维笔记</title>
+  <title>xshell使用密钥方式连接远程主机 - rlin的运维笔记</title>
 
   <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/blog/lib/hint/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10.4.0/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  
 
 
 
@@ -47,7 +63,7 @@
 
 
 <body>
-  <header style="height: 60vh;">
+  <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -146,9 +162,46 @@
       <div class="full-bg-img">
         <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
           <div class="page-header text-center fade-in-up">
-            <span class="h2" id="subtitle" title="归档">
+            <span class="h2" id="subtitle" title="xshell使用密钥方式连接远程主机">
               
             </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2023-05-12 12:39" pubdate>
+        2023年5月12日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      245 字
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      3
+       分钟
+    </span>
+  
+
+  
+  
+</div>
 
             
           </div>
@@ -161,94 +214,98 @@
 
   <main>
     
-      <div class="container nopadding-x-md">
-        <div class="py-5" id="board"
-          >
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
-                
-
-<div class="list-group">
-  <p class="h4">共计 104 篇文章</p>
-  <hr>
-  
-  
-    
       
-      <p class="h5">2023</p>
-    
-    <a href="/blog/2023/02/12/MySQL%E4%B9%8B%E7%94%A8%E6%88%B7%E4%B8%8E%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">MySQL之用户与权限管理</span>
-      <time style="float: right;">02-12</time>
-    </a>
-  
-    
-    <a href="/blog/2023/02/08/Prometheus%E4%B9%8B%E5%AD%98%E5%82%A8%E7%B3%BB%E7%BB%9F%EF%BC%88%E4%B9%9D%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Prometheus之存储系统（九）</span>
-      <time style="float: right;">02-08</time>
-    </a>
-  
-    
-    <a href="/blog/2023/02/06/Prometheus%E4%B9%8B%E8%81%94%E9%82%A6%EF%BC%88%E5%85%AB%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Prometheus之联邦（八）</span>
-      <time style="float: right;">02-06</time>
-    </a>
-  
-    
-    <a href="/blog/2023/01/10/Prometheus%E4%B9%8B%E6%8E%A2%E7%B4%A2PromQL%EF%BC%88%E4%B8%89%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Prometheus之探索PromQL（三）</span>
-      <time style="float: right;">01-10</time>
-    </a>
-  
-    
-    <a href="/blog/2023/01/10/Prometheus%E4%B9%8BPushgateway%E4%BB%8B%E7%BB%8D%E4%B8%8E%E4%BD%BF%E7%94%A8%EF%BC%88%E5%85%AD%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Prometheus之Pushgateway介绍与使用（六）</span>
-      <time style="float: right;">01-10</time>
-    </a>
-  
-    
-    <a href="/blog/2023/01/10/Prometheus%E5%91%8A%E8%AD%A6%E5%A4%84%E7%90%86%EF%BC%88%E4%B8%83%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Prometheus告警处理（七）</span>
-      <time style="float: right;">01-10</time>
-    </a>
-  
-    
-    <a href="/blog/2023/01/10/Prometheus%E5%AE%89%E8%A3%85%E4%B8%8E%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Prometheus安装与初步使用（二）</span>
-      <time style="float: right;">01-10</time>
-    </a>
-  
-    
-    <a href="/blog/2023/01/10/Promehteus%E7%AE%80%E4%BB%8B%EF%BC%88%E4%B8%80%EF%BC%89/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Promehteus简介（一）</span>
-      <time style="float: right;">01-10</time>
-    </a>
-  
-</div>
 
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">xshell使用密钥方式连接远程主机</h1>
+            
+            <div class="markdown-body">
+              <h1 id="一、用户生产秘钥"><a href="#一、用户生产秘钥" class="headerlink" title="一、用户生产秘钥"></a>一、用户生产秘钥</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# ssh-keygen <br>Generating public/private rsa key pair.<br>Enter file in which to save the key (/root/.ssh/id_rsa): <br>Created directory &#x27;/root/.ssh&#x27;.<br>Enter passphrase (empty for no passphrase): <br>Enter same passphrase again: <br>Your identification has been saved in /root/.ssh/id_rsa.<br>Your public key has been saved in /root/.ssh/id_rsa.pub.<br>The key fingerprint is:<br>SHA256:LEBIHpNnFpw3QODIohIRe+MXb9bDAQ/XW2yLr1mNkPk root@CentOS7.9<br>The key&#x27;s randomart image is:<br>+---[RSA 2048]----+<br>|oo=*=+o .. .     |<br>|.*o+* o=  . +    |<br>|=.=+o. .o  B .   |<br>|o+ . + + .* .    |<br>|o . . = S  + o   |<br>|.  . o . .  E .  |<br>|           +     |<br>|          o      |<br>|                 |<br>+----[SHA256]-----+<br></code></pre></td></tr></table></figure>
 
-  <nav aria-label="navigation">
-    <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/blog/archives/2023/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/blog/archives/2023/">1</a><span class="page-number current">2</span>
-    </span>
-  </nav>
-  
-  <script>
-    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
-      ele.href += '#board';
-    }
-  </script>
+<h1 id="二、修改ssh配置文件"><a href="#二、修改ssh配置文件" class="headerlink" title="二、修改ssh配置文件"></a>二、修改ssh配置文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# vim /etc/ssh/sshd_config<br>PasswordAuthentication no  # 不允许密码验证登录<br>PubkeyAuthentication yes   # 允许公钥验证登录<br>AuthorizedKeysFile .ssh/authorized_keys # 指定公钥文件路径（可以不改）<br></code></pre></td></tr></table></figure>
 
+<h1 id="三、重启ssh"><a href="#三、重启ssh" class="headerlink" title="三、重启ssh"></a>三、重启ssh</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# systemctl restart ssh<br></code></pre></td></tr></table></figure>
 
+<h1 id="四、添加authorized-keys文件"><a href="#四、添加authorized-keys文件" class="headerlink" title="四、添加authorized_keys文件"></a>四、添加authorized_keys文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">[root@CentOS7 ~]# cd .ssh/<br>[root@CentOS7 .ssh]# cat id_rsa.pub &gt;&gt; authorized_keys<br>[root@CentOS7 .ssh]# chmod 600 authorized_keys<br></code></pre></td></tr></table></figure>
 
+<h1 id="五、将私钥发送到桌面并导入到xshell"><a href="#五、将私钥发送到桌面并导入到xshell" class="headerlink" title="五、将私钥发送到桌面并导入到xshell"></a>五、将私钥发送到桌面并导入到xshell</h1><p>过程略</p>
+<h1 id="六、登录远程主机"><a href="#六、登录远程主机" class="headerlink" title="六、登录远程主机"></a>六、登录远程主机</h1><ul>
+<li>添加新会话</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\linux\linux01.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>点击“用户身份验证”，方式选择“Public Key”，输入用户名，选择新添加的私钥</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\linux\linux02.png" srcset="/blog/img/loading.gif"></p>
+<ul>
+<li>连接远程服务器</li>
+</ul>
+<p><img src="C:\Users\kinci\Desktop\blog-picture\linux\linux03.png" srcset="/blog/img/loading.gif"></p>
 
-              </div>
             </div>
-          </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/blog/tags/Linux/">Linux</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/blog/2023/04/23/%E9%9D%A2%E8%AF%95%E9%97%AE%E9%A2%98%E6%95%B4%E7%90%86/">
+                        <span class="hidden-mobile">面试问题整理</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
         </div>
       </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
     
 
     
@@ -328,9 +385,15 @@
 
 
 
+  <script  src="https://cdn.jsdelivr.net/npm/tocbot@4.12.0/dist/tocbot.min.js" ></script>
 
 
 
+  <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" ></script>
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4.3.0/anchor.min.js" ></script>
 
 
 
