@@ -194,7 +194,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      252
+      253
        分钟
     </span>
   
@@ -790,6 +790,9 @@
 <p>登录名和密码为 root</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq51.png" srcset="/blog/img/loading.gif"></p>
 <h1 id="八、Nexus"><a href="#八、Nexus" class="headerlink" title="八、Nexus"></a>八、Nexus</h1><p>Nexus 是一个强大的 Maven 仓库管理器，它极大地简化了自己内部仓库的维护和外部仓库的访问。</p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9dca46563492">https://www.jianshu.com/p/9dca46563492</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_29974229/article/details/124319195">https://blog.csdn.net/qq_29974229/article/details/124319195</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/jxlhljh/article/details/118296204">https://blog.csdn.net/jxlhljh/article/details/118296204</a></p>
 <p>maven 官方仓库：<a target="_blank" rel="noopener" href="http://repo.maven.apache.org/">http://repo.maven.apache.org/</a></p>
 <p>官方下载页面：<a target="_blank" rel="noopener" href="https://help.sonatype.com/repomanager3/download/download-archives---repository-manager-3">https://help.sonatype.com/repomanager3/download/download-archives---repository-manager-3</a></p>
 <p>官方系统依赖页面：<a target="_blank" rel="noopener" href="https://help.sonatype.com/repomanager3/product-information/system-requirements">https://help.sonatype.com/repomanager3/product-information/system-requirements</a></p>
@@ -812,12 +815,12 @@
 <p>设置密码：</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq56.png" srcset="/blog/img/loading.gif"></p>
 <p>匿名下载：</p>
-<p>启用匿名访问将默认允许未经授权的下载，浏览和搜索存储库内容，可以通过 编辑分配给匿名用户的角色来更改未经身份验证的用户的权限。</p>
+<p>启用匿名访问将默认允许未经授权的下载，浏览和搜索存储库内容，可以通过编辑分配给匿名用户的角色来更改未经身份验证的用户的权限。</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq57.png" srcset="/blog/img/loading.gif"></p>
 <p>完成：</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq58.png" srcset="/blog/img/loading.gif"></p>
-<h3 id="8-1-4-验证默认仓库"><a href="#8-1-4-验证默认仓库" class="headerlink" title="8.1.4 验证默认仓库"></a>8.1.4 验证默认仓库</h3><p><strong>Hosted</strong>：本地仓库，通常我们会部署自己的构件到这一类型的仓库，比如公司 的第三方库</p>
-<p><strong>Proxy</strong>：代理仓库，它们被用来代理远程的公共仓库，如 maven 中央仓库(官方 仓库)。</p>
+<h3 id="8-1-4-验证默认仓库"><a href="#8-1-4-验证默认仓库" class="headerlink" title="8.1.4 验证默认仓库"></a>8.1.4 验证默认仓库</h3><p><strong>Hosted</strong>：本地仓库，通常我们会部署自己的构件到这一类型的仓库，比如公司的第三方库</p>
+<p><strong>Proxy</strong>：代理仓库，它们被用来代理远程的公共仓库，如 maven 中央仓库(官方仓库)。</p>
 <p><strong>Group</strong>：仓库组，用来合并多个 hosted/proxy 仓库，当你的项目希望在多个 repository 使用资源时就不需要多次引用了，只需要引用一个 group 即可。</p>
 <p><img src="https://lwx-1304975851.cos.ap-guangzhou.myqcloud.com/myblog/rabbitmq/rabbitmq59.png" srcset="/blog/img/loading.gif"></p>
 <h3 id="8-1-5-service文件"><a href="#8-1-5-service文件" class="headerlink" title="8.1.5 service文件"></a>8.1.5 service文件</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs sh">vim /lib/systemd/system/nexus.service<br>[Unit]<br>Description=nexus service<br>After=network.target<br><br>[Service]<br>Type=forking<br>LimitNOFILE=65536<br>ExecStart=/opt/nexus/bin/nexus start<br>ExecStop=/opt/nexus/bin/nexus stop<br>User=nexus <span class="hljs-comment">#或root</span><br>Restart=on-abort<br><br>[Install]<br>WantedBy=multi-user.target<br><br><span class="hljs-comment"># systemctl daemon-reload</span><br><span class="hljs-comment"># systemctl restart nexus.service</span><br><span class="hljs-comment"># systemctl enable nexus.service</span><br></code></pre></td></tr></table></figure>
